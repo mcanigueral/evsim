@@ -1,6 +1,19 @@
 
 # Utils -------------------------------------------------------------------
 
+#' Convert a data.frame or tibble to timeseries data.frame
+#'
+#' @param df data.frame or tibble
+#'
+#' @return timeseries data.frame
+#' @export
+#'
+#' @importFrom xts xts
+#'
+df_to_ts <- function(df) {
+  xts::xts(df[-1], order.by = df[[1]])
+}
+
 #' Round to nearest interval
 #'
 #' @param dbl number to round
