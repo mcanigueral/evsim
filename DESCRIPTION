@@ -1,0 +1,24 @@
+Package: evsim
+Title: Extension of {evprof} package to simulate EV charging sessions from Gaussian Mixture Models built in {evprof}
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Marc",
+           family = "Cañigueral",
+           role = c("aut", "cre"),
+           email = "marc.canigueral@udg.edu",
+           comment = c(ORCID = "https://orcid.org/0000-0001-9724-5829")
+           )
+Description: This package provides the function to simulate Electric Vehicles charging sessions using models built in {evprof} package.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports:
+  MASS,
+  dplyr,
+  lubridate,
+  purrr,
+  rlang,
+  tidyr,
+  xts
