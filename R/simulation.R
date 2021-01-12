@@ -167,7 +167,7 @@ get_profile_day_sessions <- function(profile_name, day, ev_models, connection_lo
   }
 
   profile_idx <- which(day_models[["profile"]] == profile_name)
-  profile_n_sessions <- round(day_n_sessions*day_models[["profile_ratio"]][[profile_idx]])
+  profile_n_sessions <- round(day_n_sessions*day_models[["ratio"]][[profile_idx]])
 
   if (profile_n_sessions == 0) {
     return( NULL )
@@ -204,9 +204,8 @@ get_profile_sessions <- function(profile_name, dates, ev_models, connection_log,
 
 #' Simualte sessions given datetime sequence and models
 #'
-#' @param ev_models tibble with columns: `model_name`, `months`, `wdays`, `models`, `n_sessions`
-#' The column `models` must be a list of tibbles, while each tibble must have the columns
-#'  `profile`, `profile_ratio` (between 0 and 1), `connection_models` and `energy_models`
+#' @param evmodel object of type `evmodel` (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
+#' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
 #' @param charging_powers charging powers proportions (tibble) with two columns: `power` and `ratio`.
 #' The powers must be in kW and the ratios between 0 and 1.
 #' @param dates datetime vector with dates to simualte (datetime values with hour set to 00:00)
@@ -218,13 +217,16 @@ get_profile_sessions <- function(profile_name, dates, ev_models, connection_log,
 #' @export
 #'
 #' @importFrom purrr map map_dfr set_names
-#' @importFrom dplyr mutate any_of row_number arrange
+#' @importFrom dplyr mutate any_of row_number arrange left_join
 #' @importFrom rlang .data
 #' @importFrom xts align.time
 #'
-simulate_sessions <- function(ev_models, charging_powers, dates, interval_mins, connection_log=TRUE, energy_log=TRUE) {
+simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, interval_mins, connection_log=TRUE, energy_log=TRUE) {
+  ev_models <- evmodel[["models"]]
+  ev_models <- left_join(ev_models, sessions_day, by = 'time_cycle')
+
   # Obtain sessions from all profiles in models
-  profiles <- unique(unlist(map(ev_models[["models"]], ~ .x[["profile"]])))
+  profiles <- unique(unlist(map(ev_models[["user_profiles"]], ~ .x[["profile"]])))
 
   sessions_estimated <- map_dfr(
     set_names(profiles, profiles),

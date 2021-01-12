@@ -5,7 +5,8 @@
 \title{Simualte sessions given datetime sequence and models}
 \usage{
 simulate_sessions(
-  ev_models,
+  evmodel,
+  sessions_day,
   charging_powers,
   dates,
   interval_mins,
@@ -14,9 +15,9 @@ simulate_sessions(
 )
 }
 \arguments{
-\item{ev_models}{tibble with columns: \code{model_name}, \code{months}, \code{wdays}, \code{models}, \code{n_sessions}
-The column \code{models} must be a list of tibbles, while each tibble must have the columns
-\code{profile}, \code{profile_ratio} (between 0 and 1), \code{connection_models} and \code{energy_models}}
+\item{evmodel}{object of type \code{evmodel} (see this \href{https://mcanigueral.github.io/evprof/articles/evmodel.html}{link} for more information)}
+
+\item{sessions_day}{tibble with variables \code{time_cycle} (names corresponding to \code{evmodel$models$time_cycle}) and \code{n_sessions} (number of daily sessions per day for each time-cycle model)}
 
 \item{charging_powers}{charging powers proportions (tibble) with two columns: \code{power} and \code{ratio}.
 The powers must be in kW and the ratios between 0 and 1.}

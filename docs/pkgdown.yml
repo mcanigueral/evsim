@@ -1,0 +1,10 @@
+pandoc: 2.7.3
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  evsim: evsim.html
+last_built: 2021-01-12T18:26Z
+urls:
+  reference: mcanigueral.github.io/evsim/reference
+  article: mcanigueral.github.io/evsim/articles
+

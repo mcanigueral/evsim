@@ -4,10 +4,12 @@
 \alias{print.evmodel}
 \title{\code{print} method for \code{evmodel} object class}
 \usage{
-\method{print}{evmodel}(obj)
+\method{print}{evmodel}(x, ...)
 }
 \arguments{
-\item{obj}{\code{evmodel} object}
+\item{x}{\code{evmodel} object}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 \code{print} method for \code{evmodel} object class
