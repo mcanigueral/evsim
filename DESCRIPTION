@@ -1,5 +1,5 @@
 Package: evsim
-Title: Extension of {evprof} package to simulate EV charging sessions from Gaussian Mixture Models built in {evprof}
+Title: Simulate EV sessions with {evsim}
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Marc",
