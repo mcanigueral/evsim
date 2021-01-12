@@ -22,3 +22,5 @@ Imports:
   rlang,
   tidyr,
   xts
+Depends: 
+    R (>= 2.10)

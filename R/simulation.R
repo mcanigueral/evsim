@@ -1,26 +1,12 @@
 
 # Utils -------------------------------------------------------------------
 
-#' Convert a data.frame or tibble to timeseries data.frame
-#'
-#' @param df data.frame or tibble
-#'
-#' @return timeseries data.frame
-#' @export
-#'
-#' @importFrom xts xts
-#'
-df_to_ts <- function(df) {
-  xts::xts(df[-1], order.by = df[[1]])
-}
-
 #' Round to nearest interval
 #'
 #' @param dbl number to round
 #' @param interval rounding interval
 #'
 #' @return numeric value
-#' @noRd
 #'
 round_to_interval <- function(dbl, interval) {
   round(dbl/interval)*interval
@@ -50,7 +36,6 @@ convert_time_num_to_period <- function(time_num) {
 #' @param log Logical, true if models have logarithmic transformation
 #'
 #' @return numeric vector
-#' @noRd
 #'
 #' @importFrom stats rnorm
 #'
@@ -72,7 +57,6 @@ estimate_energy <- function(n, mu, sigma, log) {
 #' @param log Logical, true if models have logarithmic transformation
 #'
 #' @return list of numeric vectors
-#' @noRd
 #'
 #' @importFrom purrr pmap
 #'
@@ -92,7 +76,6 @@ get_estimated_energy <- function(n, energy_models, log) {
 #' @param log Logical, true if models have logarithmic transformation
 #'
 #' @return vector of numeric values
-#' @noRd
 #'
 #' @importFrom MASS mvrnorm
 #'
@@ -112,7 +95,6 @@ estimate_connection <- function(n, mu, sigma, log) {
 #' @param log Logical, true if models have logarithmic transformation
 #'
 #' @return list with sessions connection values
-#' @noRd
 #'
 #' @importFrom purrr pmap
 #'
@@ -134,7 +116,6 @@ get_estimated_connections <- function(n, profile_models, log) {
 #' @param energy_log Logical, true if energy models have logarithmic transformations
 #'
 #' @return tibble
-#' @noRd
 #'
 #' @importFrom dplyr tibble
 #' @importFrom purrr simplify
@@ -164,7 +145,6 @@ estimate_sessions <- function(profile_name, n_sessions, connection_models, energ
 #' @param energy_log Logical, true if energy models have logarithmic transformations
 #'
 #' @return tibble
-#' @noRd
 #'
 #' @importFrom purrr map_lgl
 #' @importFrom lubridate month wday
@@ -214,7 +194,6 @@ get_profile_day_sessions <- function(profile_name, day, ev_models, connection_lo
 #' @param energy_log Logical, true if energy models have logarithmic transformations
 #'
 #' @return tibble
-#' @noRd
 #'
 #' @importFrom purrr map_dfr
 #'
