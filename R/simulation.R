@@ -159,7 +159,7 @@ get_profile_day_sessions <- function(profile_name, day, ev_models, connection_lo
   models_month_idx <- purrr::map_lgl(ev_models[["months"]], ~ month_day %in% .x)
   models_wday_idx <- purrr::map_lgl(ev_models[["wdays"]], ~ wday_day %in% .x)
 
-  day_models <- ev_models[["models"]][models_month_idx & models_wday_idx][[1]]
+  day_models <- ev_models[["user_profiles"]][models_month_idx & models_wday_idx][[1]]
   day_n_sessions <- ev_models[["n_sessions"]][models_month_idx & models_wday_idx][[1]]
 
   if (!(profile_name %in% day_models[["profile"]])) {
@@ -206,23 +206,26 @@ get_profile_sessions <- function(profile_name, dates, ev_models, connection_log,
 #'
 #' @param evmodel object of type `evmodel` (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
-#' @param charging_powers charging powers proportions (tibble) with two columns: `power` and `ratio`.
+#' @param charging_powers tibble with variables `power` and `ratio`
 #' The powers must be in kW and the ratios between 0 and 1.
 #' @param dates datetime vector with dates to simualte (datetime values with hour set to 00:00)
-#' @param interval_mins interval of minutes (integer) to round the sessions datetime variables
-#' @param connection_log Logical, true if connection models have logarithmic transformations
-#' @param energy_log Logical, true if energy models have logarithmic transformations
+#' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
 #'
 #' @return tibble
 #' @export
 #'
 #' @importFrom purrr map map_dfr set_names
 #' @importFrom dplyr mutate any_of row_number arrange left_join
+#' @importFrom lubridate force_tz
 #' @importFrom rlang .data
 #' @importFrom xts align.time
 #'
-simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, interval_mins, connection_log=TRUE, energy_log=TRUE) {
+simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, resolution) {
   ev_models <- evmodel[["models"]]
+  connection_log <- evmodel[['metadata']][['connection_log']]
+  energy_log <- evmodel[['metadata']][['energy_log']]
+  tzone <- evmodel[['metadata']][['tzone']]
+
   ev_models <- left_join(ev_models, sessions_day, by = 'time_cycle')
 
   # Obtain sessions from all profiles in models
@@ -237,10 +240,10 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, int
   # Standardize the variables
   sessions_estimated <- sessions_estimated %>%
     mutate(
-      ConnectionStartDateTime = xts::align.time(.data$start_dt, n=60*interval_mins),
-      ConnectionHours = round_to_interval(.data$duration, interval_mins/60),
+      ConnectionStartDateTime = force_tz(align.time(.data$start_dt, n=60*resolution), tzone),
+      ConnectionHours = round_to_interval(.data$duration, resolution/60),
       Power = sample(charging_powers[["power"]], size = nrow(sessions_estimated), prob = charging_powers[["ratio"]], replace = T),
-      Energy = round_to_interval(.data$energy, .data$Power*interval_mins/60)
+      Energy = round_to_interval(.data$energy, .data$Power*resolution/60)
     )
 
   # Limit energy charged according to power
@@ -250,7 +253,7 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, int
 
   # Increase energy resulting in 0kWh due to power round
   e0_idx <- sessions_estimated$Energy <= 0
-  sessions_estimated[e0_idx, "Energy"] <- sessions_estimated[e0_idx, "Power"]*interval_mins/60
+  sessions_estimated[e0_idx, "Energy"] <- sessions_estimated[e0_idx, "Power"]*resolution/60
 
   # Calculate charging time according to power and energy
   sessions_estimated <- sessions_estimated %>%

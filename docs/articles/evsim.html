@@ -60,7 +60,8 @@
 
       
 
-      </header><script src="evsim_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="evsim_files/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="evsim_files/htmlwidgets-1.5.3/htmlwidgets.js"></script><script src="evsim_files/jquery-1.11.1/jquery.min.js"></script><link href="evsim_files/dygraphs-1.1.1/dygraph.css" rel="stylesheet">
+<script src="evsim_files/dygraphs-1.1.1/dygraph-combined.js"></script><script src="evsim_files/dygraphs-1.1.1/shapes.js"></script><script src="evsim_files/moment-2.8.4/moment.js"></script><script src="evsim_files/moment-timezone-0.2.5/moment-timezone-with-data.js"></script><script src="evsim_files/moment-fquarter-1.0.0/moment-fquarter.min.js"></script><script src="evsim_files/dygraphs-binding-1.1.1.6/dygraphs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to {evsim}</h1>
@@ -73,109 +74,193 @@
 
     
     
-<p>This package provides the tools to simulate new EV charging session, on the basis of the <strong>Gaussian Mixture Models (GMM)</strong> of different EV user profiles found and modeled with <a href="https://mcanigueral.github.io/evprof/"><code>{evprof}</code></a>. The EV model obtained with <code>evprof::get_ev_model</code> function is an object of class <code>evmodel</code>, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read <a href="https://mcanigueral.github.io/evprof/articles/evmodel.html">this article</a> from website of <code>{evprof}</code> package.</p>
+<p>This package provides the tools to simulate new EV charging session, on the basis of the <strong>Gaussian Mixture Models (GMM)</strong> of different EV user profiles found and modeled with <a href="https://mcanigueral.github.io/evprof/"><code>{evprof}</code></a>. The EV model obtained with <a href="https://mcanigueral.github.io/evprof/reference/get_ev_model.html"><code>evprof::get_ev_model()</code></a> function is an object of class <code>evmodel</code>, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read <a href="https://mcanigueral.github.io/evprof/articles/evmodel.html">this article</a> from website of <code>{evprof}</code> package.</p>
 <div id="required-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#required-data" class="anchor"></a>Required data</h2>
 <p>The only function of <code>{evsim}</code> package necessary to simulate new EV sessions is function <code><a href="../reference/simulate_sessions.html">simulate_sessions()</a></code>, which returns a tibble of EV charging sessions. The required input arguments to run this function are:</p>
 <ul>
 <li>The EV model (object of class <code>evmodel</code>)</li>
-<li>Number of daily sessions of each time-cycle model</li>
-<li>User profiles proportions (for each time-cycle model) relative to the number of daily sessions</li>
-<li>Charging powers proportions relative to the number of daily sessions</li>
+<li>Number of daily sessions for each time-cycle model</li>
+<li>Charging powers shares relative to the number of daily sessions</li>
 <li>Dates to simulate</li>
 </ul>
-<p>The standard format of the EV models object defined by <code>{evprof}</code> contains the three first points of the required data (sessions/day/time-cycle and user profiles proportions and GMM for each time-cycle). The EV models object used for this example:</p>
+<div id="ev-model" class="section level3">
+<h3 class="hasAnchor">
+<a href="#ev-model" class="anchor"></a>EV model</h3>
+<p>Let’s take a look to the example EV model:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">ev_model</span><span class="op">)</span></code></pre></div>
-<pre><code>## EV sessions model of class "evprof", created on 2020-12-16 
+<pre><code>## EV sessions model of class "evprof", created on 2021-01-14 
+## Timezone of the model: Europe/Amsterdam 
 ## The Gaussian Mixture Models of EV user profiles are built in:
 ##   - Connection Models: logarithmic scale
 ##   - Energy Models: logarithmic scale
 ## 
-## Model composed by 4 time-cycle models:
-##   1. :
-##      Months = 1-4, Week days = 1-4
-##      User profiles = 
-##   2. :
-##      Months = 1-4, Week days = 5
-##      User profiles = 
-##   3. :
-##      Months = 1-4, Week days = 6
-##      User profiles = 
-##   4. :
-##      Months = 1-4, Week days = 7
-##      User profiles =</code></pre>
-<!-- ### EV user profiles models -->
-<!-- To simulate an equivalent type of sessions we have to find the following parameters: -->
-<!-- * **Charging rates distribution**: We can get the current charging power distribution with function `get_charging_rates_distribution`: -->
-<!-- ```{r charging power distribution} -->
-<!-- charging_rates <- get_charging_rates_distribution(sessions_demand) %>% -->
-<!--   select(power, ratio) %>% -->
-<!--   mutate(power = c(3.7, 7.3, 11, 22)) -->
-<!-- print(charging_rates) -->
-<!-- ``` -->
-<!-- * **Number of sessions per day**: The daily number of sessions for each model -->
-<!-- ```{r daily number of sessions} -->
-<!-- n_sessions <- sessions_demand %>% -->
-<!--   group_by(Timecycle) %>% -->
-<!--   summarise(n = n()) %>% -->
-<!--   mutate(n_day = round(n/c(16, 4, 4, 4))) -->
-<!-- print(n_sessions) -->
-<!-- ``` -->
-<!-- * **Profiles distribution**: The user profiles proportion for each model -->
-<!-- ```{r profiles ratios} -->
-<!-- profiles_ratios <- sessions_demand %>% -->
-<!--   group_by(Timecycle, Profile) %>% -->
-<!--   summarise(n = n()) %>% -->
-<!--   mutate(profile_ratio = n/sum(n)) %>% -->
-<!--   select(model_name = Timecycle, profile = Profile, profile_ratio) -->
-<!-- head(profiles_ratios, 10) -->
-<!-- ``` -->
-<!-- The function `simulate_sessions` of package `{evsim}` lets to simulate the sessions with the configuration above, together with the `dates` of the simulated sessions and the `interval_mins` as the times resolution (in minutes). Moreover, parameters `connection_log` and `energy_log` must be TRUE if the models have been built in a logarithmic scale. -->
-<!-- ```{r estimate sessions, eval=F} -->
-<!-- library(evsim) -->
-<!-- ev_models <- readRDS('results/arnhem2_log_models.rds')[['models']] -->
-<!-- my_ev_models <- ev_models %>% -->
-<!--   mutate( -->
-<!--     n_sessions = n_sessions$n_day # Update the number of sessions -->
-<!--   ) %>% -->
-<!--   update_profiles_ratios( -->
-<!--     profiles_ratios # Update the distribution of user profiles -->
-<!--   ) -->
-<!-- sessions_estimated <- simulate_sessions( -->
-<!--   my_ev_models, -->
-<!--   charging_rates, -->
-<!--   dates = unique(date(dttm_seq)), -->
-<!--   interval_mins, -->
-<!--   connection_log = TRUE, -->
-<!--   energy_log = TRUE -->
-<!-- ) -->
-<!-- ``` -->
-<!-- ```{r estimated sessions, eval=t, echo=F} -->
-<!-- # Check that the charging rates distribution is correct with: -->
-<!-- # sessions_estimated %>% get_charging_rates_distribution() -->
-<!-- head(sessions_estimated) -->
-<!-- ``` -->
-<!-- Finally, we can calculate the estimated demand and compare it with the real demand: -->
-<!-- ```{r simualted demand, eval=F} -->
-<!-- estimated_demand <- sessions_estimated %>% -->
-<!--   get_demand(dttm_seq) -->
-<!-- comparison_demand <- tibble( -->
-<!--   datetime = dttm_seq, -->
-<!--   demand_real = rowSums(demand[-1]), -->
-<!--   demand_estimated = rowSums(estimated_demand[-1]) -->
-<!-- ) -->
-<!-- ``` -->
-<!-- ```{r simualted demand plot} -->
-<!-- comparison_demand %>% -->
-<!--   df_to_ts() %>% -->
-<!--   dygraph(ylab = 'kW') %>% -->
-<!--   dySeries('demand_real', 'Real demand', color = 'black', strokePattern = 'dashed', strokeWidth = 2) %>% -->
-<!--   dySeries('demand_estimated', 'Estimated demand', color = 'navy', fillGraph = T) %>% -->
-<!--   dyCSS("www/dystyle.css") -->
-<!-- ``` -->
-<!-- It is obvious that the two demand curves don't match perfectly because we are not doing a forecasting model but a simulation model, without inputs that conditionate a particular output. What we can compare is the day times where the demand peaks or valleys occur, and this is a positive comparison for our models, which coincide almost perfectly with the real demand. Moreover, the peak values are in general in concordance with the real peaks. -->
+## Model composed by 4 time-cycles:
+##   1. Workday:
+##      Months = 1-12, Week days = 1-4
+##      User profiles = Dinner, Shortstay, Visit, Worktime, Commuters, Home, Pillow
+##   2. Friday:
+##      Months = 1-12, Week days = 5
+##      User profiles = Dinner, Shortstay, Visit, Worktime, Commuters, Home, Pillow
+##   3. Saturday:
+##      Months = 1-12, Week days = 6
+##      User profiles = Dinner, Shortstay, Visit, Home, Pillow
+##   4. Sunday:
+##      Months = 1-12, Week days = 7
+##      User profiles = Dinner, Shortstay, Visit, Home, Pillow</code></pre>
+<p>We have 4 different time-cycles in this case (Workday, Friday, Saturday and Sunday), and each one has its corresponding user profiles. At the same time, each user profile of each time-cycle is modeled by two different models:</p>
+<ul>
+<li>Connection Models: combination of multiple Gaussian distributions of two variables (Connection Start Time and Connection Duration)</li>
+<li>Energy Models: combination of multiple Gaussian distributions of one variable (Energy)</li>
+</ul>
+<p>Moreover, each User profile has a corresponding ratio over the total number of daily sessions. For example for <strong>Workday</strong> time-cycle we see the following user profiles components:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">workday_models</span> <span class="op">&lt;-</span> <span class="va">ev_model</span><span class="op">$</span><span class="va">models</span><span class="op">$</span><span class="va">user_profiles</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+
+<span class="va">workday_models</span></code></pre></div>
+<pre><code>## # A tibble: 7 x 4
+##   profile    ratio connection_models energy_models   
+##   &lt;chr&gt;      &lt;dbl&gt; &lt;list&gt;            &lt;list&gt;          
+## 1 Dinner    0.0669 &lt;tibble [1 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 2 Shortstay 0.182  &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 3 Visit     0.200  &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 4 Worktime  0.0576 &lt;tibble [1 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 5 Commuters 0.186  &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 6 Home      0.102  &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 7 Pillow    0.206  &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;</code></pre>
+<p>We can modify the ratios of the user profiles from one time-cycle with the function <code><a href="../reference/update_profiles_ratios.html">update_profiles_ratios()</a></code>. The new ratios have to be specified as a tibble with variables <code>time_cycle</code>, <code>profile</code> and <code>ratio</code>. It is not mandatory that all time-cycles appear in the <code>new_ratios</code> tibble, but for a single time-cycle all user profiles must appear. For example, let’s say we want to change only the <strong>Workday</strong> ratios with the following ones:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">new_ratios</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>
+  time_cycle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">'Workday'</span>, <span class="fl">7</span><span class="op">)</span>,
+  profile <span class="op">=</span> <span class="va">workday_models</span><span class="op">$</span><span class="va">profile</span>,
+  ratio <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.1</span><span class="op">)</span>
+<span class="op">)</span>
+
+<span class="va">new_ratios</span></code></pre></div>
+<pre><code>## # A tibble: 7 x 3
+##   time_cycle profile   ratio
+##   &lt;chr&gt;      &lt;chr&gt;     &lt;dbl&gt;
+## 1 Workday    Dinner      0  
+## 2 Workday    Shortstay   0.1
+## 3 Workday    Visit       0.1
+## 4 Workday    Worktime    0.2
+## 5 Workday    Commuters   0.2
+## 6 Workday    Home        0.3
+## 7 Workday    Pillow      0.1</code></pre>
+<p>Then, we can modify our <code>evmodel</code>object with:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ev_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/update_profiles_ratios.html">update_profiles_ratios</a></span><span class="op">(</span><span class="va">ev_model</span>, <span class="va">new_ratios</span><span class="op">)</span>
+
+<span class="va">ev_model</span><span class="op">$</span><span class="va">models</span><span class="op">$</span><span class="va">user_profiles</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
+<pre><code>## # A tibble: 7 x 4
+##   profile   ratio connection_models energy_models   
+##   &lt;chr&gt;     &lt;dbl&gt; &lt;list&gt;            &lt;list&gt;          
+## 1 Dinner      0   &lt;tibble [1 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 2 Shortstay   0.1 &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 3 Visit       0.1 &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 4 Worktime    0.2 &lt;tibble [1 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 5 Commuters   0.2 &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 6 Home        0.3 &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;
+## 7 Pillow      0.1 &lt;tibble [2 × 3]&gt;  &lt;tibble [6 × 3]&gt;</code></pre>
+<p>Note, that we set the Dinner profile’s ratio to 0. This is equivalent to discard this user profile from our simulation. To directly remove this profile from our model object, set the argument <code>discard = TRUE</code> in <code><a href="../reference/update_profiles_ratios.html">update_profiles_ratios()</a></code> function.</p>
+</div>
+<div id="number-of-sessions-per-day" class="section level3">
+<h3 class="hasAnchor">
+<a href="#number-of-sessions-per-day" class="anchor"></a>Number of sessions per day</h3>
+<p>To set the number of sessions per day to function <code><a href="../reference/simulate_sessions.html">simulate_sessions()</a></code> function we need to pass a tibble with variables <code>time_cycle</code> (names corresponding to <code>evmodel$models$time_cycle</code>) and <code>n_sessions</code> (number of daily sessions per day for each time-cycle model). For example:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">sessions_day</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>
+  time_cycle <span class="op">=</span> <span class="va">ev_model</span><span class="op">$</span><span class="va">models</span><span class="op">$</span><span class="va">time_cycle</span>,
+  n_sessions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">250</span>, <span class="fl">275</span>, <span class="fl">200</span>, <span class="fl">200</span><span class="op">)</span>
+<span class="op">)</span>
+<span class="va">sessions_day</span></code></pre></div>
+<pre><code>## # A tibble: 4 x 2
+##   time_cycle n_sessions
+##   &lt;chr&gt;           &lt;dbl&gt;
+## 1 Workday           250
+## 2 Friday            275
+## 3 Saturday          200
+## 4 Sunday            200</code></pre>
+</div>
+<div id="charging-powers-distribution" class="section level3">
+<h3 class="hasAnchor">
+<a href="#charging-powers-distribution" class="anchor"></a>Charging powers distribution</h3>
+<p>We also need to specify the ratio of each charging power rate, as a tibble with variables <code>power</code> and <code>ratio</code>. In the public charging infrastructure the most common and standard power rates are:</p>
+<ul>
+<li>3.7 kW AC</li>
+<li>7.3 kW AC</li>
+<li>11 kW AC</li>
+<li>22 kW AC</li>
+</ul>
+<p>Then we will set the following charging power distribution:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">charging_powers</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>
+  power <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3.7</span>, <span class="fl">7.3</span>, <span class="fl">11</span>, <span class="fl">22</span><span class="op">)</span>,
+  ratio <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.3</span>, <span class="fl">0.1</span><span class="op">)</span>
+<span class="op">)</span>
+<span class="va">charging_powers</span></code></pre></div>
+<pre><code>## # A tibble: 4 x 2
+##   power ratio
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1   3.7   0.2
+## 2   7.3   0.4
+## 3  11     0.3
+## 4  22     0.1</code></pre>
+</div>
+<div id="datetime-values" class="section level3">
+<h3 class="hasAnchor">
+<a href="#datetime-values" class="anchor"></a>Datetime values</h3>
+<p>The function <code><a href="../reference/simulate_sessions.html">simulate_sessions()</a></code> automatically selects the time-cycle that fits to a specific date. This is why we have to pass a vector of the dates that we want to simulate. For example:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dates_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.Date.html">seq.Date</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="st">'2019-09-10'</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="st">'2019-09-15'</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'1 day'</span><span class="op">)</span>
+<span class="va">dates_sim</span></code></pre></div>
+<pre><code>## [1] "2019-09-10" "2019-09-11" "2019-09-12" "2019-09-13" "2019-09-14"
+## [6] "2019-09-15"</code></pre>
+<p>Another datetime argument that the simulation function needs is the time resolution of the datetime variables of the sessions (connection start, connection end, charging end, …). For this example we will set a time resolution of 15 minutes, so the argument will be <code>resolution = 15</code>.</p>
+</div>
+</div>
+<div id="simulation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#simulation" class="anchor"></a>Simulation</h2>
+<p>We have now all required data and we are ready to simulate the new sessions:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">sessions_estimated</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_sessions.html">simulate_sessions</a></span><span class="op">(</span>
+  <span class="va">ev_model</span>,
+  <span class="va">sessions_day</span>, 
+  <span class="va">charging_powers</span>,
+  <span class="va">dates_sim</span>,
+  resolution <span class="op">=</span> <span class="fl">15</span>
+<span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">sessions_estimated</span><span class="op">)</span></code></pre></div>
+<pre><code>## # A tibble: 6 x 11
+##   Profile Session ConnectionStartDat… ConnectionEndDateT… ChargingStartDateT…
+##   &lt;chr&gt;   &lt;chr&gt;   &lt;dttm&gt;              &lt;dttm&gt;              &lt;dttm&gt;             
+## 1 Workti… S1      2019-09-10 07:00:00 2019-09-10 15:15:00 2019-09-10 07:00:00
+## 2 Workti… S2      2019-09-10 07:00:00 2019-09-10 17:30:00 2019-09-10 07:00:00
+## 3 Workti… S3      2019-09-10 07:15:00 2019-09-10 16:15:00 2019-09-10 07:15:00
+## 4 Workti… S4      2019-09-10 07:30:00 2019-09-10 17:15:00 2019-09-10 07:30:00
+## 5 Workti… S5      2019-09-10 07:30:00 2019-09-10 18:00:00 2019-09-10 07:30:00
+## 6 Workti… S6      2019-09-10 07:30:00 2019-09-10 16:30:00 2019-09-10 07:30:00
+## # … with 6 more variables: ChargingEndDateTime &lt;dttm&gt;, Power &lt;dbl&gt;,
+## #   Energy &lt;dbl&gt;, ConnectionHours &lt;dbl&gt;, FlexibilityHours &lt;dbl&gt;,
+## #   ChargingHours &lt;dbl&gt;</code></pre>
+<p>We have obtained a total of 1674 sessions for our 7 simulation dates, each session corresponding to a specific charging profile. We can notice that the datetime variables have a resolution of 15 minutes according to our configuration, and the energy required corresponds to product of <code>Power</code> and <code>ChargingHours</code>.</p>
+</div>
+<div id="ev-demand" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ev-demand" class="anchor"></a>EV demand</h2>
+<p>Finally, we can calculate the estimated demand with function <code><a href="../reference/get_demand.html">get_demand()</a></code>. This function needs an extra argument, <code>dttm_seq</code>, which will be the datetime sequence of the time-series demand data frame returned by the function. We will set the datetime sequence from our first to last date with a resolution of 15 minutes and the <code>Europe/Amsterdam</code> timezone (with the help of <code><a href="http://lubridate.tidyverse.org/reference/with_tz.html">lubridate::with_tz()</a></code> function):</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dttm_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.POSIXt.html">seq.POSIXt</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="st">'2019-09-10'</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="st">'2019-09-16'</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">'15 min'</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+  <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="http://lubridate.tidyverse.org/reference/with_tz.html">with_tz</a></span><span class="op">(</span><span class="st">'Europe/Amsterdam'</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">estimated_demand</span> <span class="op">&lt;-</span> <span class="va">sessions_estimated</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/get_demand.html">get_demand</a></span><span class="op">(</span><span class="va">dttm_seq</span><span class="op">)</span></code></pre></div>
+<p>And the plot of the estimated demand (making use of <a href="https://rstudio.github.io/dygraphs/"><code>{dygraphs}</code></a> package):</p>
+<div id="htmlwidget-01af192be3d9890cf26c" style="width:864px;height:432.632880098888px;" class="dygraphs html-widget"></div>
+<script type="application/json" data-for="htmlwidget-01af192be3d9890cf26c">{"x":{"attrs":{"ylabel":"Power demand (kW)","labels":["minute","Worktime","Visit","Shortstay","Home","Commuters","Pillow","Dinner"],"axes":{"x":{"pixelsPerLabel":60,"drawAxis":true},"y":{"drawAxis":true}},"legend":"onmouseover","labelsDivWidth":250,"labelsShowZeroValues":true,"labelsSeparateLines":false,"hideOverlayOnMouseOut":true,"stackedGraph":true,"fillGraph":true,"fillAlpha":0.15,"stepPlot":false,"drawPoints":false,"pointSize":1,"drawGapEdgePoints":false,"connectSeparatedPoints":false,"strokeWidth":1,"strokeBorderColor":"white","colorValue":0.5,"colorSaturation":1,"includeZero":false,"drawAxesAtZero":false,"logscale":false,"axisTickSize":3,"axisLineColor":"black","axisLineWidth":0.3,"axisLabelColor":"black","axisLabelFontSize":14,"axisLabelWidth":60,"drawGrid":true,"gridLineWidth":0.3,"rightGap":5,"digitsAfterDecimal":2,"labelsKMB":false,"labelsKMG2":false,"labelsUTC":false,"maxNumberWidth":6,"animatedZooms":false,"mobileDisableYTouch":true,"retainDateWindow":true,"disableZoom":false},"scale":"minute","annotations":[],"shadings":[],"events":[],"format":"date","data":[["2019-09-09T22:00:00.000Z","2019-09-09T22:15:00.000Z","2019-09-09T22:30:00.000Z","2019-09-09T22:45:00.000Z","2019-09-09T23:00:00.000Z","2019-09-09T23:15:00.000Z","2019-09-09T23:30:00.000Z","2019-09-09T23:45:00.000Z","2019-09-10T00:00:00.000Z","2019-09-10T00:15:00.000Z","2019-09-10T00:30:00.000Z","2019-09-10T00:45:00.000Z","2019-09-10T01:00:00.000Z","2019-09-10T01:15:00.000Z","2019-09-10T01:30:00.000Z","2019-09-10T01:45:00.000Z","2019-09-10T02:00:00.000Z","2019-09-10T02:15:00.000Z","2019-09-10T02:30:00.000Z","2019-09-10T02:45:00.000Z","2019-09-10T03:00:00.000Z","2019-09-10T03:15:00.000Z","2019-09-10T03:30:00.000Z","2019-09-10T03:45:00.000Z","2019-09-10T04:00:00.000Z","2019-09-10T04:15:00.000Z","2019-09-10T04:30:00.000Z","2019-09-10T04:45:00.000Z","2019-09-10T05:00:00.000Z","2019-09-10T05:15:00.000Z","2019-09-10T05:30:00.000Z","2019-09-10T05:45:00.000Z","2019-09-10T06:00:00.000Z","2019-09-10T06:15:00.000Z","2019-09-10T06:30:00.000Z","2019-09-10T06:45:00.000Z","2019-09-10T07:00:00.000Z","2019-09-10T07:15:00.000Z","2019-09-10T07:30:00.000Z","2019-09-10T07:45:00.000Z","2019-09-10T08:00:00.000Z","2019-09-10T08:15:00.000Z","2019-09-10T08:30:00.000Z","2019-09-10T08:45:00.000Z","2019-09-10T09:00:00.000Z","2019-09-10T09:15:00.000Z","2019-09-10T09:30:00.000Z","2019-09-10T09:45:00.000Z","2019-09-10T10:00:00.000Z","2019-09-10T10:15:00.000Z","2019-09-10T10:30:00.000Z","2019-09-10T10:45:00.000Z","2019-09-10T11:00:00.000Z","2019-09-10T11:15:00.000Z","2019-09-10T11:30:00.000Z","2019-09-10T11:45:00.000Z","2019-09-10T12:00:00.000Z","2019-09-10T12:15:00.000Z","2019-09-10T12:30:00.000Z","2019-09-10T12:45:00.000Z","2019-09-10T13:00:00.000Z","2019-09-10T13:15:00.000Z","2019-09-10T13:30:00.000Z","2019-09-10T13:45:00.000Z","2019-09-10T14:00:00.000Z","2019-09-10T14:15:00.000Z","2019-09-10T14:30:00.000Z","2019-09-10T14:45:00.000Z","2019-09-10T15:00:00.000Z","2019-09-10T15:15:00.000Z","2019-09-10T15:30:00.000Z","2019-09-10T15:45:00.000Z","2019-09-10T16:00:00.000Z","2019-09-10T16:15:00.000Z","2019-09-10T16:30:00.000Z","2019-09-10T16:45:00.000Z","2019-09-10T17:00:00.000Z","2019-09-10T17:15:00.000Z","2019-09-10T17:30:00.000Z","2019-09-10T17:45:00.000Z","2019-09-10T18:00:00.000Z","2019-09-10T18:15:00.000Z","2019-09-10T18:30:00.000Z","2019-09-10T18:45:00.000Z","2019-09-10T19:00:00.000Z","2019-09-10T19:15:00.000Z","2019-09-10T19:30:00.000Z","2019-09-10T19:45:00.000Z","2019-09-10T20:00:00.000Z","2019-09-10T20:15:00.000Z","2019-09-10T20:30:00.000Z","2019-09-10T20:45:00.000Z","2019-09-10T21:00:00.000Z","2019-09-10T21:15:00.000Z","2019-09-10T21:30:00.000Z","2019-09-10T21:45:00.000Z","2019-09-10T22:00:00.000Z","2019-09-10T22:15:00.000Z","2019-09-10T22:30:00.000Z","2019-09-10T22:45:00.000Z","2019-09-10T23:00:00.000Z","2019-09-10T23:15:00.000Z","2019-09-10T23:30:00.000Z","2019-09-10T23:45:00.000Z","2019-09-11T00:00:00.000Z","2019-09-11T00:15:00.000Z","2019-09-11T00:30:00.000Z","2019-09-11T00:45:00.000Z","2019-09-11T01:00:00.000Z","2019-09-11T01:15:00.000Z","2019-09-11T01:30:00.000Z","2019-09-11T01:45:00.000Z","2019-09-11T02:00:00.000Z","2019-09-11T02:15:00.000Z","2019-09-11T02:30:00.000Z","2019-09-11T02:45:00.000Z","2019-09-11T03:00:00.000Z","2019-09-11T03:15:00.000Z","2019-09-11T03:30:00.000Z","2019-09-11T03:45:00.000Z","2019-09-11T04:00:00.000Z","2019-09-11T04:15:00.000Z","2019-09-11T04:30:00.000Z","2019-09-11T04:45:00.000Z","2019-09-11T05:00:00.000Z","2019-09-11T05:15:00.000Z","2019-09-11T05:30:00.000Z","2019-09-11T05:45:00.000Z","2019-09-11T06:00:00.000Z","2019-09-11T06:15:00.000Z","2019-09-11T06:30:00.000Z","2019-09-11T06:45:00.000Z","2019-09-11T07:00:00.000Z","2019-09-11T07:15:00.000Z","2019-09-11T07:30:00.000Z","2019-09-11T07:45:00.000Z","2019-09-11T08:00:00.000Z","2019-09-11T08:15:00.000Z","2019-09-11T08:30:00.000Z","2019-09-11T08:45:00.000Z","2019-09-11T09:00:00.000Z","2019-09-11T09:15:00.000Z","2019-09-11T09:30:00.000Z","2019-09-11T09:45:00.000Z","2019-09-11T10:00:00.000Z","2019-09-11T10:15:00.000Z","2019-09-11T10:30:00.000Z","2019-09-11T10:45:00.000Z","2019-09-11T11:00:00.000Z","2019-09-11T11:15:00.000Z","2019-09-11T11:30:00.000Z","2019-09-11T11:45:00.000Z","2019-09-11T12:00:00.000Z","2019-09-11T12:15:00.000Z","2019-09-11T12:30:00.000Z","2019-09-11T12:45:00.000Z","2019-09-11T13:00:00.000Z","2019-09-11T13:15:00.000Z","2019-09-11T13:30:00.000Z","2019-09-11T13:45:00.000Z","2019-09-11T14:00:00.000Z","2019-09-11T14:15:00.000Z","2019-09-11T14:30:00.000Z","2019-09-11T14:45:00.000Z","2019-09-11T15:00:00.000Z","2019-09-11T15:15:00.000Z","2019-09-11T15:30:00.000Z","2019-09-11T15:45:00.000Z","2019-09-11T16:00:00.000Z","2019-09-11T16:15:00.000Z","2019-09-11T16:30:00.000Z","2019-09-11T16:45:00.000Z","2019-09-11T17:00:00.000Z","2019-09-11T17:15:00.000Z","2019-09-11T17:30:00.000Z","2019-09-11T17:45:00.000Z","2019-09-11T18:00:00.000Z","2019-09-11T18:15:00.000Z","2019-09-11T18:30:00.000Z","2019-09-11T18:45:00.000Z","2019-09-11T19:00:00.000Z","2019-09-11T19:15:00.000Z","2019-09-11T19:30:00.000Z","2019-09-11T19:45:00.000Z","2019-09-11T20:00:00.000Z","2019-09-11T20:15:00.000Z","2019-09-11T20:30:00.000Z","2019-09-11T20:45:00.000Z","2019-09-11T21:00:00.000Z","2019-09-11T21:15:00.000Z","2019-09-11T21:30:00.000Z","2019-09-11T21:45:00.000Z","2019-09-11T22:00:00.000Z","2019-09-11T22:15:00.000Z","2019-09-11T22:30:00.000Z","2019-09-11T22:45:00.000Z","2019-09-11T23:00:00.000Z","2019-09-11T23:15:00.000Z","2019-09-11T23:30:00.000Z","2019-09-11T23:45:00.000Z","2019-09-12T00:00:00.000Z","2019-09-12T00:15:00.000Z","2019-09-12T00:30:00.000Z","2019-09-12T00:45:00.000Z","2019-09-12T01:00:00.000Z","2019-09-12T01:15:00.000Z","2019-09-12T01:30:00.000Z","2019-09-12T01:45:00.000Z","2019-09-12T02:00:00.000Z","2019-09-12T02:15:00.000Z","2019-09-12T02:30:00.000Z","2019-09-12T02:45:00.000Z","2019-09-12T03:00:00.000Z","2019-09-12T03:15:00.000Z","2019-09-12T03:30:00.000Z","2019-09-12T03:45:00.000Z","2019-09-12T04:00:00.000Z","2019-09-12T04:15:00.000Z","2019-09-12T04:30:00.000Z","2019-09-12T04:45:00.000Z","2019-09-12T05:00:00.000Z","2019-09-12T05:15:00.000Z","2019-09-12T05:30:00.000Z","2019-09-12T05:45:00.000Z","2019-09-12T06:00:00.000Z","2019-09-12T06:15:00.000Z","2019-09-12T06:30:00.000Z","2019-09-12T06:45:00.000Z","2019-09-12T07:00:00.000Z","2019-09-12T07:15:00.000Z","2019-09-12T07:30:00.000Z","2019-09-12T07:45:00.000Z","2019-09-12T08:00:00.000Z","2019-09-12T08:15:00.000Z","2019-09-12T08:30:00.000Z","2019-09-12T08:45:00.000Z","2019-09-12T09:00:00.000Z","2019-09-12T09:15:00.000Z","2019-09-12T09:30:00.000Z","2019-09-12T09:45:00.000Z","2019-09-12T10:00:00.000Z","2019-09-12T10:15:00.000Z","2019-09-12T10:30:00.000Z","2019-09-12T10:45:00.000Z","2019-09-12T11:00:00.000Z","2019-09-12T11:15:00.000Z","2019-09-12T11:30:00.000Z","2019-09-12T11:45:00.000Z","2019-09-12T12:00:00.000Z","2019-09-12T12:15:00.000Z","2019-09-12T12:30:00.000Z","2019-09-12T12:45:00.000Z","2019-09-12T13:00:00.000Z","2019-09-12T13:15:00.000Z","2019-09-12T13:30:00.000Z","2019-09-12T13:45:00.000Z","2019-09-12T14:00:00.000Z","2019-09-12T14:15:00.000Z","2019-09-12T14:30:00.000Z","2019-09-12T14:45:00.000Z","2019-09-12T15:00:00.000Z","2019-09-12T15:15:00.000Z","2019-09-12T15:30:00.000Z","2019-09-12T15:45:00.000Z","2019-09-12T16:00:00.000Z","2019-09-12T16:15:00.000Z","2019-09-12T16:30:00.000Z","2019-09-12T16:45:00.000Z","2019-09-12T17:00:00.000Z","2019-09-12T17:15:00.000Z","2019-09-12T17:30:00.000Z","2019-09-12T17:45:00.000Z","2019-09-12T18:00:00.000Z","2019-09-12T18:15:00.000Z","2019-09-12T18:30:00.000Z","2019-09-12T18:45:00.000Z","2019-09-12T19:00:00.000Z","2019-09-12T19:15:00.000Z","2019-09-12T19:30:00.000Z","2019-09-12T19:45:00.000Z","2019-09-12T20:00:00.000Z","2019-09-12T20:15:00.000Z","2019-09-12T20:30:00.000Z","2019-09-12T20:45:00.000Z","2019-09-12T21:00:00.000Z","2019-09-12T21:15:00.000Z","2019-09-12T21:30:00.000Z","2019-09-12T21:45:00.000Z","2019-09-12T22:00:00.000Z","2019-09-12T22:15:00.000Z","2019-09-12T22:30:00.000Z","2019-09-12T22:45:00.000Z","2019-09-12T23:00:00.000Z","2019-09-12T23:15:00.000Z","2019-09-12T23:30:00.000Z","2019-09-12T23:45:00.000Z","2019-09-13T00:00:00.000Z","2019-09-13T00:15:00.000Z","2019-09-13T00:30:00.000Z","2019-09-13T00:45:00.000Z","2019-09-13T01:00:00.000Z","2019-09-13T01:15:00.000Z","2019-09-13T01:30:00.000Z","2019-09-13T01:45:00.000Z","2019-09-13T02:00:00.000Z","2019-09-13T02:15:00.000Z","2019-09-13T02:30:00.000Z","2019-09-13T02:45:00.000Z","2019-09-13T03:00:00.000Z","2019-09-13T03:15:00.000Z","2019-09-13T03:30:00.000Z","2019-09-13T03:45:00.000Z","2019-09-13T04:00:00.000Z","2019-09-13T04:15:00.000Z","2019-09-13T04:30:00.000Z","2019-09-13T04:45:00.000Z","2019-09-13T05:00:00.000Z","2019-09-13T05:15:00.000Z","2019-09-13T05:30:00.000Z","2019-09-13T05:45:00.000Z","2019-09-13T06:00:00.000Z","2019-09-13T06:15:00.000Z","2019-09-13T06:30:00.000Z","2019-09-13T06:45:00.000Z","2019-09-13T07:00:00.000Z","2019-09-13T07:15:00.000Z","2019-09-13T07:30:00.000Z","2019-09-13T07:45:00.000Z","2019-09-13T08:00:00.000Z","2019-09-13T08:15:00.000Z","2019-09-13T08:30:00.000Z","2019-09-13T08:45:00.000Z","2019-09-13T09:00:00.000Z","2019-09-13T09:15:00.000Z","2019-09-13T09:30:00.000Z","2019-09-13T09:45:00.000Z","2019-09-13T10:00:00.000Z","2019-09-13T10:15:00.000Z","2019-09-13T10:30:00.000Z","2019-09-13T10:45:00.000Z","2019-09-13T11:00:00.000Z","2019-09-13T11:15:00.000Z","2019-09-13T11:30:00.000Z","2019-09-13T11:45:00.000Z","2019-09-13T12:00:00.000Z","2019-09-13T12:15:00.000Z","2019-09-13T12:30:00.000Z","2019-09-13T12:45:00.000Z","2019-09-13T13:00:00.000Z","2019-09-13T13:15:00.000Z","2019-09-13T13:30:00.000Z","2019-09-13T13:45:00.000Z","2019-09-13T14:00:00.000Z","2019-09-13T14:15:00.000Z","2019-09-13T14:30:00.000Z","2019-09-13T14:45:00.000Z","2019-09-13T15:00:00.000Z","2019-09-13T15:15:00.000Z","2019-09-13T15:30:00.000Z","2019-09-13T15:45:00.000Z","2019-09-13T16:00:00.000Z","2019-09-13T16:15:00.000Z","2019-09-13T16:30:00.000Z","2019-09-13T16:45:00.000Z","2019-09-13T17:00:00.000Z","2019-09-13T17:15:00.000Z","2019-09-13T17:30:00.000Z","2019-09-13T17:45:00.000Z","2019-09-13T18:00:00.000Z","2019-09-13T18:15:00.000Z","2019-09-13T18:30:00.000Z","2019-09-13T18:45:00.000Z","2019-09-13T19:00:00.000Z","2019-09-13T19:15:00.000Z","2019-09-13T19:30:00.000Z","2019-09-13T19:45:00.000Z","2019-09-13T20:00:00.000Z","2019-09-13T20:15:00.000Z","2019-09-13T20:30:00.000Z","2019-09-13T20:45:00.000Z","2019-09-13T21:00:00.000Z","2019-09-13T21:15:00.000Z","2019-09-13T21:30:00.000Z","2019-09-13T21:45:00.000Z","2019-09-13T22:00:00.000Z","2019-09-13T22:15:00.000Z","2019-09-13T22:30:00.000Z","2019-09-13T22:45:00.000Z","2019-09-13T23:00:00.000Z","2019-09-13T23:15:00.000Z","2019-09-13T23:30:00.000Z","2019-09-13T23:45:00.000Z","2019-09-14T00:00:00.000Z","2019-09-14T00:15:00.000Z","2019-09-14T00:30:00.000Z","2019-09-14T00:45:00.000Z","2019-09-14T01:00:00.000Z","2019-09-14T01:15:00.000Z","2019-09-14T01:30:00.000Z","2019-09-14T01:45:00.000Z","2019-09-14T02:00:00.000Z","2019-09-14T02:15:00.000Z","2019-09-14T02:30:00.000Z","2019-09-14T02:45:00.000Z","2019-09-14T03:00:00.000Z","2019-09-14T03:15:00.000Z","2019-09-14T03:30:00.000Z","2019-09-14T03:45:00.000Z","2019-09-14T04:00:00.000Z","2019-09-14T04:15:00.000Z","2019-09-14T04:30:00.000Z","2019-09-14T04:45:00.000Z","2019-09-14T05:00:00.000Z","2019-09-14T05:15:00.000Z","2019-09-14T05:30:00.000Z","2019-09-14T05:45:00.000Z","2019-09-14T06:00:00.000Z","2019-09-14T06:15:00.000Z","2019-09-14T06:30:00.000Z","2019-09-14T06:45:00.000Z","2019-09-14T07:00:00.000Z","2019-09-14T07:15:00.000Z","2019-09-14T07:30:00.000Z","2019-09-14T07:45:00.000Z","2019-09-14T08:00:00.000Z","2019-09-14T08:15:00.000Z","2019-09-14T08:30:00.000Z","2019-09-14T08:45:00.000Z","2019-09-14T09:00:00.000Z","2019-09-14T09:15:00.000Z","2019-09-14T09:30:00.000Z","2019-09-14T09:45:00.000Z","2019-09-14T10:00:00.000Z","2019-09-14T10:15:00.000Z","2019-09-14T10:30:00.000Z","2019-09-14T10:45:00.000Z","2019-09-14T11:00:00.000Z","2019-09-14T11:15:00.000Z","2019-09-14T11:30:00.000Z","2019-09-14T11:45:00.000Z","2019-09-14T12:00:00.000Z","2019-09-14T12:15:00.000Z","2019-09-14T12:30:00.000Z","2019-09-14T12:45:00.000Z","2019-09-14T13:00:00.000Z","2019-09-14T13:15:00.000Z","2019-09-14T13:30:00.000Z","2019-09-14T13:45:00.000Z","2019-09-14T14:00:00.000Z","2019-09-14T14:15:00.000Z","2019-09-14T14:30:00.000Z","2019-09-14T14:45:00.000Z","2019-09-14T15:00:00.000Z","2019-09-14T15:15:00.000Z","2019-09-14T15:30:00.000Z","2019-09-14T15:45:00.000Z","2019-09-14T16:00:00.000Z","2019-09-14T16:15:00.000Z","2019-09-14T16:30:00.000Z","2019-09-14T16:45:00.000Z","2019-09-14T17:00:00.000Z","2019-09-14T17:15:00.000Z","2019-09-14T17:30:00.000Z","2019-09-14T17:45:00.000Z","2019-09-14T18:00:00.000Z","2019-09-14T18:15:00.000Z","2019-09-14T18:30:00.000Z","2019-09-14T18:45:00.000Z","2019-09-14T19:00:00.000Z","2019-09-14T19:15:00.000Z","2019-09-14T19:30:00.000Z","2019-09-14T19:45:00.000Z","2019-09-14T20:00:00.000Z","2019-09-14T20:15:00.000Z","2019-09-14T20:30:00.000Z","2019-09-14T20:45:00.000Z","2019-09-14T21:00:00.000Z","2019-09-14T21:15:00.000Z","2019-09-14T21:30:00.000Z","2019-09-14T21:45:00.000Z","2019-09-14T22:00:00.000Z","2019-09-14T22:15:00.000Z","2019-09-14T22:30:00.000Z","2019-09-14T22:45:00.000Z","2019-09-14T23:00:00.000Z","2019-09-14T23:15:00.000Z","2019-09-14T23:30:00.000Z","2019-09-14T23:45:00.000Z","2019-09-15T00:00:00.000Z","2019-09-15T00:15:00.000Z","2019-09-15T00:30:00.000Z","2019-09-15T00:45:00.000Z","2019-09-15T01:00:00.000Z","2019-09-15T01:15:00.000Z","2019-09-15T01:30:00.000Z","2019-09-15T01:45:00.000Z","2019-09-15T02:00:00.000Z","2019-09-15T02:15:00.000Z","2019-09-15T02:30:00.000Z","2019-09-15T02:45:00.000Z","2019-09-15T03:00:00.000Z","2019-09-15T03:15:00.000Z","2019-09-15T03:30:00.000Z","2019-09-15T03:45:00.000Z","2019-09-15T04:00:00.000Z","2019-09-15T04:15:00.000Z","2019-09-15T04:30:00.000Z","2019-09-15T04:45:00.000Z","2019-09-15T05:00:00.000Z","2019-09-15T05:15:00.000Z","2019-09-15T05:30:00.000Z","2019-09-15T05:45:00.000Z","2019-09-15T06:00:00.000Z","2019-09-15T06:15:00.000Z","2019-09-15T06:30:00.000Z","2019-09-15T06:45:00.000Z","2019-09-15T07:00:00.000Z","2019-09-15T07:15:00.000Z","2019-09-15T07:30:00.000Z","2019-09-15T07:45:00.000Z","2019-09-15T08:00:00.000Z","2019-09-15T08:15:00.000Z","2019-09-15T08:30:00.000Z","2019-09-15T08:45:00.000Z","2019-09-15T09:00:00.000Z","2019-09-15T09:15:00.000Z","2019-09-15T09:30:00.000Z","2019-09-15T09:45:00.000Z","2019-09-15T10:00:00.000Z","2019-09-15T10:15:00.000Z","2019-09-15T10:30:00.000Z","2019-09-15T10:45:00.000Z","2019-09-15T11:00:00.000Z","2019-09-15T11:15:00.000Z","2019-09-15T11:30:00.000Z","2019-09-15T11:45:00.000Z","2019-09-15T12:00:00.000Z","2019-09-15T12:15:00.000Z","2019-09-15T12:30:00.000Z","2019-09-15T12:45:00.000Z","2019-09-15T13:00:00.000Z","2019-09-15T13:15:00.000Z","2019-09-15T13:30:00.000Z","2019-09-15T13:45:00.000Z","2019-09-15T14:00:00.000Z","2019-09-15T14:15:00.000Z","2019-09-15T14:30:00.000Z","2019-09-15T14:45:00.000Z","2019-09-15T15:00:00.000Z","2019-09-15T15:15:00.000Z","2019-09-15T15:30:00.000Z","2019-09-15T15:45:00.000Z","2019-09-15T16:00:00.000Z","2019-09-15T16:15:00.000Z","2019-09-15T16:30:00.000Z","2019-09-15T16:45:00.000Z","2019-09-15T17:00:00.000Z","2019-09-15T17:15:00.000Z","2019-09-15T17:30:00.000Z","2019-09-15T17:45:00.000Z","2019-09-15T18:00:00.000Z","2019-09-15T18:15:00.000Z","2019-09-15T18:30:00.000Z","2019-09-15T18:45:00.000Z","2019-09-15T19:00:00.000Z","2019-09-15T19:15:00.000Z","2019-09-15T19:30:00.000Z","2019-09-15T19:45:00.000Z","2019-09-15T20:00:00.000Z","2019-09-15T20:15:00.000Z","2019-09-15T20:30:00.000Z","2019-09-15T20:45:00.000Z","2019-09-15T21:00:00.000Z","2019-09-15T21:15:00.000Z","2019-09-15T21:30:00.000Z","2019-09-15T21:45:00.000Z","2019-09-15T22:00:00.000Z"],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14.6,18.3,73.3,77,99,142.9,197.9,263.8,234.4,256.4,234.4,263.7,278.3,278.3,263.6,227,205.1,205.1,201.4,153.8,135.5,106.2,95.2,84.2,58.6,51.3,44,44,44,33,25.7,25.7,7.4,7.4,7.4,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,11,11,40.3,95.3,139.2,146.5,186.9,241.8,216.2,216.2,238.2,230.8,282.1,252.8,234.4,205.1,190.5,179.5,146.5,120.9,106.3,95.3,84.3,69.7,58.7,40.4,40.4,40.4,40.4,40.4,40.4,40.4,40.4,40.4,29.4,29.4,22.1,14.8,11.1,7.4,7.4,7.4,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14.7,25.7,36.7,80.7,91.7,95.4,143,176,194.3,212.6,216.3,216.3,212.7,209,190.6,183.3,168.7,154.1,150.4,132.1,113.8,95.5,88.2,80.9,77.2,73.5,62.5,62.5,55.2,55.2,47.9,40.5,18.5,18.5,18.5,18.5,14.8,14.8,14.8,14.8,14.8,11.1,11.1,11.1,7.4,7.4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.7,11,14.7,29.4,36.8,36.8,33.1,44.1,44.1,44.1,22.1,25.7,25.7,25.7,25.7,25.7,25.7,25.7,14.7,14.7,25.7,25.7,25.7,22,18.3,18.3,18.3,18.3,18.3,18.3,18.3,18.3,18.3,11,11,11,11,11,11,11,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,51.3,51.3,73.3,84.3,84.3,88,80.7,69.7,58.7,58.7,47.7,58.7,62.4,51.4,25.7,25.7,22,29.3,18.3,14.7,14.7,11,25.7,47.7,25.7,25.7,25.7,14.7,14.7,22,22,47.6,40.3,25.7,3.7,3.7,11,14.7,7.4,7.4,7.4,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,22,22,0,0,11,11,25.7,33,33,51.3,73.3,73.3,73.3,84.3,62.3,62.3,62.3,91.6,77,69.7,47.7,47.7,29.4,22,22,40.3,40.3,25.6,40.3,40.3,40.3,33,25.7,25.7,22,29.3,7.3,0,0,0,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18.3,18.3,18.3,18.3,22,25.7,36.7,47.7,55,55,62.3,62.3,40.3,40.3,40.3,29.3,29.3,29.3,36.6,32.9,25.6,29.3,22,14.7,14.7,36.7,36.7,36.7,14.7,14.7,51.3,51.3,29.3,29.3,18.3,18.3,11,14.7,14.7,7.4,7.4,18.4,18.4,7.4,7.4,3.7,0,0,0,0,0,0,0,7.3,7.3,7.3,7.3,7.3,7.3,7.3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14.7,18.4,47.7,84.3,88,88,88,113.7,121,128.3,128.3,99,91.7,95.4,84.4,113.7,110,106.4,117.5,128.5,110.2,102.8,95.5,77.1,88.1,113.7,106.3,84.3,95.3,73.3,58.6,65.9,65.9,69.6,33,18.3,33,40.3,40.3,40.3,40.3,33,11,11,11,11,7.3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,22,22,22,22,22,0,0,0,0,11,3.7,3.7,14.7,22,58.6,80.5,95.1,124.4,102.4,106.1,109.9,131.9,153.8,157.4,179.4,164.8,139.2,124.5,95.2,84.2,84.2,80.6,73.3,51.3,51.3,51.3,44,47.6,43.9,69.5,62.2,40.2,36.6,25.6,29.3,29.3,29.3,29.3,29.3,29.3,29.3,22,11,33,14.6,14.6,7.3,11,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,29.3,55,55,66,80.6,102.6,77,77,110,109.9,131.9,157.5,128.2,91.5,120.8,142.9,164.9,164.9,146.6,124.7,106.4,135.7,143.1,84.5,77.2,66.2,88.2,77.2,73.5,55.1,58.8,55.1,29.4,25.7,25.7,18.4,25.7,18.4,25.7,11,11,11,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,3.7,11,11,11,14.7,11,11,22,22,11,11,18.3,22,11,3.7,3.7,0,0,0,11,11,3.7,3.7,3.7,3.7,3.7,14.7,14.7,14.7,3.7,18.3,18.3,25.6,3.7,3.7,11,0,33,11,7.3,0,7.3,11,11,18.3,7.3,7.3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,7.3,7.3,7.3,3.7,3.7,3.7,3.7,0,0,3.7,3.7,7.4,3.7,11,14.7,14.7,29.3,14.7,14.7,14.7,7.4,7.4,25.7,33,25.7,25.7,11,11,14.7,3.7,25.7,3.7,3.7,3.7,0,0,0,0,14.7,14.7,14.7,25.7,7.3,7.3,18.3,18.3,18.3,11,11,33,14.7,14.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18.3,18.3,18.3,18.3,33,22,33,36.6,0,0,3.7,3.7,11.1,11.1,18.4,18.4,14.7,22,7.4,29.4,25.7,0,0,11,11,0,3.7,3.7,3.7,3.7,11,22,55,11,3.7,3.7,0,22,11,22,11,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,0,0,0,0,0,33,44,55,80.6,58.6,47.6,51.3,73.3,54.9,51.3,18.3,22,43.9,54.9,73.2,62.3,44,29.4,18.4,14.7,14.7,36.7,40.3,40.3,29.3,14.6,25.6,18.4,14.7,3.7,11,11,11,25.7,14.7,7.4,22,14.7,3.7,0,11,22,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14.7,14.7,40.3,33,40.3,22,66.1,51.4,40.4,29.3,58.6,36.6,43.9,33,36.7,22,18.3,11,18.4,14.7,14.7,14.7,0,0,7.3,0,7.3,7.3,0,11,11,0,7.3,0,29.3,7.3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,0,0,11,7.3,0,7.3,0,0,0,0,0,0,11,22,0,7.3,7.3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,18.3,18.3,18.3,18.3,18.3,18.3,51.3,51.3,58.6,87.9,84.2,84.2,76.9,98.9,113.6,142.9,179.5,146.5,146.5,164.8,153.8,205.1,194.1,208.7,234.4,263.7,304,278.3,285.7,263.7,234.4,208.8,241.8,230.8,208.7,208.7,216,234.3,219.7,216.1,201.5,194.2,142.9,142.9,131.9,124.6,113.6,106.3,95.3,77,66,66,66,66,40.4,40.4,40.4,40.4,40.4,33.1,33.1,33.1,33.1,33.1,29.4,29.4,22.1,18.4,11.1,11.1,7.4,7.4,7.4,7.4,7.4,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,22,22,22,22,25.7,3.7,11,11,18.3,25.6,25.6,25.6,43.9,65.9,65.9,98.9,106.2,153.8,157.5,168.5,194.1,183.1,201.4,201.4,223.4,260,282,267.3,267.3,234.3,212.3,248.9,245.3,241.6,259.9,278.2,296.5,263.6,234.3,194,161.1,168.5,161.2,164.9,139.3,113.6,80.6,73.3,66,73.3,62.3,44,44,40.3,36.6,36.6,36.6,32.9,32.9,25.6,25.6,25.6,25.6,7.3,7.3,7.3,7.3,7.3,7.3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,11,11,11,11,11,11,47.6,54.9,54.9,73.2,84.2,95.2,117.2,128.2,131.8,157.4,175.7,219.6,223.2,215.9,241.6,278.3,289.3,300.3,252.6,219.6,248.8,274.5,219.6,201.3,183.1,194.1,194.1,194.1,190.5,183.2,175.8,172.2,146.6,128.3,132,124.7,124.7,110,132,106.4,95.4,58.8,55.1,47.8,47.8,47.8,40.5,40.5,40.5,29.5,29.5,29.5,29.5,25.8,25.8,18.5,14.8,14.8,14.8,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,7.4,7.4,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,14.7,14.7,14.7,25.7,25.7,25.7,25.7,33,33,44,66,66,91.6,102.6,109.9,135.6,146.6,142.9,142.9,175.9,131.9,113.6,109.9,87.9,76.9,58.6,54.9,54.9,47.6,47.6,29.3,29.3,29.3,29.3,18.3,18.3,18.3,11,11,11,11,11,11,11,11,11,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.7,3.7,3.7,25.7,25.7,55,55,84.3,66,66,44,44,22,22,29.3,36.6,47.6,58.6,58.6,65.9,54.9,69.6,106.2,113.5,124.5,142.8,117.2,124.5,120.8,117.2,142.8,98.8,80.5,98.8,106.1,128.1,139.2,146.5,120.8,135.5,139.2,117.2,98.9,98.9,98.9,98.9,102.6,84.3,80.6,65.9,65.9,65.9,65.9,58.6,58.6,58.6,44,44,36.7,36.7,25.7,25.7,25.7,25.7,25.7,25.7,25.7,25.7,22,14.7,11,11,11,11,11,11,11,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,11,11,11,0,0,11,7.3,7.3,14.6,7.3,7.3,7.3,40.3,36.6,43.9,43.9,40.2,29.3,58.6,87.9,109.9,142.8,128.1,117.1,117.1,131.7,139.1,157.4,175.7,150.1,150.1,172.1,201.4,194.1,227.1,223.4,230.7,212.4,194.1,172.1,172.1,146.5,135.5,91.6,91.6,91.6,91.6,87.9,80.6,73.3,73.3,66],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,22,33,43.9,69.6,87.9,98.9,110,168.7,172.4,209,234.5,238.1,223.5,227.2,205.2,205.2,205.2,197.9,172.3,172.3,165,146.7,143,139.3,132,124.7,106.4,106.4,95.4,88.1,88.1,69.8,55.1,55.1,47.8,44.1,44.1,44.1,44.1,33.1,33.1,18.5,18.5,14.8,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,11,29.3,51.3,73.3,117.3,172.3,194.3,241.9,300.5,285.8,252.8,201.5,190.5,172.2,153.9,146.6,124.6,124.6,124.6,124.6,117.3,113.6,106.3,106.3,91.7,91.7,88,80.7,80.7,80.7,80.7,73.4,66.1,66.1,47.8,47.8,40.5,36.8,36.8,36.8,29.5,25.8,14.8,14.8,14.8,14.8,14.8,14.8,11.1,11.1,11.1,11.1,11.1,7.4,7.4,7.4,7.4,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,29.3,76.9,102.6,146.4,179.4,227,201.4,212.4,216.1,230.7,223.4,219.7,197.8,190.5,175.8,186.8,183.1,183.1,157.5,139.2,128.2,102.6,91.6,84.3,84.3,69.7,55,55,47.7,36.7,36.7,36.7,36.7,29.4,29.4,22.1,22.1,22.1,22.1,18.4,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,7.4,7.4,7.4,7.4,7.4,7.4,7.4,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,7.3,7.3,0,0,0,7.3,7.3,11,11,7.4,33,47.6,73.2,113.5,183.2,208.9,230.9,234.5,249.2,267.6,241.9,216.3,172.3,168.6,168.6,164.9,142.9,128.3,113.6,99,88,77,77,77,77,77,66,55,55,40.3,40.3,40.3,33,25.7,25.7,25.7,25.7,14.7,14.7,14.7,14.7,14.7,14.7,14.7,11,11,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,0,36.7,47.7,25.7,25.7,47.6,47.6,62.3,65.9,87.9,98.9,87.9,87.9,87.9,84.2,95.2,106.2,106.2,106.2,106.2,91.5,84.2,73.2,54.9,54.9,54.9,47.6,47.6,47.6,47.6,51.2,43.9,43.9,43.9,36.6,36.6,36.6,36.6,36.6,29.3,18.3,18.3,18.3,18.3,18.3,18.3,18.3,18.3,18.3,11,11,11,11,11,11,11,11,11,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,11,11,11,18.3,29.3,11,11,22,58.7,84.4,73.4,73.4,80.8,80.8,80.8,77.1,55.1,66.1,88.1,99.1,124.8,113.8,106.4,106.4,88.1,80.8,77.1,55.1,55.1,55.1,44.1,44.1,44.1,33.1,33.1,33.1,29.4,22.1,22.1,22.1,22.1,22.1,14.8,14.8,14.8,14.8,14.8,14.8,14.8,14.8,14.8,11.1,7.4,7.4,7.4,7.4,7.4,7.4,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,11,40.3,44,51.3,55,51.3,51.3,88,87.9,73.3,87.9,124.6,113.6,113.6,113.6,106.3,106.3,102.6,95.3,91.6,77,69.7,69.7,58.7,58.7,58.7,47.7,47.7,29.4,29.4,29.4,29.4,29.4,29.4,29.4,22.1,22.1,22.1,18.4,18.4,18.4,18.4,18.4,18.4,14.7,14.7,7.4,7.4,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,33,33,33,33,14.7,14.7,14.7,25.7,33,33,58.6,80.6,84.3,88,95.3,135.6,150.2,168.5,157.5,172.2,179.5,197.8,205.1,190.5,175.8,183.1,190.4,168.5,164.9,168.6,176,165,157.7,146.7,135.7,135.7,132,113.7,102.7,102.7,102.7,73.4,73.4,73.4,66.1,58.8,47.8,40.5,29.5,29.5,22.2,22.2,22.2,22.2,18.5,18.5,18.5,18.5,14.8,14.8,14.8,11.1,11.1,7.4,7.4,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,11,14.7,44,44,44,44,84.3,84.3,95.3,91.6,113.6,120.9,150.2,124.5,131.8,142.8,117.2,109.9,120.9,106.3,128.3,135.6,117.3,77,77,77,84.3,73.3,73.3,73.3,73.3,66,66,58.7,58.7,58.7,58.7,51.4,51.4,51.4,51.4,33.1,33.1,33.1,33.1,33.1,18.4,18.4,14.7,14.7,14.7,14.7,14.7,14.7,14.7,14.7,7.4,7.4,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,25.7,25.7,40.3,73.2,113.5,113.5,98.9,62.3,84.4,88.1,135.7,154,157.7,146.7,150.3,157.6,139.3,139.3,146.6,142.9,150.2],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,11,11,11,0,0,0,7.3,7.3,43.9,43.9,43.9,43.9,69.6,76.9,106.2,62.2,69.5,69.5,58.6,58.6,84.3,62.3,62.3,44,44,40.4,29.4,18.4,18.4,18.4,14.7,14.7,14.7,14.7,14.7,14.7,14.7,14.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,3.7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,7.3,18.3,32.9,21.9,65.9,65.9,65.9,84.2,62.2,80.5,73.2,43.9,47.6,58.6,58.6,40.3,62.3,62.3,62.3,62.3,33,33,33,33,33,33,11,7.3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.3,7.3,7.3,0,0,0,0,0,0,0,0,14.6,25.6,25.6,25.6,36.6,36.6,47.6,62.2,73.2,73.2,62.2,73.2,69.5,69.5,43.9,47.5,47.5,40.2,25.6,21.9,14.6,7.3,7.3,7.3,7.3,7.3,7.3,7.3,7.3,0,0]],"fixedtz":true,"tzone":"Europe/Amsterdam","css":"/* Dygraph styling */\n\n.dygraph-title {\n  text-align: left;\n  font-weight: normal;\n  font-size: 70%;\n}\n\n.dygraph-legend {\n  color: white;\n  background-color: #BABABA !important;\n    padding-left:5px;\n  border-color:#BABABA;\n    border-style:solid;\n  border-width:thin;\n  transition:0s 4s;\n  z-index: 20 !important;\n  box-shadow: 2px 2px 5px rgba(0, 0, 0, .3);\n  border-radius: 3px;\n}\n\n.dygraph-legend:hover{\n  transform: translate(-110%);\n  transition: 0s;\n}\n\n.dygraph-legend > span {\n  color: black;\n  padding-left:5px;\n  margin-left:-5px;\n  background-color: white !important;\n  display: block;\n}\n\n.dygraph-legend > span > span{\n  display: inline;\n}\n\n.highlight {\n  border-left: 2px solid #BABABA;\n  padding-left:3px !important;\n\n}"},"evals":[],"jsHooks":[]}</script>
 </div>
   </div>
 

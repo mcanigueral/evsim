@@ -16,10 +16,16 @@
     <loc>mcanigueral.github.io/evsim/reference/estimate_sessions.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_demand.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/reference/get_estimated_connections.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/get_estimated_energy.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_interval_demand.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/get_profile_day_sessions.html</loc>

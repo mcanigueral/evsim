@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Simualte sessions given datetime sequence and models — simulate_sessions • evsim</title>
+<title>Obtain timeseries demand from sessions dataset — get_demand • evsim</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Simualte sessions given datetime sequence and models — simulate_sessions" />
-<meta property="og:description" content="Simualte sessions given datetime sequence and models" />
+<meta property="og:title" content="Obtain timeseries demand from sessions dataset — get_demand" />
+<meta property="og:description" content="Obtain timeseries demand from sessions dataset" />
 
 
 
@@ -106,40 +106,31 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Simualte sessions given datetime sequence and models</h1>
+    <h1>Obtain timeseries demand from sessions dataset</h1>
     
-    <div class="hidden name"><code>simulate_sessions.Rd</code></div>
+    <div class="hidden name"><code>get_demand.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Simualte sessions given datetime sequence and models</p>
+    <p>Obtain timeseries demand from sessions dataset</p>
     </div>
 
-    <pre class="usage"><span class='fu'>simulate_sessions</span><span class='op'>(</span><span class='va'>evmodel</span>, <span class='va'>sessions_day</span>, <span class='va'>charging_powers</span>, <span class='va'>dates</span>, <span class='va'>resolution</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>get_demand</span><span class='op'>(</span><span class='va'>sessions</span>, <span class='va'>dttm_seq</span>, by <span class='op'>=</span> <span class='st'>"Profile"</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>evmodel</th>
-      <td><p>object of type <code>evmodel</code> (see this <a href='https://mcanigueral.github.io/evprof/articles/evmodel.html'>link</a> for more information)</p></td>
+      <th>sessions</th>
+      <td><p>sessions data set in standard format</p></td>
     </tr>
     <tr>
-      <th>sessions_day</th>
-      <td><p>tibble with variables <code>time_cycle</code> (names corresponding to <code>evmodel$models$time_cycle</code>) and <code>n_sessions</code> (number of daily sessions per day for each time-cycle model)</p></td>
+      <th>dttm_seq</th>
+      <td><p>vector with a sequence of datetime values</p></td>
     </tr>
     <tr>
-      <th>charging_powers</th>
-      <td><p>tibble with variables <code>power</code> and <code>ratio</code>
-The powers must be in kW and the ratios between 0 and 1.</p></td>
-    </tr>
-    <tr>
-      <th>dates</th>
-      <td><p>datetime vector with dates to simualte (datetime values with hour set to 00:00)</p></td>
-    </tr>
-    <tr>
-      <th>resolution</th>
-      <td><p>integer, time resolution (in minutes) of the sessions datetime variables</p></td>
+      <th>by</th>
+      <td><p>character, being 'Profile' or 'Session'. When <code>by='Profile'</code> each column corresponds to an EV user profile.</p></td>
     </tr>
     </table>
 

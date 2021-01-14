@@ -5,123 +5,147 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# To include the ev_model object run this in Console:
+# ev_model <- readRDS('R/evmodel.RDS'); ev_model <- readRDS('R/evmodel.RDS')
 devtools::load_all()
 ```
 
-This package provides the tools to simulate new EV charging session, on the basis of the **Gaussian Mixture Models (GMM)** of different EV user profiles found and modeled with [`{evprof}`](https://mcanigueral.github.io/evprof/). The EV model obtained with `evprof::get_ev_model` function is an object of class `evmodel`, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html) from website of `{evprof}` package.
+This package provides the tools to simulate new EV charging session, on the basis of the **Gaussian Mixture Models (GMM)** of different EV user profiles found and modeled with [`{evprof}`](https://mcanigueral.github.io/evprof/). The EV model obtained with [`evprof::get_ev_model()`](https://mcanigueral.github.io/evprof/reference/get_ev_model.html) function is an object of class `evmodel`, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html) from website of `{evprof}` package.
 
 ## Required data
 
 The only function of `{evsim}` package necessary to simulate new EV sessions is function `simulate_sessions()`, which returns a tibble of EV charging sessions. The required input arguments to run this function are:
 
 - The EV model (object of class `evmodel`)
-- Number of daily sessions of each time-cycle model
-- User profiles proportions (for each time-cycle model) relative to the number of daily sessions
-- Charging powers proportions relative to the number of daily sessions
+- Number of daily sessions for each time-cycle model
+- Charging powers shares relative to the number of daily sessions
 - Dates to simulate
 
-The standard format of the EV models object defined by `{evprof}` contains the three first points of the required data (sessions/day/time-cycle and user profiles proportions and GMM for each time-cycle). The EV models object used for this example:
+
+### EV model
+
+Let's take a look to the example EV model:
 
 ```{r models obj}
 print(ev_model)
 ```
 
+We have 4 different time-cycles in this case (Workday, Friday, Saturday and Sunday), and each one has its corresponding user profiles. At the same time, each user profile of each time-cycle is modeled by two different models:
 
-<!-- ### EV user profiles models -->
+- Connection Models: combination of multiple Gaussian distributions of two variables (Connection Start Time and Connection Duration)
+- Energy Models: combination of multiple Gaussian distributions of one variable (Energy)
 
+Moreover, each User profile has a corresponding ratio over the total number of daily sessions. For example for **Workday** time-cycle we see the following user profiles components:
 
+```{r workday models}
+workday_models <- ev_model$models$user_profiles[[1]]
 
+workday_models
+```
 
-<!-- To simulate an equivalent type of sessions we have to find the following parameters: -->
+We can modify the ratios of the user profiles from one time-cycle with the function `update_profiles_ratios()`. The new ratios have to be specified as a tibble with variables `time_cycle`, `profile` and `ratio`. It is not mandatory that all time-cycles appear in the `new_ratios` tibble, but for a single time-cycle all user profiles must appear. For example, let's say we want to change only the **Workday** ratios with the following ones:
 
-<!-- * **Charging rates distribution**: We can get the current charging power distribution with function `get_charging_rates_distribution`: -->
+```{r}
+new_ratios <- tibble(
+  time_cycle = rep('Workday', 7),
+  profile = workday_models$profile,
+  ratio = c(0, 0.1, 0.1, 0.2, 0.2, 0.3, 0.1)
+)
 
-<!-- ```{r charging power distribution} -->
-<!-- charging_rates <- get_charging_rates_distribution(sessions_demand) %>% -->
-<!--   select(power, ratio) %>% -->
-<!--   mutate(power = c(3.7, 7.3, 11, 22)) -->
+new_ratios
+```
 
-<!-- print(charging_rates) -->
-<!-- ``` -->
+Then, we can modify our `evmodel`object with:
+```{r update models}
+ev_model <- update_profiles_ratios(ev_model, new_ratios)
 
-<!-- * **Number of sessions per day**: The daily number of sessions for each model -->
+ev_model$models$user_profiles[[1]]
+```
 
-<!-- ```{r daily number of sessions} -->
-<!-- n_sessions <- sessions_demand %>% -->
-<!--   group_by(Timecycle) %>% -->
-<!--   summarise(n = n()) %>% -->
-<!--   mutate(n_day = round(n/c(16, 4, 4, 4))) -->
-
-<!-- print(n_sessions) -->
-<!-- ``` -->
-
-<!-- * **Profiles distribution**: The user profiles proportion for each model -->
-
-<!-- ```{r profiles ratios} -->
-<!-- profiles_ratios <- sessions_demand %>% -->
-<!--   group_by(Timecycle, Profile) %>% -->
-<!--   summarise(n = n()) %>% -->
-<!--   mutate(profile_ratio = n/sum(n)) %>% -->
-<!--   select(model_name = Timecycle, profile = Profile, profile_ratio) -->
-
-<!-- head(profiles_ratios, 10) -->
-<!-- ``` -->
+Note, that we set the Dinner profile's ratio to 0. This is equivalent to discard this user profile from our simulation. To directly remove this profile from our model object, set the argument `discard = TRUE` in `update_profiles_ratios()` function.
 
 
-<!-- The function `simulate_sessions` of package `{evsim}` lets to simulate the sessions with the configuration above, together with the `dates` of the simulated sessions and the `interval_mins` as the times resolution (in minutes). Moreover, parameters `connection_log` and `energy_log` must be TRUE if the models have been built in a logarithmic scale. -->
+### Number of sessions per day
 
-<!-- ```{r estimate sessions, eval=F} -->
-<!-- library(evsim) -->
+To set the number of sessions per day to function `simulate_sessions()` function we need to pass a tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model).
+For example:
 
-<!-- ev_models <- readRDS('results/arnhem2_log_models.rds')[['models']] -->
+```{r n_sessions}
+sessions_day <- tibble(
+  time_cycle = ev_model$models$time_cycle,
+  n_sessions = c(250, 275, 200, 200)
+)
+sessions_day
+```
 
-<!-- my_ev_models <- ev_models %>% -->
-<!--   mutate( -->
-<!--     n_sessions = n_sessions$n_day # Update the number of sessions -->
-<!--   ) %>% -->
-<!--   update_profiles_ratios( -->
-<!--     profiles_ratios # Update the distribution of user profiles -->
-<!--   ) -->
+### Charging powers distribution
 
-<!-- sessions_estimated <- simulate_sessions( -->
-<!--   my_ev_models, -->
-<!--   charging_rates, -->
-<!--   dates = unique(date(dttm_seq)), -->
-<!--   interval_mins, -->
-<!--   connection_log = TRUE, -->
-<!--   energy_log = TRUE -->
-<!-- ) -->
-<!-- ``` -->
-<!-- ```{r estimated sessions, eval=t, echo=F} -->
-<!-- # Check that the charging rates distribution is correct with: -->
-<!-- # sessions_estimated %>% get_charging_rates_distribution() -->
+We also need to specify the ratio of each charging power rate, as a tibble with variables `power` and `ratio`. In the public charging infrastructure the most common and standard power rates are:
 
-<!-- head(sessions_estimated) -->
-<!-- ``` -->
+* 3.7 kW AC
+* 7.3 kW AC
+* 11 kW AC
+* 22 kW AC
 
-<!-- Finally, we can calculate the estimated demand and compare it with the real demand: -->
+Then we will set the following charging power distribution:
+```{r charging rates}
+charging_powers <- tibble(
+  power = c(3.7, 7.3, 11, 22),
+  ratio = c(0.2, 0.4, 0.3, 0.1)
+)
+charging_powers
+```
+  
+  
+### Datetime values
 
-<!-- ```{r simualted demand, eval=F} -->
-<!-- estimated_demand <- sessions_estimated %>% -->
-<!--   get_demand(dttm_seq) -->
+The function `simulate_sessions()` automatically selects the time-cycle that fits to a specific date. This is why we have to pass a vector of the dates that we want to simulate. For example:
 
-<!-- comparison_demand <- tibble( -->
-<!--   datetime = dttm_seq, -->
-<!--   demand_real = rowSums(demand[-1]), -->
-<!--   demand_estimated = rowSums(estimated_demand[-1]) -->
-<!-- ) -->
-<!-- ``` -->
-<!-- ```{r simualted demand plot} -->
-<!-- comparison_demand %>% -->
-<!--   df_to_ts() %>% -->
-<!--   dygraph(ylab = 'kW') %>% -->
-<!--   dySeries('demand_real', 'Real demand', color = 'black', strokePattern = 'dashed', strokeWidth = 2) %>% -->
-<!--   dySeries('demand_estimated', 'Estimated demand', color = 'navy', fillGraph = T) %>% -->
-<!--   dyCSS("www/dystyle.css") -->
-<!-- ``` -->
+```{r dates}
+dates_sim <- seq.Date(from = as.Date('2019-09-10'), to = as.Date('2019-09-15'), by = '1 day')
+dates_sim
+```
 
-<!-- It is obvious that the two demand curves don't match perfectly because we are not doing a forecasting model but a simulation model, without inputs that conditionate a particular output. What we can compare is the day times where the demand peaks or valleys occur, and this is a positive comparison for our models, which coincide almost perfectly with the real demand. Moreover, the peak values are in general in concordance with the real peaks. -->
+Another datetime argument that the simulation function needs is the time resolution of the datetime variables of the sessions (connection start, connection end, charging end, ...). For this example we will set a time resolution of 15 minutes, so the argument will be `resolution = 15`.
 
+
+## Simulation
+
+We have now all required data and we are ready to simulate the new sessions:
+
+```{r estimate sessions}
+sessions_estimated <- simulate_sessions(
+  ev_model,
+  sessions_day, 
+  charging_powers,
+  dates_sim,
+  resolution = 15
+)
+
+head(sessions_estimated)
+```
+
+We have obtained a total of 1674 sessions for our 7 simulation dates, each session corresponding to a specific charging profile. We can notice that the datetime variables have a resolution of 15 minutes according to our configuration, and the energy required corresponds to product of `Power` and `ChargingHours`. 
+
+
+## EV demand
+
+Finally, we can calculate the estimated demand with function `get_demand()`. This function needs an extra argument, `dttm_seq`, which will be the datetime sequence of the time-series demand data frame returned by the function. We will set the datetime sequence from our first to last date with a resolution of 15 minutes and the `Europe/Amsterdam` timezone (with the help of `lubridate::with_tz()` function):
+
+```{r dttm_seq}
+dttm_seq <- seq.POSIXt(from = as.POSIXct('2019-09-10'), to = as.POSIXct('2019-09-16'), by = '15 min') %>% 
+  lubridate::with_tz('Europe/Amsterdam')
+```
+
+```{r simualted demand}
+estimated_demand <- sessions_estimated %>% get_demand(dttm_seq)
+```
+
+And the plot of the estimated demand (making use of [`{dygraphs}`](https://rstudio.github.io/dygraphs/) package):
+
+```{r plot, echo=FALSE, fig.width=9}
+estimated_demand %>% dutils::dyplot(ylab = 'Power demand (kW)', fillGraph = T, stackedGraph = T)
+```
 
 
 

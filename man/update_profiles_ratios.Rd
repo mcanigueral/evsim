@@ -9,11 +9,11 @@ update_profiles_ratios(evmodel, new_ratios, discard = FALSE)
 \arguments{
 \item{evmodel}{object of class \code{evmodel}}
 
-\item{new_ratios}{tibble with columns: \code{model_name}, \code{profile}, \code{profile_ratio.}
-It must have all profiles from every model, including the ones with \code{profile_ratio = 0}.
+\item{new_ratios}{tibble with columns: \code{time_cycle}, \code{profile}, \code{ratio}
+It must have all profiles from every model, including the ones with \code{ratio = 0}.
 The ratios must be between 0 and 1.}
 
-\item{discard}{If TRUE, profiles with \code{profile_ratio == 0} will be discarded from the \code{evmodel} object}
+\item{discard}{If TRUE, profiles with \code{ratio == 0} will be discarded from the \code{evmodel} object}
 }
 \value{
 tibble

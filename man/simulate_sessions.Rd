@@ -4,31 +4,19 @@
 \alias{simulate_sessions}
 \title{Simualte sessions given datetime sequence and models}
 \usage{
-simulate_sessions(
-  evmodel,
-  sessions_day,
-  charging_powers,
-  dates,
-  interval_mins,
-  connection_log = TRUE,
-  energy_log = TRUE
-)
+simulate_sessions(evmodel, sessions_day, charging_powers, dates, resolution)
 }
 \arguments{
 \item{evmodel}{object of type \code{evmodel} (see this \href{https://mcanigueral.github.io/evprof/articles/evmodel.html}{link} for more information)}
 
 \item{sessions_day}{tibble with variables \code{time_cycle} (names corresponding to \code{evmodel$models$time_cycle}) and \code{n_sessions} (number of daily sessions per day for each time-cycle model)}
 
-\item{charging_powers}{charging powers proportions (tibble) with two columns: \code{power} and \code{ratio}.
+\item{charging_powers}{tibble with variables \code{power} and \code{ratio}
 The powers must be in kW and the ratios between 0 and 1.}
 
 \item{dates}{datetime vector with dates to simualte (datetime values with hour set to 00:00)}
 
-\item{interval_mins}{interval of minutes (integer) to round the sessions datetime variables}
-
-\item{connection_log}{Logical, true if connection models have logarithmic transformations}
-
-\item{energy_log}{Logical, true if energy models have logarithmic transformations}
+\item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables}
 }
 \value{
 tibble
