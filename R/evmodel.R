@@ -30,7 +30,7 @@ print.evmodel <- function(x, ...) {
 
 # Modify the models -------------------------------------------------------
 
-#' Update the ratios of the user profiles
+#' Update the ratios of the user profiles inside `evmodel` object
 #'
 #' @param evmodel object of class `evmodel`
 #' @param new_ratios tibble with columns: `time_cycle`, `profile`, `ratio`
@@ -38,7 +38,7 @@ print.evmodel <- function(x, ...) {
 #' The ratios must be between 0 and 1.
 #' @param discard If TRUE, profiles with `ratio == 0` will be discarded from the `evmodel` object
 #'
-#' @return tibble
+#' @return the updated `evmodel` object
 #' @export
 #'
 #' @importFrom purrr map_dbl

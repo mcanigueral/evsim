@@ -202,13 +202,13 @@ get_profile_sessions <- function(profile_name, dates, ev_models, connection_log,
 }
 
 
-#' Simualte sessions given datetime sequence and models
+#' Simulate sessions given the `evmodel` object and a datetime sequence
 #'
 #' @param evmodel object of type `evmodel` (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
 #' @param charging_powers tibble with variables `power` and `ratio`
 #' The powers must be in kW and the ratios between 0 and 1.
-#' @param dates datetime vector with dates to simualte (datetime values with hour set to 00:00)
+#' @param dates date sequence that will set the time frame of the simulated sessions
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
 #'
 #' @return tibble

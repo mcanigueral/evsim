@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation.R
 \name{simulate_sessions}
 \alias{simulate_sessions}
-\title{Simualte sessions given datetime sequence and models}
+\title{Simulate sessions given the \code{evmodel} object and a datetime sequence}
 \usage{
 simulate_sessions(evmodel, sessions_day, charging_powers, dates, resolution)
 }
@@ -14,7 +14,7 @@ simulate_sessions(evmodel, sessions_day, charging_powers, dates, resolution)
 \item{charging_powers}{tibble with variables \code{power} and \code{ratio}
 The powers must be in kW and the ratios between 0 and 1.}
 
-\item{dates}{datetime vector with dates to simualte (datetime values with hour set to 00:00)}
+\item{dates}{date sequence that will set the time frame of the simulated sessions}
 
 \item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables}
 }
@@ -22,5 +22,5 @@ The powers must be in kW and the ratios between 0 and 1.}
 tibble
 }
 \description{
-Simualte sessions given datetime sequence and models
+Simulate sessions given the \code{evmodel} object and a datetime sequence
 }

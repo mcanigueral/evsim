@@ -3,7 +3,7 @@
 
 #' Obtain demand from a starting dttm value and certain duration interval
 #'
-#' @param sessions sessions data set in standard format
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
 #' @param dttm_start datetime value starting the demand calculation
 #' @param interval_mins numeric, duration (in minutes) of the demand interval
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
@@ -29,8 +29,8 @@ get_interval_demand <- function(sessions, dttm_start, interval_mins, by = c("Pro
 
 #' Obtain timeseries demand from sessions dataset
 #'
-#' @param sessions sessions data set in standard format
-#' @param dttm_seq vector with a sequence of datetime values
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' @param dttm_seq sequence of datetime values that will be the datetime variable of the returned time-series data frame
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
 #'
 #' @return tibble

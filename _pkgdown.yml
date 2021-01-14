@@ -4,3 +4,11 @@ template:
   params:
     bootswatch: flatly
 
+reference:
+  - title: Simulation
+  - contents:
+    - simulate_sessions
+    - update_profiles_ratios
+  - title: Time-series demand
+  - contents:
+    - get_demand

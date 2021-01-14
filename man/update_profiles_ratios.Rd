@@ -2,7 +2,7 @@
 % Please edit documentation in R/evmodel.R
 \name{update_profiles_ratios}
 \alias{update_profiles_ratios}
-\title{Update the ratios of the user profiles}
+\title{Update the ratios of the user profiles inside \code{evmodel} object}
 \usage{
 update_profiles_ratios(evmodel, new_ratios, discard = FALSE)
 }
@@ -16,8 +16,8 @@ The ratios must be between 0 and 1.}
 \item{discard}{If TRUE, profiles with \code{ratio == 0} will be discarded from the \code{evmodel} object}
 }
 \value{
-tibble
+the updated \code{evmodel} object
 }
 \description{
-Update the ratios of the user profiles
+Update the ratios of the user profiles inside \code{evmodel} object
 }

@@ -7,9 +7,9 @@
 get_demand(sessions, dttm_seq, by = "Profile")
 }
 \arguments{
-\item{sessions}{sessions data set in standard format}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
 
-\item{dttm_seq}{vector with a sequence of datetime values}
+\item{dttm_seq}{sequence of datetime values that will be the datetime variable of the returned time-series data frame}
 
 \item{by}{character, being 'Profile' or 'Session'. When \code{by='Profile'} each column corresponds to an EV user profile.}
 }

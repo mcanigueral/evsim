@@ -12,7 +12,7 @@ get_interval_demand(
 )
 }
 \arguments{
-\item{sessions}{sessions data set in standard format}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
 
 \item{dttm_start}{datetime value starting the demand calculation}
 
