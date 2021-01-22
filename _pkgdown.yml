@@ -5,6 +5,11 @@ template:
     bootswatch: flatly
     ganalytics: 'G-J2NB3LGNZN'
 
+navbar:
+  structure:
+    left:  [home, intro, reference, articles, tutorials, news]
+    right: [github]
+
 reference:
   - title: Simulation
   - contents:

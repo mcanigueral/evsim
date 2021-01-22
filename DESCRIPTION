@@ -6,7 +6,7 @@ Authors@R:
            family = "Cañigueral",
            role = c("aut", "cre"),
            email = "marc.canigueral@udg.edu",
-           comment = c(ORCID = "https://orcid.org/0000-0001-9724-5829")
+           comment = c(ORCID = "0000-0001-9724-5829")
            )
 Description: This package provides the function to simulate Electric Vehicles charging sessions using models built in {evprof} package.
 License: GPL-3
@@ -24,3 +24,4 @@ Imports:
   xts
 Depends: 
     R (>= 2.10)
+URL: https://github.com/mcanigueral/evsim/
