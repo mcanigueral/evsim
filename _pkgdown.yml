@@ -3,6 +3,7 @@ url: mcanigueral.github.io/evsim
 template:
   params:
     bootswatch: flatly
+    ganalytics: 'G-J2NB3LGNZN'
 
 reference:
   - title: Simulation
