@@ -28,7 +28,7 @@ evSessionsUI <- function(id) {
 #' @export
 #'
 #' @importFrom dplyr tibble
-#' @importFrom purrr map2_dbl map_dbl
+#' @importFrom purrr map2_dbl map_dbl walk walk2
 #' @importFrom rlang .data
 #'
 evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powers, dates, resolution) {
@@ -70,7 +70,7 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
 # Server ------------------------------------------------------------------
 
       ev_model_srv <- shiny::reactive({
-        shiny::req(input[[paste0("ratio_", profiles_ratios[['profile']][1], "_", profiles_ratios[['time_cycle']][1])]]) # Require a random profile input to continue
+        walk2(profiles_ratios[['time_cycle']], profiles_ratios[['profile']], ~ shiny::req(input[[paste0("ratio_", .y, "_", .x)]]/100)) # Evaluate all inputs to continue
         new_ratios <- tibble(
           time_cycle = profiles_ratios[['time_cycle']],
           profile = profiles_ratios[['profile']],
@@ -80,6 +80,7 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
       })
 
       sessions_day_srv <- shiny::reactive({
+        walk(sessions_day[['time_cycle']], ~ shiny::req(input[[paste0("n_ev_sessions_", .x)]])) # Evaluate all inputs to continue
         tibble(
           time_cycle = sessions_day[['time_cycle']],
           n_sessions = map_dbl(.data$time_cycle, ~ input[[paste0("n_ev_sessions_", .x)]])
@@ -87,6 +88,7 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
       })
 
       power_ratios_srv <- shiny::reactive({
+        walk(charging_powers[['power']], ~ shiny::req(input[[paste0("charging_", .x)]])) # Evaluate all inputs to continue
         tibble(
           power = charging_powers[['power']],
           ratio = map_dbl(.data$power, ~round(input[[paste0("charging_", .x)]]))
