@@ -21,3 +21,6 @@ the updated \code{evmodel} object
 \description{
 Update the ratios of the user profiles inside \code{evmodel} object
 }
+\details{
+If any user profile is not in the \code{new_ratios} data frame, its corresponding ratio in the \code{evmodel} object is updated with a \code{0}
+}

@@ -38,23 +38,26 @@ print.evmodel <- function(x, ...) {
 #' The ratios must be between 0 and 1.
 #' @param discard If TRUE, profiles with `ratio == 0` will be discarded from the `evmodel` object
 #'
+#' @details If any user profile is not in the `new_ratios` data frame, its corresponding ratio in the `evmodel` object is updated with a `0`
+#'
 #' @return the updated `evmodel` object
 #' @export
 #'
 #' @importFrom purrr map_dbl
+#' @importFrom dplyr left_join
 #'
 update_profiles_ratios <- function(evmodel, new_ratios, discard=FALSE) {
   ev_model <- evmodel[['models']]
   for (m in 1:nrow(ev_model)) {
 
-    time_cycle <- ev_model[["time_cycle"]][[m]]
-    if (!(time_cycle %in% new_ratios[["time_cycle"]])) next
+    time_cycle_name <- ev_model[["time_cycle"]][[m]]
+    if (!(time_cycle_name %in% new_ratios[["time_cycle"]])) next
 
     gmm <- ev_model[["user_profiles"]][[m]]
-    gmm[["ratio"]] <- map_dbl(
-      gmm[["profile"]],
-      ~ new_ratios[["ratio"]][ (new_ratios[["time_cycle"]] == time_cycle) & (new_ratios[["profile"]] == .x) ]
-    )
+    new_ratios_time_cycle <- new_ratios[new_ratios[["time_cycle"]] == time_cycle_name, ]
+    gmm_new_ratios <- left_join(gmm['profile'], new_ratios_time_cycle[c('profile', 'ratio')], by = 'profile')
+    gmm_new_ratios[is.na(gmm_new_ratios)] <- 0
+    gmm[["ratio"]] <- gmm_new_ratios[["ratio"]]
 
     if (discard) {
       gmm <- gmm[gmm[["ratio"]] > 0, ]
