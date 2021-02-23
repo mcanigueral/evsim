@@ -37,7 +37,6 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
     function(input, output, session) {
 
       ns <- session$ns
-      ev_models <- evmodel$models
 
 # UI  ---------------------------------------------------------------------
 
@@ -76,7 +75,7 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
           profile = profiles_ratios[['profile']],
           ratio = map2_dbl(.data$time_cycle, .data$profile, ~ input[[paste0("ratio_", .y, "_", .x)]]/100)
         )
-        update_profiles_ratios(ev_model, new_ratios)
+        update_profiles_ratios(evmodel, new_ratios)
       })
 
       sessions_day_srv <- shiny::reactive({
