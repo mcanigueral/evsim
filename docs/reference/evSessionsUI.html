@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Update the ratios of the user profiles inside evmodel object — update_profiles_ratios • evsim</title>
+<title>evSessions Module: UI function — evSessionsUI • evsim</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Update the ratios of the user profiles inside evmodel object — update_profiles_ratios" />
-<meta property="og:description" content="Update the ratios of the user profiles inside evmodel object" />
+<meta property="og:title" content="evSessions Module: UI function — evSessionsUI" />
+<meta property="og:description" content="evSessions Module: UI function" />
 
 
 
@@ -121,42 +121,26 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Update the ratios of the user profiles inside <code>evmodel</code> object</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mcanigueral/evsim/blob/master/R/evmodel.R'><code>R/evmodel.R</code></a></small>
-    <div class="hidden name"><code>update_profiles_ratios.Rd</code></div>
+    <h1>evSessions Module: UI function</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mcanigueral/evsim/blob/master/R/evSessionsModule.R'><code>R/evSessionsModule.R</code></a></small>
+    <div class="hidden name"><code>evSessionsUI.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Update the ratios of the user profiles inside <code>evmodel</code> object</p>
+    <p>evSessions Module: UI function</p>
     </div>
 
-    <pre class="usage"><span class='fu'>update_profiles_ratios</span><span class='op'>(</span><span class='va'>evmodel</span>, <span class='va'>new_ratios</span>, discard <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>evSessionsUI</span><span class='op'>(</span><span class='va'>id</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>evmodel</th>
-      <td><p>object of class <code>evmodel</code></p></td>
-    </tr>
-    <tr>
-      <th>new_ratios</th>
-      <td><p>tibble with columns: <code>time_cycle</code>, <code>profile</code>, <code>ratio</code>
-It must have all profiles from every model, including the ones with <code>ratio = 0</code>.
-The ratios must be between 0 and 1.</p></td>
-    </tr>
-    <tr>
-      <th>discard</th>
-      <td><p>If TRUE, profiles with <code>ratio == 0</code> will be discarded from the <code>evmodel</code> object</p></td>
+      <th>id</th>
+      <td><p>character, module ID</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>the updated <code>evmodel</code> object</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>If any user profile is not in the <code>new_ratios</code> data frame, its corresponding ratio in the <code>evmodel</code> object is updated with a <code>0</code></p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
