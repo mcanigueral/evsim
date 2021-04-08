@@ -11,7 +11,8 @@ evSessions(
   profiles_ratios,
   charging_powers,
   dates,
-  resolution
+  resolution,
+  seed = 1234
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ The powers must be in kW and the ratios between 0 and 1.}
 \item{dates}{reactive object returning a date sequence that will set the time frame of the simulated sessions}
 
 \item{resolution}{reactive object returning an integer, time resolution (in minutes) of the sessions datetime variables}
+
+\item{seed}{integer, random seed of the simulation}
 }
 \description{
 evSessions Module: Server function

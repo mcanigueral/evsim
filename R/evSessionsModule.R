@@ -24,6 +24,7 @@ evSessionsUI <- function(id) {
 #' The powers must be in kW and the ratios between 0 and 1.
 #' @param dates reactive object returning a date sequence that will set the time frame of the simulated sessions
 #' @param resolution reactive object returning an integer, time resolution (in minutes) of the sessions datetime variables
+#' @param seed integer, random seed of the simulation
 #'
 #' @export
 #'
@@ -31,7 +32,7 @@ evSessionsUI <- function(id) {
 #' @importFrom purrr map2_dbl map_dbl walk walk2
 #' @importFrom rlang .data
 #'
-evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powers, dates, resolution) {
+evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powers, dates, resolution, seed = 1234) {
   shiny::moduleServer(
     id,
     function(input, output, session) {
@@ -96,7 +97,7 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
 
       return({
         shiny::eventReactive(input[['update_ev_setup']], ignoreNULL=F, ignoreInit=F, {
-          set.seed(1234)
+          set.seed(seed)
           simulate_sessions(
             ev_model_srv(), sessions_day_srv(), power_ratios_srv(), dates(), resolution()
           )
