@@ -216,9 +216,8 @@ get_profile_sessions <- function(profile_name, dates, ev_models, connection_log,
 #'
 #' @importFrom purrr map map_dfr set_names
 #' @importFrom dplyr mutate any_of row_number arrange left_join
-#' @importFrom lubridate force_tz
+#' @importFrom lubridate force_tz round_date
 #' @importFrom rlang .data
-#' @importFrom xts align.time
 #'
 simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, resolution) {
   ev_models <- evmodel[["models"]]
@@ -240,7 +239,7 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
   # Standardize the variables
   sessions_estimated <- sessions_estimated %>%
     mutate(
-      ConnectionStartDateTime = force_tz(align.time(.data$start_dt, n=60*resolution), tzone),
+      ConnectionStartDateTime = force_tz(round_date(.data$start_dt, paste(resolution, "minutes")), tzone),
       ConnectionHours = round_to_interval(.data$duration, resolution/60),
       Power = sample(charging_powers[["power"]], size = nrow(sessions_estimated), prob = charging_powers[["ratio"]], replace = T),
       Energy = round_to_interval(.data$energy, .data$Power*resolution/60)

@@ -3,7 +3,7 @@ pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   evsim: evsim.html
-last_built: 2021-02-26T09:35Z
+last_built: 2021-05-05T14:11Z
 urls:
   reference: mcanigueral.github.io/evsim/reference
   article: mcanigueral.github.io/evsim/articles

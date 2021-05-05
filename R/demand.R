@@ -4,26 +4,24 @@
 #' Obtain demand from a starting dttm value and certain duration interval
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' @param dttm_start datetime value starting the demand calculation
-#' @param interval_mins numeric, duration (in minutes) of the demand interval
+#' @param timeslot datetime, time slot of the requested demand
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
 #'
 #' @return tibble
 #'
 #' @importFrom dplyr %>% filter group_by summarise mutate sym
 #' @importFrom tidyr spread
-#' @importFrom lubridate minutes
 #' @importFrom rlang .data
 #'
-get_interval_demand <- function(sessions, dttm_start, interval_mins, by = c("Profile", "Session")) {
+#' @details This function is only valid if charging start/end times of sessions are aligned to a specific time-interval
+#'
+get_interval_demand <- function(sessions, timeslot, by = c("Profile", "Session")) {
   sessions %>%
-    filter(
-      .data$ConnectionStartDateTime <= dttm_start & .data$ChargingEndDateTime >= (dttm_start + minutes(interval_mins))
-    ) %>%
+    filter(.data$ChargingStartDateTime <= timeslot, timeslot < .data$ChargingEndDateTime) %>%
     group_by(!!sym(by)) %>%
     summarise(Power = sum(.data$Power)) %>%
-    mutate(datetime = dttm_start) %>%
-    spread(!!sym(by), .data$Power)
+    spread(!!sym(by), .data$Power) %>%
+    mutate(datetime = timeslot)
 }
 
 
@@ -37,25 +35,21 @@ get_interval_demand <- function(sessions, dttm_start, interval_mins, by = c("Pro
 #' @export
 #'
 #' @importFrom dplyr %>% left_join select everything rename mutate_if
-#' @importFrom lubridate is.timepoint
-#' @importFrom xts align.time
+#' @importFrom lubridate is.timepoint round_date
 #' @importFrom purrr map2_dfr
 #'
 get_demand <- function(sessions, dttm_seq, by = "Profile") {
   interval_mins <- as.integer(as.numeric(dttm_seq[2] - dttm_seq[1], unit = 'hours')*60)
 
   sessions <- sessions %>%
-    mutate_if(is.timepoint, xts::align.time, interval_mins*60)
+    mutate_if(is.timepoint, round_date, paste(interval_mins, "minutes"))
 
-  demand <- tibble(datetime = dttm_seq) %>%
-    left_join(
-      map_dfr(dttm_seq, ~get_interval_demand(sessions, .x, interval_mins, by)),
-      by = "datetime"
-    )
+  demand <- map_dfr(dttm_seq, ~get_interval_demand(sessions, .x, by))
 
-  demand <- replace(demand, is.na(demand), 0)
+  demand_df <- tibble(datetime = dttm_seq) %>% left_join(demand, by = "datetime")
+  demand_df <- replace(demand_df, is.na(demand_df), 0)
 
-  return( demand )
+  return( demand_df )
 }
 
 

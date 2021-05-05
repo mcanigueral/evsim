@@ -130,12 +130,7 @@
     <p>Obtain demand from a starting dttm value and certain duration interval</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_interval_demand</span><span class='op'>(</span>
-  <span class='va'>sessions</span>,
-  <span class='va'>dttm_start</span>,
-  <span class='va'>interval_mins</span>,
-  by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Profile"</span>, <span class='st'>"Session"</span><span class='op'>)</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>get_interval_demand</span><span class='op'>(</span><span class='va'>sessions</span>, <span class='va'>timeslot</span>, by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Profile"</span>, <span class='st'>"Session"</span><span class='op'>)</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,12 +140,8 @@
       <td><p>tibble, sessions data set in standard format marked by <code>{evprof}</code> package</p></td>
     </tr>
     <tr>
-      <th>dttm_start</th>
-      <td><p>datetime value starting the demand calculation</p></td>
-    </tr>
-    <tr>
-      <th>interval_mins</th>
-      <td><p>numeric, duration (in minutes) of the demand interval</p></td>
+      <th>timeslot</th>
+      <td><p>datetime, time slot of the requested demand</p></td>
     </tr>
     <tr>
       <th>by</th>
@@ -161,6 +152,9 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>tibble</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function is only valid if charging start/end times of sessions are aligned to a specific time-interval</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -4,19 +4,12 @@
 \alias{get_interval_demand}
 \title{Obtain demand from a starting dttm value and certain duration interval}
 \usage{
-get_interval_demand(
-  sessions,
-  dttm_start,
-  interval_mins,
-  by = c("Profile", "Session")
-)
+get_interval_demand(sessions, timeslot, by = c("Profile", "Session"))
 }
 \arguments{
 \item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
 
-\item{dttm_start}{datetime value starting the demand calculation}
-
-\item{interval_mins}{numeric, duration (in minutes) of the demand interval}
+\item{timeslot}{datetime, time slot of the requested demand}
 
 \item{by}{character, being 'Profile' or 'Session'. When \code{by='Profile'} each column corresponds to an EV user profile.}
 }
@@ -25,4 +18,7 @@ tibble
 }
 \description{
 Obtain demand from a starting dttm value and certain duration interval
+}
+\details{
+This function is only valid if charging start/end times of sessions are aligned to a specific time-interval
 }

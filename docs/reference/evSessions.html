@@ -137,7 +137,8 @@
   <span class='va'>profiles_ratios</span>,
   <span class='va'>charging_powers</span>,
   <span class='va'>dates</span>,
-  <span class='va'>resolution</span>
+  <span class='va'>resolution</span>,
+  seed <span class='op'>=</span> <span class='fl'>1234</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -172,6 +173,10 @@ The powers must be in kW and the ratios between 0 and 1.</p></td>
     <tr>
       <th>resolution</th>
       <td><p>reactive object returning an integer, time resolution (in minutes) of the sessions datetime variables</p></td>
+    </tr>
+    <tr>
+      <th>seed</th>
+      <td><p>integer, random seed of the simulation</p></td>
     </tr>
     </table>
 
