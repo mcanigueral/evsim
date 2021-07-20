@@ -4,7 +4,7 @@
 \alias{get_demand}
 \title{Obtain timeseries demand from sessions dataset}
 \usage{
-get_demand(sessions, dttm_seq, by = "Profile")
+get_demand(sessions, dttm_seq = NULL, by = "Profile", resolution = 15)
 }
 \arguments{
 \item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
@@ -12,10 +12,16 @@ get_demand(sessions, dttm_seq, by = "Profile")
 \item{dttm_seq}{sequence of datetime values that will be the datetime variable of the returned time-series data frame}
 
 \item{by}{character, being 'Profile' or 'Session'. When \code{by='Profile'} each column corresponds to an EV user profile.}
+
+\item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables. If \code{dttm_seq} is defined this parameter is ignored.}
 }
 \value{
 tibble
 }
 \description{
 Obtain timeseries demand from sessions dataset
+}
+\details{
+This function is only valid if charging start/end times of sessions are aligned to a specific time-interval.
+For this purpose use \code{approximate_sessions} function.
 }
