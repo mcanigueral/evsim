@@ -23,8 +23,8 @@
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15) {
   if (is.null(dttm_seq)) {
     dttm_seq <- seq.POSIXt(
-      from = floor_date(min(sessions$ConnectionStartDateTime)),
-      to = floor_date(max(sessions$ConnectionEndDateTime))+days(1),
+      from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
+      to = floor_date(max(sessions$ConnectionEndDateTime), 'day')+days(1),
       by = paste(resolution, 'min')
     )
   } else {
