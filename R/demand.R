@@ -30,7 +30,7 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
   }
   demand <- left_join(
     tibble(datetime = dttm_seq),
-    map_dfr(dttm_seq, ~ get_sessions_interval_demand(sessions, .x, by, normalized)) %>%
+    map_dfr(dttm_seq, ~ get_interval_demand(sessions, .x, by)) %>%
       pivot_wider(names_from = !!sym(by), values_from = .data$Power, values_fill = 0),
     by = 'datetime'
   )
