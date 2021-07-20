@@ -1,4 +1,57 @@
 
+# Utils -------------------------------------------------------------------
+
+#' Change charging features with new charging power distribution
+#'
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' @param power_rates numeric vector with different charging power rates
+#' @param power_prob numeric vector with the probability of the charging power rates with the corresponding order
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom dplyr %>% mutate
+#' @importFrom rlang .data
+#'
+change_charging_features <- function(sessions, power_rates, power_prob) {
+  sessions %>%
+    mutate(
+      Power = sample(power_rates, nrow(sessions), replace = T, prob = power_prob),
+      ChargingHours = .data$Energy/.data$Power,
+      ChargingStartDateTime = .data$ConnectionStartDateTime,
+      ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
+    )
+}
+
+#' Approximate sessions to perfect power steps
+#'
+#' @param sessions tibble, sessions data set
+#' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
+#' @param power_interval numeric, interval of power approximation, in kW
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom dplyr mutate %>%
+#' @importFrom rlang .data
+#' @importFrom lubridate round_date
+#'
+approximate_sessions <- function(sessions, resolution = 15, power_interval = 0.01) {
+  sessions %>%
+    mutate(
+      ConnectionStartDateTime = round_date(.data$ConnectionStartDateTime, paste(resolution, "minutes")),
+      ConnectionEndDateTime = round_date(.data$ConnectionEndDateTime, paste(resolution, "minutes")),
+      ChargingStartDateTime = round_date(.data$ChargingStartDateTime, paste(resolution, "minutes")),
+      ChargingEndDateTime = round_date(.data$ChargingEndDateTime, paste(resolution, "minutes")),
+      Power = round_to_interval(.data$Power, power_interval),
+      ConnectionHours = as.numeric(.data$ConnectionEndDateTime - .data$ConnectionStartDateTime, units='hours'),
+      ChargingHours = as.numeric(.data$ChargingEndDateTime - .data$ChargingStartDateTime, units='hours'),
+      Energy = .data$Power*.data$ChargingHours
+    )
+}
+
+
+
 # Demand ------------------------------------------------------------------
 
 #' Obtain timeseries demand from sessions dataset

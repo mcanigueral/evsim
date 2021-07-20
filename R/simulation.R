@@ -25,30 +25,6 @@ convert_time_num_to_period <- function(time_num) {
 }
 
 
-#' Change charging features with new charging power distribution
-#'
-#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' @param power_rates numeric vector with different charging power rates
-#' @param power_prob numeric vector with the probability of the charging power rates with the corresponding order
-#'
-#' @return tibble
-#' @export
-#'
-#' @importFrom dplyr %>% mutate
-#' @importFrom rlang .data
-#'
-change_charging_features <- function(sessions, power_rates, power_prob) {
-  sessions %>%
-    mutate(
-      Power = sample(power_rates, nrow(sessions), replace = T, prob = power_prob),
-      ChargingHours = .data$Energy/.data$Power,
-      ChargingStartDateTime = .data$ConnectionStartDateTime,
-      ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
-    )
-}
-
-
-
 # Simulate sessions -------------------------------------------------------
 
 #' Estimate sessions energy values
