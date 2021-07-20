@@ -11,11 +11,11 @@
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr left_join tibble sym
+#' @importFrom dplyr left_join tibble sym mutate_if
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
 #' @importFrom purrr map_dfr
-#' @importFrom lubridate floor_date days
+#' @importFrom lubridate floor_date days is.timepoint
 #'
 #' @details This function is only valid if charging start/end times of sessions are aligned to a specific time-interval.
 #' For this purpose use `approximate_sessions` function.
@@ -27,10 +27,15 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
       to = floor_date(max(sessions$ConnectionEndDateTime))+days(1),
       by = paste(resolution, 'min')
     )
+  } else {
+    resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
   }
+  sessions_aligned <- sessions %>%
+    mutate_if(is.timepoint, floor_date, paste(resolution, 'min'))
+
   demand <- left_join(
     tibble(datetime = dttm_seq),
-    map_dfr(dttm_seq, ~ get_interval_demand(sessions, .x, by)) %>%
+    map_dfr(dttm_seq, ~ get_interval_demand(sessions_aligned, .x, by)) %>%
       pivot_wider(names_from = !!sym(by), values_from = .data$Power, values_fill = 0),
     by = 'datetime'
   )
