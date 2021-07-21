@@ -235,12 +235,18 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
     .id = "Profile"
   )
 
+  # Charging power
+  if (nrow(charging_powers) > 1) {
+    sessions_estimated[['Power']] <- sample(charging_powers$power, size = nrow(sessions_estimated), prob = charging_powers[["ratio"]], replace = T)
+  } else {
+    sessions_estimated[['Power']] <- rep(charging_powers$power, nrow(sessions_estimated))
+  }
+
   # Standardize the variables
   sessions_estimated <- sessions_estimated %>%
     mutate(
       ConnectionStartDateTime = force_tz(round_date(.data$start_dt, paste(resolution, "minutes")), tzone),
       ConnectionHours = round_to_interval(.data$duration, resolution/60),
-      Power = sample(charging_powers[["power"]], size = nrow(sessions_estimated), prob = charging_powers[["ratio"]], replace = T),
       Energy = round_to_interval(.data$energy, .data$Power*resolution/60)
     )
 
