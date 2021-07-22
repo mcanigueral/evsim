@@ -14,10 +14,16 @@
 #' @importFrom rlang .data
 #'
 change_charging_features <- function(sessions, power_rates, power_prob) {
+  # Charging power
+  if (length(power_rates) > 1) {
+    sessions[['Power']] <- sample(power_rates, size = nrow(sessions), prob = power_prob, replace = T)
+  } else {
+    sessions[['Power']] <- rep(power_rates, nrow(sessions))
+  }
   sessions %>%
     mutate(
-      Power = sample(power_rates, nrow(sessions), replace = T, prob = power_prob),
-      ChargingHours = .data$Energy/.data$Power,
+      ChargingHours = pmin(.data$Energy/.data$Power, .data$ConnectionHours), # Limit ChargingHours by ConnectionHours
+      Energy = .data$Power * .data$ChargingHours, # Energy must change if ChargingHours was limited by ConnectionHours
       ChargingStartDateTime = .data$ConnectionStartDateTime,
       ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
     )
