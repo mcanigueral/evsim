@@ -25,6 +25,46 @@ convert_time_num_to_period <- function(time_num) {
 }
 
 
+#' Get charging rates distribution in percentages
+#'
+#' @param sessions sessions data set in standard format
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom dplyr %>% select mutate group_by summarise between n
+#' @importFrom rlang .data
+#'
+get_charging_powers_ratios <- function(sessions) {
+  sessions %>%
+    mutate(
+      Power = round_to_interval(.data$Power, 0.5),
+      power = ifelse(
+        between(.data$Power, 0, 4),
+        3.7,
+        ifelse(
+          between(.data$Power, 4.5, 8),
+          7.4,
+          ifelse(
+            between(.data$Power, 8.5, 12),
+            11,
+            ifelse(
+              between(.data$Power, 12.5, 24),
+              22,
+              NA
+            )
+          )
+        )
+      )
+    ) %>%
+    group_by(.data$power) %>%
+    summarise(n = n()) %>%
+    mutate(ratio = .data$n/sum(.data$n)) %>%
+    select(.data$power, .data$ratio)
+}
+
+
+
 # Simulate sessions -------------------------------------------------------
 
 #' Estimate sessions energy values
