@@ -12,6 +12,36 @@ round_to_interval <- function(dbl, interval) {
   round(dbl/interval)*interval
 }
 
+#' Change charging features with new charging power distribution
+#'
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' @param power_rates numeric vector with different charging power rates
+#' @param power_prob numeric vector with the probability of the charging power rates with the corresponding order
+#' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom dplyr %>% mutate
+#' @importFrom rlang .data
+#'
+add_charging_features <- function(sessions, power_rates, power_prob, resolution = 15) {
+  # Charging power
+  if (length(power_rates) > 1) {
+    sessions$Power <- sample(power_rates, size = nrow(sessions), prob = power_prob, replace = T)
+  } else {
+    sessions$Power <- rep(power_rates, nrow(sessions))
+  }
+  sessions %>%
+    mutate(
+      ChargingHours = pmin(round_to_interval(.data$Energy/.data$Power, resolution/60), .data$ConnectionHours), # Limit ChargingHours by ConnectionHours
+      Energy = .data$Power * .data$ChargingHours, # Energy must change if ChargingHours was limited by ConnectionHours
+      ChargingStartDateTime = .data$ConnectionStartDateTime,
+      ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
+    )
+}
+
+
 #' Convert numeric time value to a datetime period (hour-based)
 #'
 #' @param time_num Numeric time value (hour-based)
@@ -258,6 +288,16 @@ get_profile_sessions <- function(profile_name, dates, ev_models, connection_log,
 #' @importFrom lubridate force_tz round_date
 #' @importFrom rlang .data
 #'
+#' @details The steps for simulating the sessions are:
+#'
+#' 1. Simulate connection start/duration and energy with GMM
+#'
+#' 2. Approximate connection start and duration according to time resolution and add connection end
+#'
+#' 3. Assign a charging power to every sessions
+#'
+#' 4. Approximate the charging hours, energy and charging end according to time resolution, the power and the connection duration
+#'
 simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, resolution) {
   ev_models <- evmodel[["models"]]
   connection_log <- evmodel[['metadata']][['connection_log']]
@@ -275,37 +315,15 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
     .id = "Profile"
   )
 
-  # Charging power
-  if (nrow(charging_powers) > 1) {
-    sessions_estimated[['Power']] <- sample(charging_powers$power, size = nrow(sessions_estimated), prob = charging_powers[["ratio"]], replace = T)
-  } else {
-    sessions_estimated[['Power']] <- rep(charging_powers$power, nrow(sessions_estimated))
-  }
-
-  # Standardize the variables
   sessions_estimated <- sessions_estimated %>%
     mutate(
       ConnectionStartDateTime = force_tz(round_date(.data$start_dt, paste(resolution, "minutes")), tzone),
       ConnectionHours = round_to_interval(.data$duration, resolution/60),
-      Energy = round_to_interval(.data$energy, .data$Power*resolution/60)
-    )
-
-  # Limit energy charged according to power
-  limit_idx <- sessions_estimated$Energy > sessions_estimated$Power*sessions_estimated$ConnectionHours
-  sessions_estimated[limit_idx, "Energy"] <-
-    sessions_estimated[limit_idx, "Power"]*sessions_estimated[limit_idx, "ConnectionHours"]
-
-  # Increase energy resulting in 0kWh due to power round
-  e0_idx <- sessions_estimated$Energy <= 0
-  sessions_estimated[e0_idx, "Energy"] <- sessions_estimated[e0_idx, "Power"]*resolution/60
-
-  # Calculate charging time according to power and energy
-  sessions_estimated <- sessions_estimated %>%
-    mutate(
-      ChargingHours = .data$Energy/.data$Power,
       ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
-      ChargingStartDateTime = .data$ConnectionStartDateTime,
-      ChargingEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ChargingHours),
+      Energy = .data$energy
+    ) %>%
+    add_charging_features(charging_powers$power, charging_powers$ratio, resolution) %>%
+    mutate(
       FlexibilityHours = .data$ConnectionHours - .data$ChargingHours
     ) %>%
     arrange(.data$ConnectionStartDateTime) %>%

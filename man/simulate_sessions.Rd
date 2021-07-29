@@ -24,3 +24,12 @@ tibble
 \description{
 Simulate sessions given the \code{evmodel} object and a datetime sequence
 }
+\details{
+The steps for simulating the sessions are:
+\enumerate{
+\item Simulate connection start/duration and energy with GMM
+\item Approximate connection start and duration according to time resolution and add connection end
+\item Assign a charging power to every sessions
+\item Approximate the charging hours, energy and charging end according to time resolution, the power and the connection duration
+}
+}
