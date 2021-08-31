@@ -302,7 +302,7 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
 
   if (sum(sessions_day[["n_sessions"]]) == 0) {
     message("No EV sessions to simulate")
-    return( NULL )
+    return( tibble() )
   }
 
   ev_models <- evmodel[["models"]]

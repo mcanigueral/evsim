@@ -32,7 +32,7 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
     resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
   }
 
-  if (is.null(sessions) | (nrow(sessions) == 0)) {
+  if (nrow(sessions) == 0) {
     return( tibble(datetime = dttm_seq, demand = 0) )
   }
 
