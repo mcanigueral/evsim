@@ -17,23 +17,25 @@
 #' @importFrom purrr map_dfr
 #' @importFrom lubridate floor_date days is.timepoint
 #'
-#' @details This function is only valid if charging start/end times of sessions are aligned to a specific time-interval.
-#' For this purpose use `approximate_sessions` function.
-#'
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15) {
 
-  if (is.null(dttm_seq)) {
-    dttm_seq <- seq.POSIXt(
-      from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
-      to = floor_date(max(sessions$ConnectionEndDateTime), 'day')+days(1),
-      by = paste(resolution, 'min')
-    )
-  } else {
-    resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
-  }
-
   if (nrow(sessions) == 0) {
-    return( tibble(datetime = dttm_seq, demand = 0) )
+    if (is.null(dttm_seq)) {
+      message("Must provide sessions or dttm_seq parameter")
+      return( NULL )
+    } else {
+      return( tibble(datetime = dttm_seq, demand = 0) )
+    }
+  } else {
+    if (is.null(dttm_seq)) {
+      dttm_seq <- seq.POSIXt(
+        from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
+        to = floor_date(max(sessions$ConnectionEndDateTime), 'day')+days(1),
+        by = paste(resolution, 'min')
+      )
+    } else {
+      resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
+    }
   }
 
   sessions_aligned <- sessions %>%

@@ -21,7 +21,3 @@ tibble
 \description{
 Obtain timeseries demand from sessions dataset
 }
-\details{
-This function is only valid if charging start/end times of sessions are aligned to a specific time-interval.
-For this purpose use \code{approximate_sessions} function.
-}
