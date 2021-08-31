@@ -21,6 +21,7 @@
 #' For this purpose use `approximate_sessions` function.
 #'
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15) {
+
   if (is.null(dttm_seq)) {
     dttm_seq <- seq.POSIXt(
       from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
@@ -30,6 +31,11 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
   } else {
     resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
   }
+
+  if (is.null(sessions) | (nrow(sessions) == 0)) {
+    return( tibble(datetime = dttm_seq, demand = 0) )
+  }
+
   sessions_aligned <- sessions %>%
     mutate_if(is.timepoint, floor_date, paste(resolution, 'min'))
 

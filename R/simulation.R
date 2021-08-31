@@ -299,6 +299,12 @@ get_profile_sessions <- function(profile_name, dates, ev_models, connection_log,
 #' 4. Approximate the charging hours, energy and charging end according to time resolution, the power and the connection duration
 #'
 simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, resolution) {
+
+  if (sum(sessions_day[["n_sessions"]]) == 0) {
+    message("No EV sessions to simulate")
+    return( NULL )
+  }
+
   ev_models <- evmodel[["models"]]
   connection_log <- evmodel[['metadata']][['connection_log']]
   energy_log <- evmodel[['metadata']][['energy_log']]
