@@ -42,6 +42,28 @@ add_charging_features <- function(sessions, power_rates, power_prob, resolution 
 }
 
 
+#' Adapt charging features according to existing charging powers
+#'
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom dplyr mutate
+#' @importFrom rlang .data
+#'
+adapt_charging_features <- function (sessions, resolution = 15) {
+  sessions %>%
+    mutate(
+      ChargingHours = pmin(round_to_interval(.data$Energy/.data$Power, resolution/60), .data$ConnectionHours),
+      Energy = .data$Power * .data$ChargingHours,
+      ChargingStartDateTime = .data$ConnectionStartDateTime,
+      ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
+    )
+}
+
+
 #' Convert numeric time value to a datetime period (hour-based)
 #'
 #' @param time_num Numeric time value (hour-based)

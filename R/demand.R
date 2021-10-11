@@ -59,3 +59,36 @@ get_interval_demand <- function(sessions, timeslot, by) {
     dplyr::mutate(datetime = timeslot)
 }
 
+
+
+# Occupancy ---------------------------------------------------------------
+
+#' Get number of existing connections
+#'
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' @param dttm_seq sequence of datetime values that will be the datetime variable of the returned time-series data frame
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom purrr map_dbl
+#' @importFrom dplyr tibble
+#' @importFrom rlang .data
+#'
+get_n_connections <- function(sessions, dttm_seq) {
+  tibble(
+    datetime = dttm_seq,
+    n_connections = map_dbl(.data$datetime, ~ get_interval_n_connections(sessions, .x))
+  )
+}
+
+get_interval_n_connections <- function(sessions, timeslot) {
+  nrow(dplyr::filter(
+    sessions,
+    .data$ConnectionStartDateTime <= timeslot,
+    timeslot < .data$ConnectionEndDateTime
+  ))
+}
+
+
+
