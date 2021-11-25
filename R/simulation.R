@@ -154,7 +154,7 @@ estimate_energy <- function(n, mu, sigma, log) {
 get_estimated_energy <- function(n, energy_models, log) {
   return(pmap(
     energy_models,
-    ~ estimate_energy(round(n*..3), ..1, ..2, log)
+    ~ estimate_energy(round(n*..3), ..1, sqrt(..2), log)
   ))
 }
 
