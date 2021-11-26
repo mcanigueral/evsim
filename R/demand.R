@@ -67,6 +67,7 @@ get_interval_demand <- function(sessions, timeslot, by) {
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
 #' @param dttm_seq sequence of datetime values that will be the datetime variable of the returned time-series data frame
+#' @param resolution integer, time resolution (in minutes) of the sessions datetime variables. If `dttm_seq` is defined this parameter is ignored.
 #'
 #' @return tibble
 #' @export
@@ -74,8 +75,29 @@ get_interval_demand <- function(sessions, timeslot, by) {
 #' @importFrom purrr map_dbl
 #' @importFrom dplyr tibble
 #' @importFrom rlang .data
+#' @importFrom lubridate floor_date days
 #'
-get_n_connections <- function(sessions, dttm_seq) {
+get_n_connections <- function(sessions, dttm_seq = NULL, resolution = 15) {
+
+  if (nrow(sessions) == 0) {
+    if (is.null(dttm_seq)) {
+      message("Must provide sessions or dttm_seq parameter")
+      return( NULL )
+    } else {
+      return( tibble(datetime = dttm_seq, n_connections = 0) )
+    }
+  } else {
+    if (is.null(dttm_seq)) {
+      dttm_seq <- seq.POSIXt(
+        from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
+        to = floor_date(max(sessions$ConnectionEndDateTime), 'day')+days(1),
+        by = paste(resolution, 'min')
+      )
+    } else {
+      resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
+    }
+  }
+
   tibble(
     datetime = dttm_seq,
     n_connections = map_dbl(.data$datetime, ~ get_interval_n_connections(sessions, .x))

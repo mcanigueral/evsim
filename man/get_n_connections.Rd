@@ -4,12 +4,14 @@
 \alias{get_n_connections}
 \title{Get number of existing connections}
 \usage{
-get_n_connections(sessions, dttm_seq)
+get_n_connections(sessions, dttm_seq = NULL, resolution = 15)
 }
 \arguments{
 \item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
 
 \item{dttm_seq}{sequence of datetime values that will be the datetime variable of the returned time-series data frame}
+
+\item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables. If \code{dttm_seq} is defined this parameter is ignored.}
 }
 \value{
 tibble

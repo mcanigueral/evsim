@@ -351,14 +351,11 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
       Energy = .data$energy
     ) %>%
     add_charging_features(charging_powers$power, charging_powers$ratio, resolution) %>%
-    mutate(
-      FlexibilityHours = .data$ConnectionHours - .data$ChargingHours
-    ) %>%
     arrange(.data$ConnectionStartDateTime) %>%
     mutate(Session = paste0('S', row_number())) %>%
     select('Profile', 'Session', 'ConnectionStartDateTime', 'ConnectionEndDateTime',
            'ChargingStartDateTime', 'ChargingEndDateTime', 'Power', 'Energy',
-           'ConnectionHours', 'FlexibilityHours', 'ChargingHours')
+           'ConnectionHours', 'ChargingHours')
 
   return( sessions_estimated )
 }
