@@ -306,9 +306,10 @@ get_profile_sessions <- function(profile_name, dates, ev_models, connection_log,
 #' @export
 #'
 #' @importFrom purrr map map_dfr set_names
-#' @importFrom dplyr mutate any_of row_number arrange left_join
+#' @importFrom dplyr mutate any_of row_number arrange left_join filter
 #' @importFrom lubridate force_tz round_date
 #' @importFrom rlang .data
+#' @importFrom tidyr drop_na
 #'
 #' @details The steps for simulating the sessions are:
 #'
@@ -355,7 +356,9 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
     mutate(Session = paste0('S', row_number())) %>%
     select('Profile', 'Session', 'ConnectionStartDateTime', 'ConnectionEndDateTime',
            'ChargingStartDateTime', 'ChargingEndDateTime', 'Power', 'Energy',
-           'ConnectionHours', 'ChargingHours')
+           'ConnectionHours', 'ChargingHours') %>%
+    drop_na() %>%
+    filter(.data$Energy > 0)
 
   return( sessions_estimated )
 }
