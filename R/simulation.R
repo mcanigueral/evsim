@@ -36,7 +36,7 @@ add_charging_features <- function(sessions, power_rates, power_prob, resolution 
     mutate(
       ChargingHours = pmin(
         # round_to_interval(.data$Energy/.data$Power, resolution/60),
-        .data$Energy/.data$Power,
+        round(.data$Energy/.data$Power*60)/60, # Rounded to minutes resolution
         .data$ConnectionHours
       ), # Limit ChargingHours by ConnectionHours
       Energy = .data$Power * .data$ChargingHours, # Energy must change if ChargingHours was limited by ConnectionHours
@@ -378,6 +378,7 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
     mutate(
       ConnectionStartDateTime = round_date(.data$start_dt, unit = paste(resolution, "minutes")),
       # ConnectionHours = round_to_interval(.data$duration, resolution/60),
+      ConnectionHours = round(.data$duration*60)/60, # Rounded to minutes resolution
       ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
       Energy = .data$energy
     ) %>%
