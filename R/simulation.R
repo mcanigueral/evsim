@@ -131,13 +131,16 @@ get_charging_powers_ratios <- function(sessions) {
 #' @importFrom stats rnorm
 #'
 estimate_energy <- function(n, mu, sigma, log) {
-  # if (n == 0) return(0)
+  # After applying clusters' ratios we may have `n = 0`
+  # However we should simulate at least 1 sessions since for lower values
+  # of `n_sessions_day` and multiple clusters, we would never have positive
+  # values of `n`
   if (n == 0) n = 1
   energy <- rnorm(n, mu, sigma)
+  while (any(energy <= 0)) {
+    energy[energy <= 0] <- rnorm(sum(energy <= 0), mu, sigma)
+  }
   if (log) energy <- exp(energy)
-  # # Negative values replaced by 3 kWh
-  # # Potential improvement to avoid negative variables: Log-Normal conversion
-  # energy[energy <= 1] <- 3
   return( energy )
 }
 
@@ -171,9 +174,18 @@ get_estimated_energy <- function(n, energy_models, log) {
 #' @importFrom MASS mvrnorm
 #'
 estimate_connection <- function(n, mu, sigma, log) {
-  # if (n == 0) return(matrix(c(0, 0), ncol = 2))
+  # After applying clusters' ratios we may have `n = 0`
+  # However we should simulate at least 1 sessions since for lower values
+  # of `n_sessions_day` and multiple clusters, we would never have positive
+  # values of `n`
   if (n == 0) n = 1
   connections <- MASS::mvrnorm(n = n, mu = mu, Sigma = sigma)
+  while (any(connections[,1] < 0)) {
+    connections[connections[,1] < 0, 1] <- MASS::mvrnorm(n = n, mu = mu, Sigma = sigma)[,1]
+  }
+  while (any(connections[,2] <= 0)) {
+    connections[connections[,2] <= 0, 2] <- MASS::mvrnorm(n = n, mu = mu, Sigma = sigma)[,2]
+  }
   if (log) connections <- exp(connections)
   return( connections )
 }
@@ -212,18 +224,29 @@ get_estimated_connections <- function(n, profile_models, log) {
 #' @importFrom purrr simplify
 #'
 estimate_sessions <- function(profile_name, n_sessions, connection_models, energy_models, connection_log, energy_log) {
-  estimated_connections <- do.call(
-    rbind,
-    get_estimated_connections(n_sessions, connection_models, connection_log)
-  )
-  estimated_energy <- simplify(
-    get_estimated_energy(n_sessions, energy_models, energy_log)
-  )
-  return(tibble(
-    start = round(estimated_connections[,1], 2),
-    duration = round(estimated_connections[,2], 2),
-    energy = round(estimated_energy[1:nrow(estimated_connections)], 2)
-  ))
+  ev_sessions <- tibble()
+  n_sessions_objective <- n_sessions - nrow(ev_sessions)
+
+  while (n_sessions_objective > 0) {
+    estimated_connections <- do.call(
+      rbind,
+      get_estimated_connections(n_sessions_objective, connection_models, connection_log)
+    )
+    estimated_energy <- simplify(
+      get_estimated_energy(n_sessions_objective, energy_models, energy_log)
+    )
+    estimated_sessions <- tibble(
+      start = round(estimated_connections[,1], 2),
+      duration = round(estimated_connections[,2], 2),
+      energy = round(estimated_energy[1:nrow(estimated_connections)], 2)
+    )
+
+    ev_sessions <- bind_rows(ev_sessions, estimated_sessions)
+
+    n_sessions_objective <- n_sessions - nrow(ev_sessions)
+  }
+
+  return(ev_sessions)
 }
 
 
@@ -264,7 +287,7 @@ get_profile_day_sessions <- function(profile_name, day, ev_models, connection_lo
     return( NULL )
   }
 
-  estimate_sessions(
+  estimated_sessions <- estimate_sessions(
     profile_name,
     profile_n_sessions,
     connection_models = day_models[["connection_models"]][[profile_idx]],
@@ -272,8 +295,9 @@ get_profile_day_sessions <- function(profile_name, day, ev_models, connection_lo
     connection_log, energy_log
   ) %>%
     mutate("start_dt" = day + convert_time_num_to_period(.data$start)) %>%
-    select(- "start") %>%
-    drop_na()
+    select(- "start")
+
+  return( estimated_sessions )
 }
 
 #' Get profile sessions
@@ -338,13 +362,13 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
   # Obtain sessions from all profiles in models
   profiles <- unique(unlist(map(ev_models[["user_profiles"]], ~ .x[["profile"]])))
 
-  sessions_estimated <- map_dfr(
+  simulated_sessions <- map_dfr(
     set_names(profiles, profiles),
     ~get_profile_sessions(.x, dates, ev_models, connection_log, energy_log),
     .id = "Profile"
   )
 
-  sessions_estimated <- sessions_estimated %>%
+  simulated_sessions <- simulated_sessions %>%
     mutate(
       ConnectionStartDateTime = force_tz(round_date(.data$start_dt, paste(resolution, "minutes")), tzone),
       ConnectionHours = round_to_interval(.data$duration, resolution/60),
@@ -354,11 +378,9 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
     add_charging_features(charging_powers$power, charging_powers$ratio, resolution) %>%
     arrange(.data$ConnectionStartDateTime) %>%
     mutate(Session = paste0('S', row_number())) %>%
-    select('Profile', 'Session', 'ConnectionStartDateTime', 'ConnectionEndDateTime',
+    select('Session', 'Profile', 'ConnectionStartDateTime', 'ConnectionEndDateTime',
            'ChargingStartDateTime', 'ChargingEndDateTime', 'Power', 'Energy',
-           'ConnectionHours', 'ChargingHours') %>%
-    drop_na() %>%
-    filter(.data$Energy > 0)
+           'ConnectionHours', 'ChargingHours')
 
-  return( sessions_estimated )
+  return( simulated_sessions )
 }
