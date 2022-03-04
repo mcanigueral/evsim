@@ -38,27 +38,43 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
     }
   }
 
-  sessions_aligned <- sessions %>%
-    mutate_if(is.timepoint, floor_date, paste(resolution, 'min'))
+  # sessions_aligned <- sessions %>%
+  #   mutate_if(is.timepoint, floor_date, paste(resolution, 'min'))
 
   demand <- left_join(
     tibble(datetime = dttm_seq),
-    map_dfr(dttm_seq, ~ get_interval_demand(sessions_aligned, .x, by)) %>%
-      pivot_wider(names_from = !!sym(by), values_from = .data$Power, values_fill = 0),
+    map_dfr(dttm_seq, ~ get_interval_demand(sessions, .x, by, resolution)) %>%
+      pivot_wider(names_from = !!sym(by), values_from = .data$demand, values_fill = 0),
     by = 'datetime'
   )
   return( replace(demand, is.na(demand), 0) )
 }
 
 
-get_interval_demand <- function(sessions, timeslot, by) {
+get_interval_demand <- function(sessions, timeslot, by, resolution) {
   sessions %>%
-    dplyr::filter(.data$ChargingStartDateTime <= timeslot, timeslot < .data$ChargingEndDateTime) %>%
+    dplyr::filter(
+      (.data$ChargingStartDateTime <= timeslot & timeslot < .data$ChargingEndDateTime) |
+        (.data$ChargingStartDateTime == timeslot & timeslot == .data$ChargingEndDateTime)
+    ) %>%
     dplyr::group_by(!!dplyr::sym(by)) %>%
-    dplyr::summarise(Power = sum(.data$Power)) %>%
+    dplyr::summarise(demand = sum(
+      pmin(as.numeric(.data$ChargingEndDateTime - timeslot, unit = 'hours'), resolution/60)*.data$Power*
+        60/resolution # This last term is to convert kWh to average kW
+    )) %>%
     dplyr::mutate(datetime = timeslot)
 }
 
+# get_interval_power <- function(sessions, timeslot, by) {
+#   sessions %>%
+#     dplyr::filter(
+#       .data$ChargingStartDateTime <= timeslot,
+#       timeslot < .data$ChargingEndDateTime
+#     ) %>%
+#     dplyr::group_by(!!dplyr::sym(by)) %>%
+#     dplyr::summarise(Power = sum(.data$Power)) %>%
+#     dplyr::mutate(datetime = timeslot)
+# }
 
 
 # Occupancy ---------------------------------------------------------------
@@ -107,8 +123,8 @@ get_n_connections <- function(sessions, dttm_seq = NULL, resolution = 15) {
 get_interval_n_connections <- function(sessions, timeslot) {
   nrow(dplyr::filter(
     sessions,
-    .data$ConnectionStartDateTime <= timeslot,
-    timeslot < .data$ConnectionEndDateTime
+    (.data$ConnectionStartDateTime <= timeslot & timeslot < .data$ConnectionEndDateTime) |
+      (.data$ConnectionStartDateTime == timeslot & timeslot == .data$ConnectionEndDateTime)
   ))
 }
 
