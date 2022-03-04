@@ -192,8 +192,8 @@ estimate_connection <- function(n, mu, sigma, log) {
     ev_connections[ev_connections[[2]] <= 0, 2] <-
       mvrnorm(n = sum(ev_connections[[2]] <= 0), mu = mu, Sigma = sigma)[[2]]
   }
-  if (log) connections <- exp(connections)
-  return( connections )
+  if (log) ev_connections <- exp(ev_connections)
+  return( ev_connections )
 }
 
 
