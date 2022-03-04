@@ -185,10 +185,12 @@ estimate_connection <- function(n, mu, sigma, log) {
   if (n == 0) n = 1
   connections <- MASS::mvrnorm(n = n, mu = mu, Sigma = sigma)
   while (any(connections[,1] < 0)) {
-    connections[connections[,1] < 0, 1] <- MASS::mvrnorm(n = n, mu = mu, Sigma = sigma)[,1]
+    connections[connections[,1] < 0, 1] <-
+      MASS::mvrnorm(n = sum(connections[,1] < 0), mu = mu, Sigma = sigma)[,1]
   }
   while (any(connections[,2] <= 0)) {
-    connections[connections[,2] <= 0, 2] <- MASS::mvrnorm(n = n, mu = mu, Sigma = sigma)[,2]
+    connections[connections[,2] <= 0, 2] <-
+      MASS::mvrnorm(n = sum(connections[,1] < 0), mu = mu, Sigma = sigma)[,2]
   }
   if (log) connections <- exp(connections)
   return( connections )
