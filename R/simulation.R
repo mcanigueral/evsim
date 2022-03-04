@@ -161,7 +161,7 @@ estimate_energy <- function(n, mu, sigma, log) {
 get_estimated_energy <- function(n, energy_models, log) {
   return(pmap(
     energy_models,
-    ~ estimate_energy(round(n*..3), ..1, ..2, log)
+    ~ estimate_energy(floor(n*..3)+1, ..1, ..2, log)
   ))
 }
 
@@ -183,14 +183,14 @@ estimate_connection <- function(n, mu, sigma, log) {
   # of `n_sessions_day` and multiple clusters, we would never have positive
   # values of `n`
   if (n == 0) n = 1
-  connections <- MASS::mvrnorm(n = n, mu = mu, Sigma = sigma)
-  while (any(connections[,1] < 0)) {
-    connections[connections[,1] < 0, 1] <-
-      MASS::mvrnorm(n = sum(connections[,1] < 0), mu = mu, Sigma = sigma)[,1]
+  ev_connections <- as.data.frame(matrix(mvrnorm(n = n, mu = mu, Sigma = sigma), ncol = 2))
+  while (any(ev_connections[[1]] < 0)) {
+    ev_connections[ev_connections[[1]] < 0, 1] <-
+      mvrnorm(n = sum(ev_connections[[1]] < 0), mu = mu, Sigma = sigma)[[1]]
   }
-  while (any(connections[,2] <= 0)) {
-    connections[connections[,2] <= 0, 2] <-
-      MASS::mvrnorm(n = sum(connections[,1] < 0), mu = mu, Sigma = sigma)[,2]
+  while (any(ev_connections[[2]] <= 0)) {
+    ev_connections[ev_connections[[2]] <= 0, 2] <-
+      mvrnorm(n = sum(ev_connections[[2]] <= 0), mu = mu, Sigma = sigma)[[2]]
   }
   if (log) connections <- exp(connections)
   return( connections )
@@ -210,7 +210,7 @@ estimate_connection <- function(n, mu, sigma, log) {
 get_estimated_connections <- function(n, profile_models, log) {
   return(pmap(
     profile_models,
-    ~ estimate_connection(round(n*..3), ..1, ..2, log)
+    ~ estimate_connection(floor(n*..3)+1, ..1, ..2, log)
   ))
 }
 
@@ -228,6 +228,7 @@ get_estimated_connections <- function(n, profile_models, log) {
 #'
 #' @importFrom dplyr tibble bind_rows
 #' @importFrom purrr simplify
+#' @importFrom tidyr fill
 #'
 estimate_sessions <- function(profile_name, n_sessions, connection_models, energy_models, connection_log, energy_log) {
   ev_sessions <- tibble()
@@ -241,11 +242,12 @@ estimate_sessions <- function(profile_name, n_sessions, connection_models, energ
     estimated_energy <- simplify(
       get_estimated_energy(n_sessions_objective, energy_models, energy_log)
     )
+
     estimated_sessions <- tibble(
-      start = round(estimated_connections[,1], 2),
-      duration = round(estimated_connections[,2], 2),
+      start = round(estimated_connections[[1]], 2),
+      duration = round(estimated_connections[[2]], 2),
       energy = round(estimated_energy[1:nrow(estimated_connections)], 2)
-    )
+    ) %>% fill(.data$energy)
 
     ev_sessions <- bind_rows(ev_sessions, estimated_sessions)
 
