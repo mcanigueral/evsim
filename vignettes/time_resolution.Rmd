@@ -1,151 +1,95 @@
 ---
-title: "Introduction to {evsim}"
+title: "Time resolution"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-# To include the ev_model object run this in Console:
-# ev_model <- readRDS('R/evmodel.RDS'); ev_model <- readRDS('R/evmodel.RDS')
-devtools::load_all()
-```
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F)
+devtools::load_all() # ev_model included
+library(dplyr)
+library(lubridate)
+library(dutils)
 
-This package provides the tools to simulate new EV charging session, on the basis of the **Gaussian Mixture Models (GMM)** of different EV user profiles found and modeled with [`{evprof}`](https://mcanigueral.github.io/evprof/). The EV model obtained with [`evprof::get_ev_model()`](https://mcanigueral.github.io/evprof/reference/get_ev_model.html) function is an object of class `evmodel`, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html) from website of `{evprof}` package.
-
-## Required data
-
-The only function of `{evsim}` package necessary to simulate new EV sessions is function `simulate_sessions()`, which returns a tibble of EV charging sessions. The required input arguments to run this function are:
-
-- The EV model (object of class `evmodel`)
-- Number of daily sessions for each time-cycle model
-- Charging powers shares relative to the number of daily sessions
-- Dates to simulate
-
-
-### EV model
-
-Let's take a look to the example EV model:
-
-```{r models obj}
-print(ev_model)
-```
-
-We have 4 different time-cycles in this case (Workday, Friday, Saturday and Sunday), and each one has its corresponding user profiles. At the same time, each user profile of each time-cycle is modeled by two different models:
-
-- Connection Models: combination of multiple Gaussian distributions of two variables (Connection Start Time and Connection Duration)
-- Energy Models: combination of multiple Gaussian distributions of one variable (Energy)
-
-Moreover, each User profile has a corresponding ratio over the total number of daily sessions. For example for **Workday** time-cycle we see the following user profiles components:
-
-```{r workday models}
-workday_models <- ev_model$models$user_profiles[[1]]
-
-workday_models
-```
-
-We can modify the ratios of the user profiles from one time-cycle with the function `update_profiles_ratios()`. The new ratios have to be specified as a tibble with variables `time_cycle`, `profile` and `ratio`. It is not mandatory that all time-cycles appear in the `new_ratios` tibble, but for a single time-cycle all user profiles must appear. For example, let's say we want to change only the **Workday** ratios with the following ones:
-
-```{r}
-new_ratios <- tibble(
-  time_cycle = rep('Workday', 7),
-  profile = workday_models$profile,
-  ratio = c(0, 0.1, 0.1, 0.2, 0.2, 0.3, 0.1)
-)
-
-new_ratios
-```
-
-Then, we can modify our `evmodel`object with:
-```{r update models}
-ev_model <- update_profiles_ratios(ev_model, new_ratios)
-
-ev_model$models$user_profiles[[1]]
-```
-
-Note, that we set the Dinner profile's ratio to 0. This is equivalent to discard this user profile from our simulation. To directly remove this profile from our model object, set the argument `discard = TRUE` in `update_profiles_ratios()` function.
-
-
-### Number of sessions per day
-
-To set the number of sessions per day to function `simulate_sessions()` function we need to pass a tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model).
-For example:
-
-```{r n_sessions}
 sessions_day <- tibble(
   time_cycle = ev_model$models$time_cycle,
-  n_sessions = c(250, 275, 200, 200)
+  n_sessions = c(10.5, 10.5, 10.5, 10.5)
 )
-sessions_day
-```
 
-### Charging powers distribution
-
-We also need to specify the ratio of each charging power rate, as a tibble with variables `power` and `ratio`. In the public charging infrastructure the most common and standard power rates are:
-
-* 3.7 kW AC
-* 7.3 kW AC
-* 11 kW AC
-* 22 kW AC
-
-Then we will set the following charging power distribution:
-```{r charging rates}
 charging_powers <- tibble(
   power = c(3.7, 7.3, 11, 22),
   ratio = c(0.2, 0.4, 0.3, 0.1)
 )
-charging_powers
-```
-  
-  
-### Datetime values
-
-The function `simulate_sessions()` automatically selects the time-cycle that fits to a specific date. This is why we have to pass a vector of the dates that we want to simulate. For example:
-
-```{r dates}
-dates_sim <- seq.Date(from = as.Date('2019-09-10'), to = as.Date('2019-09-15'), by = '1 day')
-dates_sim
 ```
 
-Another datetime argument that the simulation function needs is the time resolution of the datetime variables of the sessions (connection start, connection end, charging end, ...). For this example we will set a time resolution of 15 minutes, so the argument will be `resolution = 15`.
 
+Functions `simulate_sessions()`, `get_demand()` or `get_n_connections()` requires a parameter called **`resolution`**, which defines the minutes between a time-slot and the following one.
 
-## Simulation
+For example, if `resolution = 15`, the charging sessions simulated during 4 PM of a specific day will start at `16:00`, `16:15`, `16:30` or `16:45`, but not during any time between these time-slots. However, the duration of every session has always a maximum of **5 minute resolution**, so a session that starts at `16:30` can have a duration of 25 minutes, ending at `16:55`, but not a duration of 22 minutes, for example. The same concept is applied to the charging times.
 
-We have now all required data and we are ready to simulate the new sessions:
+The function `get_demand` gives the **average charging power** during a certain time-slot. For example, if we use the `get_demand` function with a `resolution = 15`, a demand of 55kW for time-slot `16:30` means that between `16:30` and `16:45` it has been consumed the energy corresponding to an average power of 55 kW (so 55·15/60=**13.75 kWh**). 
+This can modify the power profile of sessions that stop charging at a time between time-slots. For example, considering a `resolution = 15` and a session charging at 10kW from `16:30` to `16:55`, the demand of time-slot `16:30` will be 10kW but the demand of time-slot `16:45` will decrease to 6.67 kW (charging only 3/4 parts of the time-slot). The real power profile of the session is a constant power step of 10kW, but the demand profile obtained with a `resolution = 15` does not. To obtain the real power profile of the session, the `resolution` parameter should be set to 5 minutes (the maximum resolution value allowed).
 
-```{r estimate sessions}
-sessions_estimated <- simulate_sessions(
+The `resolution` parameter of time-series functions (i.e. `get_demand()` and `get_n_connections()`) does not have to correspond necessarily to the `resolution` of simulated sessions, even though it would not have much sense to obtain the time-series demand in a lower resolution (longer time intervals) than sessions since we loose accuracy on the power profile. 
+
+For example, we could have 10 simulated sessions with a `resolution` of 30 minutes:
+
+```{r sessions, echo = F}
+set.seed(1234)
+sessions <- simulate_sessions(
   ev_model,
-  sessions_day, 
+  sessions_day,
   charging_powers,
-  dates_sim,
-  resolution = 15
-)
-
-head(sessions_estimated)
+  today(),
+  resolution = 30
+) %>% 
+  mutate(Profile = 'Demand')
+sessions %>% 
+  select(-c(Profile)) %>% 
+  mutate_if(is.timepoint, format, "%d/%m/%Y %H:%M") %>% 
+  knitr::kable()
 ```
 
-We have obtained a total of 1674 sessions for our 7 simulation dates, each session corresponding to a specific charging profile. We can notice that the datetime variables have a resolution of 15 minutes according to our configuration, and the energy required corresponds to product of `Power` and `ChargingHours`. 
 
+**Important:** from a data set of sessions with a certain time resolution it's possible to calculate the aggregated demand with the same resolution or a higher one being multiple of it. For example, if a data set of sessions has a time resolution of 30 minutes, the demand can be calculated in 5, 10, 15 or 30 minutes resolution, but not with a resolution of 20 minutes (higher but not multiple) or 60 minutes (lower resolution).
 
-## EV demand
+If we calculate the aggregated demand of the above simulated sessions with a `resolution` of `5`, `15` and `30`, the resulting power profile loses accuracy when we decrease the time resolution (so higher time intervals):
 
-Finally, we can calculate the estimated demand with function `get_demand()`. This function needs an extra argument, `dttm_seq`, which will be the datetime sequence of the time-series demand data frame returned by the function. We will set the datetime sequence from our first to last date with a resolution of 15 minutes and the `Europe/Amsterdam` timezone (with the help of `lubridate::with_tz()` function):
+```{r}
+demand_5 <- sessions %>%
+  get_demand(resolution = 5)
 
-```{r dttm_seq}
-dttm_seq <- seq.POSIXt(from = as.POSIXct('2019-09-10'), to = as.POSIXct('2019-09-16'), by = '15 min') %>% 
-  lubridate::with_tz('Europe/Amsterdam')
+demand_15 <- sessions %>%
+  get_demand(resolution = 15)
+
+demand_30 <- sessions %>%
+  get_demand(resolution = 30)
 ```
 
-```{r simualted demand}
-estimated_demand <- sessions_estimated %>% get_demand(dttm_seq)
+```{r, echo = F}
+demand_5 %>% 
+  rename(`5-minute resolution` = Demand) %>% 
+  left_join(
+    rename(demand_15, `15-minute resolution` = Demand)
+  ) %>% 
+    left_join(
+    rename(demand_30, `30-minute resolution` = Demand)
+  ) %>% 
+  fill(-datetime, .direction = 'down') %>% 
+  dyplot(stepPlot = T, strokeWidth = 2, ylab = 'Power (kW)')
 ```
 
-And the plot of the estimated demand (making use of [`{dygraphs}`](https://rstudio.github.io/dygraphs/) package):
+The power profile with a resolution of 5 minutes represents in a higher accuracy when sessions start and finish. However, the total area of the three lines (energy consumed) corresponds to the same value since the power values are the average power of every time-slot whathever the resolution is:
 
-```{r plot, echo=FALSE, fig.width=9}
-estimated_demand %>% dutils::dyplot(ylab = 'Power demand (kW)', fillGraph = T, stackedGraph = T)
+```{r}
+sum(demand_5$Demand*5/60) # in kWh
 ```
 
+```{r}
+sum(demand_15$Demand*15/60) # in kWh
+```
+
+```{r}
+sum(demand_30$Demand*30/60) # in kWh
+```
 
 

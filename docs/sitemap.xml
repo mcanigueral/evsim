@@ -1,7 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>mcanigueral.github.io/evsim/404.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/articles/evsim.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/articles/test.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/articles/time_resolution.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/authors.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/index.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/adapt_charging_features.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/add_charging_features.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/convert_time_num_to_period.html</loc>
@@ -22,7 +49,16 @@
     <loc>mcanigueral.github.io/evsim/reference/evSessionsUI.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_charging_powers_ratios.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_day_sessions.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/reference/get_demand.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_demand_2.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/get_estimated_connections.html</loc>
@@ -34,10 +70,19 @@
     <loc>mcanigueral.github.io/evsim/reference/get_interval_demand.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_n_connections.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_n_connections_2.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/reference/get_profile_day_sessions.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/get_profile_sessions.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/index.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/print.evmodel.html</loc>
@@ -50,8 +95,5 @@
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/update_profiles_ratios.html</loc>
-  </url>
-  <url>
-    <loc>mcanigueral.github.io/evsim/articles/evsim.html</loc>
   </url>
 </urlset>

@@ -1,8 +1,9 @@
 url: mcanigueral.github.io/evsim
 
 template:
+  bootstrap: 5
+  bootswatch: flatly
   params:
-    bootswatch: flatly
     ganalytics: 'G-J2NB3LGNZN'
 
 navbar:
@@ -18,3 +19,10 @@ reference:
   - title: Time-series demand
   - contents:
     - get_demand
+    - get_n_connections
+
+articles:
+  - title: Articles
+    navbar: ~
+    contents:
+      - time_resolution

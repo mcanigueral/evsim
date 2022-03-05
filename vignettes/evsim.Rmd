@@ -5,9 +5,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# To include the ev_model object run this in Console:
-# ev_model <- readRDS('R/evmodel.RDS'); ev_model <- readRDS('R/evmodel.RDS')
-devtools::load_all()
+devtools::load_all()  # ev_model included
 ```
 
 This package provides the tools to simulate new EV charging session, on the basis of the **Gaussian Mixture Models (GMM)** of different EV user profiles found and modeled with [`{evprof}`](https://mcanigueral.github.io/evprof/). The EV model obtained with [`evprof::get_ev_model()`](https://mcanigueral.github.io/evprof/reference/get_ev_model.html) function is an object of class `evmodel`, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html) from website of `{evprof}` package.

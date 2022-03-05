@@ -35,8 +35,7 @@ add_charging_features <- function(sessions, power_rates, power_prob, resolution 
   sessions %>%
     mutate(
       ChargingHours = pmin(
-        # round_to_interval(.data$Energy/.data$Power, resolution/60),
-        round(.data$Energy/.data$Power*60)/60, # Rounded to minutes resolution
+        round_to_interval(.data$Energy/.data$Power, 5/60), # Rounded to minutes resolution
         .data$ConnectionHours
       ), # Limit ChargingHours by ConnectionHours
       Energy = .data$Power * .data$ChargingHours, # Energy must change if ChargingHours was limited by ConnectionHours
@@ -141,9 +140,6 @@ estimate_energy <- function(n, mu, sigma, log) {
   # values of `n`
   if (n == 0) n = 1
   energy <- rnorm(n, mu, sigma)
-  while (any(energy <= 0)) {
-    energy[energy <= 0] <- rnorm(sum(energy <= 0), mu, sigma)
-  }
   if (log) energy <- exp(energy)
   return( energy )
 }
@@ -184,14 +180,6 @@ estimate_connection <- function(n, mu, sigma, log) {
   # values of `n`
   if (n == 0) n = 1
   ev_connections <- as.data.frame(matrix(mvrnorm(n = n, mu = mu, Sigma = sigma), ncol = 2))
-  while (any(ev_connections[[1]] < 0)) {
-    ev_connections[ev_connections[[1]] < 0, 1] <-
-      mvrnorm(n = sum(ev_connections[[1]] < 0), mu = mu, Sigma = sigma)[[1]]
-  }
-  while (any(ev_connections[[2]] <= 0)) {
-    ev_connections[ev_connections[[2]] <= 0, 2] <-
-      mvrnorm(n = sum(ev_connections[[2]] <= 0), mu = mu, Sigma = sigma)[[2]]
-  }
   if (log) ev_connections <- exp(ev_connections)
   return( ev_connections )
 }
@@ -226,15 +214,21 @@ get_estimated_connections <- function(n, profile_models, log) {
 #'
 #' @return tibble
 #'
-#' @importFrom dplyr tibble bind_rows
+#' @importFrom dplyr tibble bind_rows slice_sample
 #' @importFrom purrr simplify
 #' @importFrom tidyr fill
 #'
 estimate_sessions <- function(profile_name, n_sessions, connection_models, energy_models, connection_log, energy_log) {
+
+  if (n_sessions == 0) {
+    return( NULL )
+  }
+
   ev_sessions <- tibble()
   n_sessions_objective <- n_sessions - nrow(ev_sessions)
 
   while (n_sessions_objective > 0) {
+
     estimated_connections <- do.call(
       rbind,
       get_estimated_connections(n_sessions_objective, connection_models, connection_log)
@@ -254,29 +248,18 @@ estimate_sessions <- function(profile_name, n_sessions, connection_models, energ
     n_sessions_objective <- n_sessions - nrow(ev_sessions)
   }
 
-  return(ev_sessions)
+  if (nrow(ev_sessions) > n_sessions) {
+    ev_sessions <- ev_sessions %>%
+      slice_sample(n = n_sessions)
+  }
+
+  return( ev_sessions )
 }
 
 
-#' Get sessions for a specific day and profile
-#'
-#' @param profile_name profile name
-#' @param day day as datetime with hour 00:00
-#' @param ev_models tibble with profiles models according to calendar
-#' @param connection_log Logical, true if connection models have logarithmic transformations
-#' @param energy_log Logical, true if energy models have logarithmic transformations
-#'
-#' @return tibble
-#'
-#' @importFrom purrr map_lgl
-#' @importFrom lubridate month wday
-#' @importFrom dplyr %>% mutate select
-#' @importFrom tidyr drop_na
-#'
-get_profile_day_sessions <- function(profile_name, day, ev_models, connection_log, energy_log) {
-
-  month_day <- month(day)
-  wday_day <- wday(day, week_start = 1)
+get_day_features <- function(day, ev_models) {
+  month_day <- lubridate::month(day)
+  wday_day <- lubridate::wday(day, week_start = 1)
 
   models_month_idx <- purrr::map_lgl(ev_models[["months"]], ~ month_day %in% .x)
   models_wday_idx <- purrr::map_lgl(ev_models[["wdays"]], ~ wday_day %in% .x)
@@ -284,44 +267,45 @@ get_profile_day_sessions <- function(profile_name, day, ev_models, connection_lo
   day_models <- ev_models[["user_profiles"]][models_month_idx & models_wday_idx][[1]]
   day_n_sessions <- ev_models[["n_sessions"]][models_month_idx & models_wday_idx][[1]]
 
-  if (!(profile_name %in% day_models[["profile"]])) {
-    return( NULL )
-  }
-
-  profile_idx <- which(day_models[["profile"]] == profile_name)
-  profile_n_sessions <- round(day_n_sessions*day_models[["ratio"]][[profile_idx]])
-
-  if (profile_n_sessions == 0) {
-    return( NULL )
-  }
-
-  estimated_sessions <- estimate_sessions(
-    profile_name,
-    profile_n_sessions,
-    connection_models = day_models[["connection_models"]][[profile_idx]],
-    energy_models = day_models[["energy_models"]][[profile_idx]],
-    connection_log, energy_log
-  ) %>%
-    mutate(start_dt = day + convert_time_num_to_period(.data$start)) %>%
-    select(- "start")
-
-  return( estimated_sessions )
+  list(
+    models = day_models,
+    n_sessions = day_n_sessions
+  )
 }
 
-#' Get profile sessions
+
+#' Get day sessions
 #'
-#' @param profile_name profile name
-#' @param dates datetime vector with dates to simualte (datetime values with hour set to 00:00)
+#' @param day Date to simulate
 #' @param ev_models profiles models
 #' @param connection_log Logical, true if connection models have logarithmic transformations
 #' @param energy_log Logical, true if energy models have logarithmic transformations
 #'
 #' @return tibble
 #'
-#' @importFrom purrr map_dfr
+#' @importFrom dplyr mutate select everything %>% slice_sample
+#' @importFrom rlang .data
+#' @importFrom purrr pmap_dfr
 #'
-get_profile_sessions <- function(profile_name, dates, ev_models, connection_log, energy_log) {
-  map_dfr(dates, ~get_profile_day_sessions(profile_name, .x, ev_models, connection_log, energy_log))
+get_day_sessions <- function(day, ev_models, connection_log, energy_log) {
+
+  day_features <- get_day_features(day, ev_models)
+
+  day_sessions <- pmap_dfr(
+    day_features$model,
+    ~ estimate_sessions(..1, floor(..2*day_features$n_sessions)+1, ..3, ..4, connection_log, energy_log) %>%
+      mutate(Profile = ..1) %>%
+      select("Profile", everything())
+  ) %>%
+    mutate(start_dt = day + convert_time_num_to_period(.data$start)) %>%
+    select(- .data$start)
+
+  if (nrow(day_sessions) > day_features$n_sessions) {
+    day_sessions <- day_sessions %>%
+      slice_sample(n = day_features$n_sessions)
+  }
+
+  return( day_sessions )
 }
 
 
@@ -366,23 +350,17 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
   tzone_model <- evmodel[['metadata']][['tzone']]
 
   dates_dttm <- round_date(with_tz(as_datetime(dates), tzone = tzone_model), unit = 'day')
-
   ev_models <- left_join(ev_models, sessions_day, by = 'time_cycle')
 
-  # Obtain sessions from all profiles in models
-  profiles <- unique(unlist(map(ev_models[["user_profiles"]], ~ .x[["profile"]])))
-
   simulated_sessions <- map_dfr(
-    set_names(profiles, profiles),
-    ~get_profile_sessions(.x, dates_dttm, ev_models, connection_log, energy_log),
-    .id = "Profile"
+    dates_dttm,
+    ~ get_day_sessions(.x, ev_models, connection_log, energy_log)
   )
 
   simulated_sessions <- simulated_sessions %>%
     mutate(
       ConnectionStartDateTime = round_date(.data$start_dt, unit = paste(resolution, "minutes")),
-      # ConnectionHours = round_to_interval(.data$duration, resolution/60),
-      ConnectionHours = round(.data$duration*60)/60, # Rounded to minutes resolution
+      ConnectionHours = round_to_interval(.data$duration, 5/60), # Rounded to 5-minute resolution
       ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
       Energy = .data$energy
     ) %>%
