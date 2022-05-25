@@ -13,14 +13,15 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports:
   MASS,
   dplyr,
   lubridate,
   purrr,
   rlang,
-  tidyr
+  tidyr,
+  dtplyr
 Suggests:
   shiny,
   shinydashboard,

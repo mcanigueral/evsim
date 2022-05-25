@@ -11,11 +11,12 @@
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr left_join tibble sym mutate_if
+#' @importFrom dplyr left_join tibble sym mutate_if as_tibble
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
 #' @importFrom purrr map_dfr
 #' @importFrom lubridate floor_date days is.timepoint
+#' @importFrom dtplyr lazy_dt
 #'
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15) {
 
@@ -38,18 +39,16 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
     }
   }
 
-  # sessions_aligned <- sessions %>%
-  #   mutate_if(is.timepoint, floor_date, paste(resolution, 'min'))
+  sessions_dt <- lazy_dt(sessions)
 
-  demand <- left_join(
-    tibble(datetime = dttm_seq),
-    map_dfr(dttm_seq, ~ get_interval_demand(sessions, .x, by, resolution)) %>%
-      pivot_wider(names_from = !!sym(by), values_from = .data$demand, values_fill = 0),
+  demand <- as_tibble(left_join(
+    lazy_dt(tibble(datetime = dttm_seq)),
+    lazy_dt(map_dfr(dttm_seq, ~ get_sessions_interval_demand(sessions_dt, .x, by, normalized, resolution)) %>%
+              pivot_wider(names_from = !!sym(by), values_from = .data$demand, values_fill = 0)),
     by = 'datetime'
-  )
+  ))
   return( replace(demand, is.na(demand), 0) )
 }
-
 
 get_interval_demand <- function(sessions, timeslot, by, resolution) {
   sessions %>%
@@ -62,19 +61,9 @@ get_interval_demand <- function(sessions, timeslot, by, resolution) {
       pmin(as.numeric(.data$ChargingEndDateTime - timeslot, unit = 'hours'), resolution/60)*.data$Power*
         60/resolution # This last term is to convert kWh to average kW
     )) %>%
-    dplyr::mutate(datetime = timeslot)
+    dplyr::mutate(datetime = timeslot) %>%
+    dplyr::as_tibble()
 }
-
-# get_interval_power <- function(sessions, timeslot, by) {
-#   sessions %>%
-#     dplyr::filter(
-#       .data$ChargingStartDateTime <= timeslot,
-#       timeslot < .data$ChargingEndDateTime
-#     ) %>%
-#     dplyr::group_by(!!dplyr::sym(by)) %>%
-#     dplyr::summarise(Power = sum(.data$Power)) %>%
-#     dplyr::mutate(datetime = timeslot)
-# }
 
 
 # Occupancy ---------------------------------------------------------------
@@ -92,6 +81,7 @@ get_interval_demand <- function(sessions, timeslot, by, resolution) {
 #' @importFrom dplyr tibble
 #' @importFrom rlang .data
 #' @importFrom lubridate floor_date days
+#' @importFrom dtplyr lazy_dt
 #'
 get_n_connections <- function(sessions, dttm_seq = NULL, resolution = 15) {
 
@@ -114,9 +104,11 @@ get_n_connections <- function(sessions, dttm_seq = NULL, resolution = 15) {
     }
   }
 
+  sessions_dt <- dtplyr::lazy_dt(sessions)
+
   tibble(
     datetime = dttm_seq,
-    n_connections = map_dbl(.data$datetime, ~ get_interval_n_connections(sessions, .x))
+    n_connections = map_dbl(dttm_seq, ~ get_interval_n_connections(sessions_dt, .x))
   )
 }
 
