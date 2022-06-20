@@ -113,13 +113,14 @@ get_n_connections <- function(sessions, dttm_seq = NULL, resolution = 15) {
 }
 
 get_interval_n_connections <- function(sessions, timeslot) {
-  sessions_connected <- sessions %>%
-    dplyr::filter(
-      (.data$ConnectionStartDateTime <= timeslot & timeslot < .data$ConnectionEndDateTime) |
-        (.data$ConnectionStartDateTime == timeslot & timeslot == .data$ConnectionEndDateTime)
-    ) %>%
-    dplyr::as_tibble()
-  return( nrow(sessions_connected) )
+  nrow(
+    sessions %>%
+      dplyr::filter(
+        (.data$ConnectionStartDateTime <= timeslot & timeslot < .data$ConnectionEndDateTime) |
+          (.data$ConnectionStartDateTime == timeslot & timeslot == .data$ConnectionEndDateTime)
+      ) %>%
+      dplyr::as_tibble()
+  )
 }
 
 
