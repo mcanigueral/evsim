@@ -17,6 +17,7 @@
 #' @importFrom purrr map_dfr
 #' @importFrom lubridate floor_date days is.timepoint
 #' @importFrom dtplyr lazy_dt
+#' @importFrom data.table as.data.table
 #'
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15) {
 
