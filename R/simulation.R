@@ -22,7 +22,8 @@ round_to_interval <- function(dbl, interval) {
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr %>% mutate
+#' @importFrom dplyr %>% mutate sample_n
+#' @importFrom tidyr drop_na
 #' @importFrom rlang .data
 #'
 add_charging_features <- function(sessions, power_rates, power_prob, resolution = 15) {
@@ -32,7 +33,7 @@ add_charging_features <- function(sessions, power_rates, power_prob, resolution 
   } else {
     sessions$Power <- rep(power_rates, nrow(sessions))
   }
-  sessions %>%
+  sessions2 <- sessions %>%
     mutate(
       ChargingHours = pmin(
         round_to_interval(.data$Energy/.data$Power, 5/60), # Rounded to minutes resolution
@@ -41,7 +42,17 @@ add_charging_features <- function(sessions, power_rates, power_prob, resolution 
       Energy = round(.data$Power * .data$ChargingHours, 2), # Energy must change if ChargingHours was limited by ConnectionHours
       ChargingStartDateTime = .data$ConnectionStartDateTime,
       ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
+    ) %>%
+    drop_na()
+
+  if (nrow(sessions2) == nrow(sessions)) {
+    return( sessions2 )
+  } else {
+    return(
+      sessions2 %>%
+        sample_n(nrow(sessions), replace = T)
     )
+  }
 }
 
 
