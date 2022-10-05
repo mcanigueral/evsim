@@ -4,7 +4,7 @@
 \alias{get_day_sessions}
 \title{Get day sessions}
 \usage{
-get_day_sessions(day, ev_models, connection_log, energy_log)
+get_day_sessions(day, ev_models, connection_log, energy_log, charging_powers)
 }
 \arguments{
 \item{day}{Date to simulate}
@@ -14,6 +14,9 @@ get_day_sessions(day, ev_models, connection_log, energy_log)
 \item{connection_log}{Logical, true if connection models have logarithmic transformations}
 
 \item{energy_log}{Logical, true if energy models have logarithmic transformations}
+
+\item{charging_powers}{tibble with variables \code{power} and \code{ratio}
+The powers must be in kW and the ratios between 0 and 1.}
 }
 \value{
 tibble

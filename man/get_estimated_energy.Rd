@@ -4,14 +4,14 @@
 \alias{get_estimated_energy}
 \title{Estimate energy given energy models tibble}
 \usage{
-get_estimated_energy(n, energy_models, log)
+get_estimated_energy(power_vct, energy_models, energy_log)
 }
 \arguments{
-\item{n}{number of sessions}
+\item{power_vct}{numeric vector of power values of simulated sessions}
 
 \item{energy_models}{energy models tibble}
 
-\item{log}{Logical, true if models have logarithmic transformation}
+\item{energy_log}{Logical, true if models have logarithmic transformation}
 }
 \value{
 list of numeric vectors

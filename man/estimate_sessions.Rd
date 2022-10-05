@@ -10,7 +10,8 @@ estimate_sessions(
   connection_models,
   energy_models,
   connection_log,
-  energy_log
+  energy_log,
+  charging_powers
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ estimate_sessions(
 \item{connection_log}{Logical, true if connection models have logarithmic transformations}
 
 \item{energy_log}{Logical, true if energy models have logarithmic transformations}
+
+\item{charging_powers}{tibble with variables \code{power} and \code{ratio}
+The powers must be in kW and the ratios between 0 and 1.}
 }
 \value{
 tibble

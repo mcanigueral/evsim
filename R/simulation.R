@@ -12,51 +12,8 @@ round_to_interval <- function(dbl, interval) {
   round(dbl/interval)*interval
 }
 
-#' Change charging features with new charging power distribution
-#'
-#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' @param power_rates numeric vector with different charging power rates
-#' @param power_prob numeric vector with the probability of the charging power rates with the corresponding order
-#' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
-#'
-#' @return tibble
-#' @export
-#'
-#' @importFrom dplyr %>% mutate sample_n
-#' @importFrom tidyr drop_na
-#' @importFrom rlang .data
-#'
-add_charging_features <- function(sessions, power_rates, power_prob, resolution = 15) {
-  # Charging power
-  if (length(power_rates) > 1) {
-    sessions$Power <- sample(power_rates, size = nrow(sessions), prob = power_prob, replace = T)
-  } else {
-    sessions$Power <- rep(power_rates, nrow(sessions))
-  }
-  sessions2 <- sessions %>%
-    mutate(
-      ChargingHours = pmin(
-        round_to_interval(.data$Energy/.data$Power, 5/60), # Rounded to minutes resolution
-        .data$ConnectionHours
-      ), # Limit ChargingHours by ConnectionHours
-      Energy = round(.data$Power * .data$ChargingHours, 2), # Energy must change if ChargingHours was limited by ConnectionHours
-      ChargingStartDateTime = .data$ConnectionStartDateTime,
-      ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
-    ) %>%
-    drop_na()
 
-  if (nrow(sessions2) == nrow(sessions)) {
-    return( sessions2 )
-  } else {
-    return(
-      sessions2 %>%
-        sample_n(nrow(sessions), replace = T)
-    )
-  }
-}
-
-
-#' Adapt charging features according to existing charging powers
+#' Adapt charging time and energy according to power and time resolution
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
@@ -145,11 +102,6 @@ get_charging_powers_ratios <- function(sessions) {
 #' @importFrom stats rnorm
 #'
 estimate_energy <- function(n, mu, sigma, log) {
-  # After applying clusters' ratios we may have `n = 0`
-  # However we should simulate at least 1 sessions since for lower values
-  # of `n_sessions_day` and multiple clusters, we would never have positive
-  # values of `n`
-  if (n == 0) n = 1
   energy <- rnorm(n, mu, sigma)
   if (log) energy <- exp(energy)
   return( energy )
@@ -157,19 +109,50 @@ estimate_energy <- function(n, mu, sigma, log) {
 
 #' Estimate energy given energy models tibble
 #'
-#' @param n number of sessions
+#' @param power_vct numeric vector of power values of simulated sessions
 #' @param energy_models energy models tibble
-#' @param log Logical, true if models have logarithmic transformation
+#' @param energy_log Logical, true if models have logarithmic transformation
 #'
 #' @return list of numeric vectors
 #'
-#' @importFrom purrr pmap
+#' @importFrom purrr pmap map_lgl
 #'
-get_estimated_energy <- function(n, energy_models, log) {
-  return(pmap(
-    energy_models,
-    ~ estimate_energy(floor(n*..3)+1, ..1, ..2, log)
-  ))
+get_estimated_energy <- function(power_vct, energy_models, energy_log) {
+  n <- length(power_vct)
+  energy_from_all_powers <- list()
+
+  # if (!("charging_rate" %in% colnames(energy_models))) {
+  #   return(pmap(
+  #     energy_models,
+  #     ~ estimate_energy(round(n*..3), ..1, ..2, energy_log)
+  #   ))
+  # }
+
+  for (rate in energy_models$charging_rate) {
+    power_energy_model <- energy_models$energy_models[[which(energy_models$charging_rate == rate)]]
+    power_energy <- as.numeric(simplify(pmap(
+      power_energy_model, ~ estimate_energy(floor(n*..3)+1, ..1, ..2, energy_log)
+    )))
+    energy_from_all_powers[[as.character(rate)]] <- power_energy
+  }
+
+  if ("Unknown" %in% energy_models$charging_rate) {
+    return( energy_from_all_powers[["Unknown"]] )
+  }
+
+  energy_vct <- map_dbl(
+    power_vct,
+    ~ sample(
+      energy_from_all_powers[[as.character(.x)]],
+      size = 1
+    )
+  )
+
+  if (any(map_lgl(energy_vct, ~ sum(is.null(.x)) | sum(is.na(.x))))) {
+    message("Warning: NULL or NA values in energy simulation. Charging rates values must correspond to EV energy models charging rates.")
+  }
+
+  return( energy_vct )
 }
 
 
@@ -185,11 +168,6 @@ get_estimated_energy <- function(n, energy_models, log) {
 #' @importFrom MASS mvrnorm
 #'
 estimate_connection <- function(n, mu, sigma, log) {
-  # After applying clusters' ratios we may have `n = 0`
-  # However we should simulate at least 1 sessions since for lower values
-  # of `n_sessions_day` and multiple clusters, we would never have positive
-  # values of `n`
-  if (n == 0) n = 1
   ev_connections <- as.data.frame(matrix(mvrnorm(n = n, mu = mu, Sigma = sigma), ncol = 2))
   if (log) ev_connections <- exp(ev_connections)
   return( ev_connections )
@@ -209,7 +187,7 @@ estimate_connection <- function(n, mu, sigma, log) {
 get_estimated_connections <- function(n, profile_models, log) {
   return(pmap(
     profile_models,
-    ~ estimate_connection(floor(n*..3)+1, ..1, ..2, log)
+    ~ estimate_connection(floor(n*..3)+1, ..1, ..2, log) # +1 to avoid n=0
   ))
 }
 
@@ -222,14 +200,16 @@ get_estimated_connections <- function(n, profile_models, log) {
 #' @param energy_models univariate GMM of the profile
 #' @param connection_log Logical, true if connection models have logarithmic transformations
 #' @param energy_log Logical, true if energy models have logarithmic transformations
+#' @param charging_powers tibble with variables `power` and `ratio`
+#' The powers must be in kW and the ratios between 0 and 1.
 #'
 #' @return tibble
 #'
-#' @importFrom dplyr tibble bind_rows slice_sample
+#' @importFrom dplyr tibble bind_rows slice_sample sample_frac
 #' @importFrom purrr simplify
 #' @importFrom tidyr fill
 #'
-estimate_sessions <- function(profile_name, n_sessions, connection_models, energy_models, connection_log, energy_log) {
+estimate_sessions <- function(profile_name, n_sessions, connection_models, energy_models, connection_log, energy_log, charging_powers) {
 
   if (n_sessions == 0) {
     return( NULL )
@@ -244,15 +224,21 @@ estimate_sessions <- function(profile_name, n_sessions, connection_models, energ
       rbind,
       get_estimated_connections(n_sessions_objective, connection_models, connection_log)
     )
-    estimated_energy <- simplify(
-      get_estimated_energy(n_sessions_objective, energy_models, energy_log)
-    )
+
+    estimated_power <- sample_frac(
+      charging_powers['power'], size = n_sessions_objective,
+      prob = charging_powers$ratio, replace = T
+    )[["power"]]
+
+    estimated_energy <- get_estimated_energy(estimated_power, energy_models, energy_log)
 
     estimated_sessions <- tibble(
       start = round(estimated_connections[[1]], 2),
       duration = round(estimated_connections[[2]], 2),
+      power = estimated_power[1:nrow(estimated_connections)],
       energy = round(estimated_energy[1:nrow(estimated_connections)], 2)
-    ) %>% fill(.data$energy)
+    ) %>%
+      drop_na()
 
     ev_sessions <- bind_rows(ev_sessions, estimated_sessions)
 
@@ -278,6 +264,10 @@ get_day_features <- function(day, ev_models) {
   day_models <- ev_models[["user_profiles"]][models_month_idx & models_wday_idx][[1]]
   day_n_sessions <- ev_models[["n_sessions"]][models_month_idx & models_wday_idx][[1]]
 
+  if (is.na(day_n_sessions) | is.null(day_n_sessions) | is.nan(day_n_sessions)) {
+    day_n_sessions <- 0
+  }
+
   list(
     models = day_models,
     n_sessions = day_n_sessions
@@ -291,6 +281,8 @@ get_day_features <- function(day, ev_models) {
 #' @param ev_models profiles models
 #' @param connection_log Logical, true if connection models have logarithmic transformations
 #' @param energy_log Logical, true if energy models have logarithmic transformations
+#' @param charging_powers tibble with variables `power` and `ratio`
+#' The powers must be in kW and the ratios between 0 and 1.
 #'
 #' @return tibble
 #'
@@ -298,13 +290,17 @@ get_day_features <- function(day, ev_models) {
 #' @importFrom rlang .data
 #' @importFrom purrr pmap_dfr
 #'
-get_day_sessions <- function(day, ev_models, connection_log, energy_log) {
+get_day_sessions <- function(day, ev_models, connection_log, energy_log, charging_powers) {
 
   day_features <- get_day_features(day, ev_models)
 
+  if (day_features$n_sessions == 0) {
+    return( NULL )
+  }
+
   day_sessions <- pmap_dfr(
     day_features$model,
-    ~ estimate_sessions(..1, floor(..2*day_features$n_sessions)+1, ..3, ..4, connection_log, energy_log) %>%
+    ~ estimate_sessions(..1, ceiling(..2*day_features$n_sessions), ..3, ..4, connection_log, energy_log, charging_powers) %>%
       mutate(Profile = ..1) %>%
       select("Profile", everything())
   ) %>%
@@ -365,19 +361,20 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
 
   simulated_sessions <- map_dfr(
     dates_dttm,
-    ~ get_day_sessions(.x, ev_models, connection_log, energy_log)
+    ~ get_day_sessions(.x, ev_models, connection_log, energy_log, charging_powers)
   )
 
   simulated_sessions <- simulated_sessions %>%
     mutate(
       ConnectionStartDateTime = round_date(.data$start_dt, unit = paste(resolution, "minutes")),
-      ConnectionHours = round_to_interval(.data$duration, 5/60), # Rounded to 5-minute resolution
+      ConnectionHours = round_to_interval(.data$duration, 1/60), # Rounded to 1-minute resolution
       ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
+      Power = .data$power,
       Energy = .data$energy
     ) %>%
-    add_charging_features(charging_powers$power, charging_powers$ratio, resolution) %>%
-    arrange(.data$ConnectionStartDateTime) %>%
+    adapt_charging_features(resolution) %>%
     drop_na() %>%
+    arrange(.data$ConnectionStartDateTime) %>%
     mutate(Session = paste0('S', row_number())) %>%
     select('Session', 'Profile', 'ConnectionStartDateTime', 'ConnectionEndDateTime',
            'ChargingStartDateTime', 'ChargingEndDateTime', 'Power', 'Energy',

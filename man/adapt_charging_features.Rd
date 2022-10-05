@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation.R
 \name{adapt_charging_features}
 \alias{adapt_charging_features}
-\title{Adapt charging features according to existing charging powers}
+\title{Adapt charging time and energy according to power and time resolution}
 \usage{
 adapt_charging_features(sessions, resolution = 15)
 }
@@ -15,5 +15,5 @@ adapt_charging_features(sessions, resolution = 15)
 tibble
 }
 \description{
-Adapt charging features according to existing charging powers
+Adapt charging time and energy according to power and time resolution
 }

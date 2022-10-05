@@ -15,7 +15,7 @@
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
 #' @importFrom purrr map_dfr
-#' @importFrom lubridate floor_date days is.timepoint
+#' @importFrom lubridate floor_date days
 #' @importFrom dtplyr lazy_dt
 #' @importFrom data.table as.data.table
 #'
