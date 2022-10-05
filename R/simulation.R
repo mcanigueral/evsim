@@ -123,7 +123,6 @@ get_estimated_energy <- function(power_vct, energy_models, energy_log) {
   energy_from_all_powers <- list()
 
   if (!("charging_rate" %in% colnames(energy_models))) {
-    message("Warning: old format of EV models")
     energy_models <- tibble(
       charging_rate = "Unknown",
       energy_models = list(energy_models)
@@ -212,7 +211,7 @@ get_estimated_connections <- function(n, profile_models, log) {
 #'
 #' @return tibble
 #'
-#' @importFrom dplyr tibble bind_rows slice_sample sample_frac
+#' @importFrom dplyr tibble bind_rows slice_sample sample_frac mutate select everything
 #' @importFrom purrr simplify
 #' @importFrom tidyr fill
 #'
@@ -257,6 +256,10 @@ estimate_sessions <- function(profile_name, n_sessions, connection_models, energ
       slice_sample(n = n_sessions)
   }
 
+  ev_sessions <- ev_sessions %>%
+    mutate(Profile = profile_name) %>%
+    select("Profile", everything())
+
   return( ev_sessions )
 }
 
@@ -293,7 +296,7 @@ get_day_features <- function(day, ev_models) {
 #'
 #' @return tibble
 #'
-#' @importFrom dplyr mutate select everything %>% slice_sample
+#' @importFrom dplyr %>% slice_sample
 #' @importFrom rlang .data
 #' @importFrom purrr pmap_dfr
 #'
@@ -307,9 +310,7 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 
   day_sessions <- pmap_dfr(
     day_features$model,
-    ~ estimate_sessions(..1, ceiling(..2*day_features$n_sessions), ..3, ..4, connection_log, energy_log, charging_powers) %>%
-      mutate(Profile = ..1) %>%
-      select("Profile", everything())
+    ~ estimate_sessions(..1, ceiling(..2*day_features$n_sessions), ..3, ..4, connection_log, energy_log, charging_powers)
   ) %>%
     mutate(start_dt = day + convert_time_num_to_period(.data$start)) %>%
     select(- .data$start)
@@ -362,6 +363,10 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
   connection_log <- evmodel[['metadata']][['connection_log']]
   energy_log <- evmodel[['metadata']][['energy_log']]
   tzone_model <- evmodel[['metadata']][['tzone']]
+
+  if (!("charging_rate" %in% colnames(ev_models$models$user_profiles[[1]]$energy_models[[1]]))) {
+    message("Warning: old format of EV models")
+  }
 
   dates_dttm <- round_date(with_tz(as_datetime(dates), tzone = tzone_model), unit = 'day')
   ev_models <- left_join(ev_models, sessions_day, by = 'time_cycle')
