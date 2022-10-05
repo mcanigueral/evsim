@@ -116,17 +116,19 @@ estimate_energy <- function(n, mu, sigma, log) {
 #' @return list of numeric vectors
 #'
 #' @importFrom purrr pmap map_lgl
+#' @importFrom tibble tibble
 #'
 get_estimated_energy <- function(power_vct, energy_models, energy_log) {
   n <- length(power_vct)
   energy_from_all_powers <- list()
 
-  # if (!("charging_rate" %in% colnames(energy_models))) {
-  #   return(pmap(
-  #     energy_models,
-  #     ~ estimate_energy(round(n*..3), ..1, ..2, energy_log)
-  #   ))
-  # }
+  if (!("charging_rate" %in% colnames(energy_models))) {
+    message("Warning: old format of EV models")
+    energy_models <- tibble(
+      charging_rate = "Unknown",
+      energy_models = list(energy_models)
+    )
+  }
 
   for (rate in energy_models$charging_rate) {
     power_energy_model <- energy_models$energy_models[[which(energy_models$charging_rate == rate)]]
@@ -137,7 +139,12 @@ get_estimated_energy <- function(power_vct, energy_models, energy_log) {
   }
 
   if ("Unknown" %in% energy_models$charging_rate) {
-    return( energy_from_all_powers[["Unknown"]] )
+    return(
+      sample(
+        energy_from_all_powers[["Unknown"]],
+        size = n
+      )
+    )
   }
 
   energy_vct <- map_dbl(
