@@ -364,7 +364,7 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
   energy_log <- evmodel[['metadata']][['energy_log']]
   tzone_model <- evmodel[['metadata']][['tzone']]
 
-  if (!("charging_rate" %in% colnames(ev_models$models$user_profiles[[1]]$energy_models[[1]]))) {
+  if (!("charging_rate" %in% colnames(ev_models$user_profiles[[1]]$energy_models[[1]]))) {
     message("Warning: old format of EV models")
   }
 
