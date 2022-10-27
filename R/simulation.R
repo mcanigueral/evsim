@@ -27,7 +27,7 @@ round_to_interval <- function(dbl, interval) {
 adapt_charging_features <- function (sessions, resolution = 15) {
   sessions %>%
     mutate(
-      ChargingHours = pmin(round_to_interval(.data$Energy/.data$Power, resolution/60), .data$ConnectionHours),
+      ChargingHours = pmin(.data$Energy/.data$Power, .data$ConnectionHours),
       Energy = round(.data$Power * .data$ChargingHours, 2),
       ChargingStartDateTime = .data$ConnectionStartDateTime,
       ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
