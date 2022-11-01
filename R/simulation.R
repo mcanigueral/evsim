@@ -342,16 +342,6 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 #' @importFrom rlang .data
 #' @importFrom tidyr drop_na
 #'
-#' @details The steps for simulating the sessions are:
-#'
-#' 1. Simulate connection start/duration and energy with GMM
-#'
-#' 2. Approximate connection start and duration according to time resolution and add connection end
-#'
-#' 3. Assign a charging power to every sessions
-#'
-#' 4. Approximate the charging hours, energy and charging end according to time resolution, the power and the connection duration
-#'
 simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, resolution) {
 
   if (sum(sessions_day[["n_sessions"]]) == 0) {
@@ -368,7 +358,7 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
     message("Warning: old format of EV models")
   }
 
-  dates_dttm <- round_date(with_tz(as_datetime(dates), tzone = tzone_model), unit = 'day')
+  dates_dttm <- round_date(as_datetime(sim_dates, tz = "Europe/Amsterdam"), unit = 'day')
   ev_models <- left_join(ev_models, sessions_day, by = 'time_cycle')
 
   simulated_sessions <- map_dfr(
