@@ -358,7 +358,7 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
     message("Warning: old format of EV models")
   }
 
-  dates_dttm <- round_date(as_datetime(sim_dates, tz = "Europe/Amsterdam"), unit = 'day')
+  dates_dttm <- round_date(as_datetime(dates, tz = "Europe/Amsterdam"), unit = 'day')
   ev_models <- left_join(ev_models, sessions_day, by = 'time_cycle')
 
   simulated_sessions <- map_dfr(
