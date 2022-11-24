@@ -116,13 +116,33 @@ estimate_energy <- function(n, mu, sigma, log) {
 #' @return list of numeric vectors
 #'
 #' @importFrom purrr pmap map_lgl
-#' @importFrom tibble tibble
+#' @importFrom dplyr tibble bind_rows
 #'
 get_estimated_energy <- function(power_vct, energy_models, energy_log) {
   n <- length(power_vct)
   energy_from_all_powers <- list()
 
-  if (!("charging_rate" %in% colnames(energy_models))) {
+  if ("charging_rate" %in% colnames(energy_models)) {
+    # Check if we want to simulate energy for a charging rate that is not in the models
+    charging_powers <- unique(power_vct)
+    powers_not_in_models <- which(!(charging_powers %in% energy_models$charging_rate))
+    if (length(powers_not_in_models) > 0) {
+      for (power_extra in charging_powers[powers_not_in_models]) {
+        power_extra_closest_rate <- which.min(abs(energy_models$charging_rate - power_extra))
+          power_extra_model <- tibble(
+            charging_rate = power_extra,
+            energy_models = energy_models$energy_models[power_extra_closest_rate]
+          )
+          energy_models <- bind_rows(energy_models, power_extra_model)
+          message(paste(
+            "Warning:", power_extra,
+            "kW rate not in models. Using energy models from",
+            energy_models$charging_rate[power_extra_closest_rate], "kW rate."
+          ))
+      }
+    }
+  } else {
+    # Shortcut for old models without charging rate
     energy_models <- tibble(
       charging_rate = "Unknown",
       energy_models = list(energy_models)
