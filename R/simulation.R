@@ -278,7 +278,7 @@ estimate_sessions <- function(profile_name, n_sessions, connection_models, energ
 
   ev_sessions <- ev_sessions %>%
     mutate(Profile = profile_name) %>%
-    select("Profile", everything())
+    select("Profile", "start", "duration", "power", "energy")
 
   return( ev_sessions )
 }
@@ -291,6 +291,7 @@ get_day_features <- function(day, ev_models) {
   models_month_idx <- purrr::map_lgl(ev_models[["months"]], ~ month_day %in% .x)
   models_wday_idx <- purrr::map_lgl(ev_models[["wdays"]], ~ wday_day %in% .x)
 
+  day_timecycle <- ev_models[["time_cycle"]][models_month_idx & models_wday_idx][[1]]
   day_models <- ev_models[["user_profiles"]][models_month_idx & models_wday_idx][[1]]
   day_n_sessions <- ev_models[["n_sessions"]][models_month_idx & models_wday_idx][[1]]
 
@@ -299,6 +300,7 @@ get_day_features <- function(day, ev_models) {
   }
 
   list(
+    time_cycle = day_timecycle,
     models = day_models,
     n_sessions = day_n_sessions
   )
@@ -329,11 +331,14 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
   }
 
   day_sessions <- pmap_dfr(
-    day_features$model,
+    day_features$models,
     ~ estimate_sessions(..1, ceiling(..2*day_features$n_sessions), ..3, ..4, connection_log, energy_log, charging_powers)
   ) %>%
-    mutate(start_dt = day + convert_time_num_to_period(.data$start)) %>%
-    select(- .data$start)
+    mutate(
+      start_dt = day + convert_time_num_to_period(.data$start),
+      Timecycle = day_features$time_cycle
+    ) %>%
+    select("Timecycle", "Profile", "start_dt", "duration", "power", "energy")
 
   if (nrow(day_sessions) > day_features$n_sessions) {
     day_sessions <- day_sessions %>%
@@ -398,7 +403,7 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
     drop_na() %>%
     arrange(.data$ConnectionStartDateTime) %>%
     mutate(Session = paste0('S', row_number())) %>%
-    select('Session', 'Profile', 'ConnectionStartDateTime', 'ConnectionEndDateTime',
+    select('Session', 'Timecycle', 'Profile', 'ConnectionStartDateTime', 'ConnectionEndDateTime',
            'ChargingStartDateTime', 'ChargingEndDateTime', 'Power', 'Energy',
            'ConnectionHours', 'ChargingHours')
 
