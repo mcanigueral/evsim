@@ -21,3 +21,4 @@ vector of numeric values
 \description{
 Estimate sessions connection values
 }
+\keyword{internal}

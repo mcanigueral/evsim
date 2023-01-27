@@ -19,3 +19,4 @@ list with sessions connection values
 \description{
 Get estimated profiles
 }
+\keyword{internal}

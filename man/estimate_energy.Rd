@@ -21,3 +21,4 @@ numeric vector
 \description{
 Estimate sessions energy values
 }
+\keyword{internal}

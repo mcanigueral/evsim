@@ -19,3 +19,4 @@ list of numeric vectors
 \description{
 Estimate energy given energy models tibble
 }
+\keyword{internal}

@@ -7,6 +7,7 @@
 #' @param interval rounding interval
 #'
 #' @return numeric value
+#' @keywords internal
 #'
 round_to_interval <- function(dbl, interval) {
   round(dbl/interval)*interval
@@ -40,6 +41,7 @@ adapt_charging_features <- function (sessions, resolution = 15) {
 #' @param time_num Numeric time value (hour-based)
 #'
 #' @importFrom lubridate hours minutes
+#' @keywords internal
 #'
 convert_time_num_to_period <- function(time_num) {
   h <- time_num %/% 1
@@ -92,6 +94,7 @@ get_charging_rates_distribution <- function(sessions, unit="year") {
 #' @param log Logical, true if models have logarithmic transformation
 #'
 #' @return numeric vector
+#' @keywords internal
 #'
 #' @importFrom stats rnorm
 #'
@@ -108,6 +111,7 @@ estimate_energy <- function(n, mu, sigma, log) {
 #' @param energy_log Logical, true if models have logarithmic transformation
 #'
 #' @return list of numeric vectors
+#' @keywords internal
 #'
 #' @importFrom purrr pmap map_lgl
 #' @importFrom dplyr tibble bind_rows
@@ -186,6 +190,7 @@ get_estimated_energy <- function(power_vct, energy_models, energy_log) {
 #' @param log Logical, true if models have logarithmic transformation
 #'
 #' @return vector of numeric values
+#' @keywords internal
 #'
 #' @importFrom MASS mvrnorm
 #'
@@ -203,6 +208,7 @@ estimate_connection <- function(n, mu, sigma, log) {
 #' @param log Logical, true if models have logarithmic transformation
 #'
 #' @return list with sessions connection values
+#' @keywords internal
 #'
 #' @importFrom purrr pmap
 #'
@@ -226,6 +232,7 @@ get_estimated_connections <- function(n, profile_models, log) {
 #' The powers must be in kW and the ratios between 0 and 1.
 #'
 #' @return tibble
+#' @keywords internal
 #'
 #' @importFrom dplyr tibble bind_rows slice_sample sample_frac mutate select everything
 #' @importFrom purrr simplify
@@ -313,6 +320,7 @@ get_day_features <- function(day, ev_models) {
 #' The powers must be in kW and the ratios between 0 and 1.
 #'
 #' @return tibble
+#' @keywords internal
 #'
 #' @importFrom dplyr %>% slice_sample
 #' @importFrom rlang .data

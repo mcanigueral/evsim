@@ -5,6 +5,7 @@
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @export
+#' @keywords internal
 #'
 print.evmodel <- function(x, ...) {
   m <- x$models

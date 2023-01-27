@@ -36,3 +36,4 @@ tibble
 \description{
 Estimate sessions parameters of a specific profile
 }
+\keyword{internal}

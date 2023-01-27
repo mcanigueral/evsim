@@ -16,11 +16,16 @@ reference:
   - contents:
     - simulate_sessions
     - update_profiles_ratios
-  - title: Time-series demand
+  - title: Time-series
   - contents:
     - get_demand
     - get_n_connections
-
+  - title: Utils
+  - contents:
+    - adapt_charging_features
+    - get_charging_rates_distribution
+    - evSessions
+    - evSessionsUI
 articles:
   - title: Articles
     navbar: ~

@@ -24,3 +24,4 @@ tibble
 \description{
 Get day sessions
 }
+\keyword{internal}

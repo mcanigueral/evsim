@@ -17,3 +17,4 @@ numeric value
 \description{
 Round to nearest interval
 }
+\keyword{internal}
