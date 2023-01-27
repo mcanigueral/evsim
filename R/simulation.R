@@ -51,39 +51,33 @@ convert_time_num_to_period <- function(time_num) {
 #' Get charging rates distribution in percentages
 #'
 #' @param sessions sessions data set in standard format
+#' @param unit lubridate `floor_date` unit parameter
 #'
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr %>% select mutate group_by summarise between n
+#' @importFrom dplyr %>% select mutate filter group_by ungroup summarise n all_of
+#' @importFrom lubridate floor_date
 #' @importFrom rlang .data
 #'
-get_charging_powers_ratios <- function(sessions) {
-  sessions %>%
+get_charging_rates_distribution <- function(sessions, unit="year") {
+  sessions_power_round <- sessions %>%
+    select(all_of(c("ConnectionStartDateTime", "Power"))) %>%
     mutate(
-      Power = round_to_interval(.data$Power, 0.5),
-      power = ifelse(
-        between(.data$Power, 0, 4),
-        3.7,
-        ifelse(
-          between(.data$Power, 4.5, 8),
-          7.4,
-          ifelse(
-            between(.data$Power, 8.5, 12),
-            11,
-            ifelse(
-              between(.data$Power, 12.5, 24),
-              22,
-              NA
-            )
-          )
-        )
-      )
+      power = round_to_interval(.data$Power, 3.7)
     ) %>%
-    group_by(.data$power) %>%
+    filter(.data$power > 0)
+  sessions_power_round$power[sessions_power_round$power >= 11] <- 11
+  sessions_power_round %>%
+    group_by(
+      datetime = floor_date(.data$ConnectionStartDateTime, unit = unit),
+      power = .data$power
+    ) %>%
     summarise(n = n()) %>%
-    mutate(ratio = .data$n/sum(.data$n)) %>%
-    select(.data$power, .data$ratio)
+    ungroup() %>%
+    mutate(
+      ratio = .data$n/sum(.data$n)
+    )
 }
 
 
@@ -122,7 +116,7 @@ get_estimated_energy <- function(power_vct, energy_models, energy_log) {
   n <- length(power_vct)
   energy_from_all_powers <- list()
 
-  if ("charging_rate" %in% colnames(energy_models)) {
+  if (is.numeric(energy_models$charging_rate)) {
     # Check if we want to simulate energy for a charging rate that is not in the models
     charging_powers <- unique(power_vct)
     powers_not_in_models <- which(!(charging_powers %in% energy_models$charging_rate))
