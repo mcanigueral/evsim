@@ -116,13 +116,14 @@ get_estimated_energy <- function(power_vct, energy_models, energy_log) {
   n <- length(power_vct)
   energy_from_all_powers <- list()
 
-  if (is.numeric(energy_models$charging_rate)) {
-    # Check if we want to simulate energy for a charging rate that is not in the models
-    charging_powers <- unique(power_vct)
-    powers_not_in_models <- which(!(charging_powers %in% energy_models$charging_rate))
-    if (length(powers_not_in_models) > 0) {
-      for (power_extra in charging_powers[powers_not_in_models]) {
-        power_extra_closest_rate <- which.min(abs(energy_models$charging_rate - power_extra))
+  if ("charging_rate" %in% colnames(energy_models)) {
+    if (is.numeric(energy_models$charging_rate)) {
+      # Check if we want to simulate energy for a charging rate that is not in the models
+      charging_powers <- unique(power_vct)
+      powers_not_in_models <- which(!(charging_powers %in% energy_models$charging_rate))
+      if (length(powers_not_in_models) > 0) {
+        for (power_extra in charging_powers[powers_not_in_models]) {
+          power_extra_closest_rate <- which.min(abs(energy_models$charging_rate - power_extra))
           power_extra_model <- tibble(
             charging_rate = power_extra,
             energy_models = energy_models$energy_models[power_extra_closest_rate]
@@ -133,6 +134,7 @@ get_estimated_energy <- function(power_vct, energy_models, energy_log) {
             "kW rate not in models. Using energy models from",
             energy_models$charging_rate[power_extra_closest_rate], "kW rate."
           ))
+        }
       }
     }
   } else {
