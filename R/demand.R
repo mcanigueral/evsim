@@ -5,7 +5,8 @@
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
 #' @param dttm_seq sequence of datetime values that will be the datetime variable of the returned time-series data frame
-#' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
+#' @param by character, being 'Profile', 'Session' or 'ChargingStation', existing in the `sessions` data frame.
+#' When `by='Profile'` each column corresponds to an EV user profile.
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables. If `dttm_seq` is defined this parameter is ignored.
 #'
 #' @return tibble

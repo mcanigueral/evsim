@@ -55,4 +55,30 @@ reproducible example on
 [GitHub](https://github.com/mcanigueral/evsim/issues). For questions and
 other discussion, please send me a mail to <marc.canigueral@udg.edu>.
 
+For further technical details, you can read the following academic
+articles about the methodology used in this paper:
+
+- **Electric vehicle user profiles for aggregated flexibility
+  planning**. IEEE PES Innovative Smart Grid Technologies Europe (ISGT
+  Europe). IEEE, Oct. 18, 2021. DOI:
+  [10.1109/isgteurope52324.2021.9639931](10.1109/isgteurope52324.2021.9639931).
+- **Flexibility management of electric vehicles based on user profiles:
+  The Arnhem case study**. International Journal of Electrical Power and
+  Energy Systems, vol. 133. Elsevier BV, p. 107195, Dec. 2021. DOI:
+  [10.1016/j.ijepes.2021.107195](10.1016/j.ijepes.2021.107195).
+- **Potential benefits of scheduling electric vehicle sessions over
+  limiting charging power**. CIRED Porto Workshop 2022: E-mobility and
+  power distribution systems. Institution of Engineering and
+  Technology, 2022. DOI: [10.1049/icp.2022.0744](10.1049/icp.2022.0744).
+
+## Acknowledgements
+
+This work has been developed under a PhD program in the University of
+Girona (Catalonia) in collaboration with
+[Resourcefully](https://resourcefully.nl/), an energy transition
+consulting company based in Amsterdam, The Netherlands. The author would
+also like to thank the city of Arnhem, in particular Peter Swart, for
+facilitating access to the data used in the validation stage of this
+research.
+
 ------------------------------------------------------------------------

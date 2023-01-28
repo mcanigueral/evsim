@@ -11,7 +11,8 @@ get_demand(sessions, dttm_seq = NULL, by = "Profile", resolution = 15)
 
 \item{dttm_seq}{sequence of datetime values that will be the datetime variable of the returned time-series data frame}
 
-\item{by}{character, being 'Profile' or 'Session'. When \code{by='Profile'} each column corresponds to an EV user profile.}
+\item{by}{character, being 'Profile', 'Session' or 'ChargingStation', existing in the \code{sessions} data frame.
+When \code{by='Profile'} each column corresponds to an EV user profile.}
 
 \item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables. If \code{dttm_seq} is defined this parameter is ignored.}
 }
