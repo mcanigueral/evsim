@@ -78,7 +78,7 @@ demand_5 %>%
   dyplot(stepPlot = T, strokeWidth = 2, ylab = 'Power (kW)')
 ```
 
-The power profile with a resolution of 5 minutes represents in a higher accuracy when sessions start and finish. However, the total area of the three lines (energy consumed) corresponds to the same value since the power values are the average power of every time-slot whathever the resolution is:
+The power profile with a resolution of 5 minutes represents in a higher accuracy when sessions start and finish. However, the total area of the three lines (energy consumed) corresponds to the same value since the power values are the average power of every time-slot whatever the resolution is:
 
 ```{r}
 sum(demand_5$Demand*5/60) # in kWh

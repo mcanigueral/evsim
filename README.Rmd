@@ -16,9 +16,8 @@ knitr::opts_chunk$set(
 # evsim <a href='https://mcanigueral.github.io/evsim/'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
-<!-- [![CRAN status](https://www.r-pkg.org/badges/version/dplyr)](https://cran.r-project.org/package=dplyr) -->
-<!-- [![R-CMD-check](https://github.com/tidyverse/dplyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidyverse/dplyr/actions/workflows/R-CMD-check.yaml) -->
-<!-- [![Codecov test coverage](https://codecov.io/gh/tidyverse/dplyr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/tidyverse/dplyr?branch=main) -->
+<!-- [![CRAN status](https://www.r-pkg.org/badges/version/evsim)](https://cran.r-project.org/package=evsim) -->
+[![R-CMD-check](https://github.com/mcanigueral/evsim/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mcanigueral/evsim/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Overview
@@ -64,6 +63,6 @@ For further technical details, you can read the following academic articles abou
 
 ## Acknowledgements
 
-This work has been developed under a PhD program in the University of Girona (Catalonia) in collaboration with [Resourcefully](https://resourcefully.nl/), an energy transition consulting company based in Amsterdam, The Netherlands. The author would also like to thank the city of Arnhem, in particular Peter Swart, for facilitating access to the data used in the validation stage of this research.
+This work has been developed under a PhD program in the University of Girona (Catalonia) in collaboration with [Resourcefully](https://resourcefully.nl/), an energy transition consulting company based in Amsterdam, The Netherlands.
 
 ---

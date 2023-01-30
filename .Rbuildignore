@@ -9,3 +9,4 @@
 vignettes/
 pkgdown/
 ^README.Rmd
+^\.github$

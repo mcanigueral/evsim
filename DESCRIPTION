@@ -1,5 +1,5 @@
 Package: evsim
-Title: Electric vehicle simulations
+Title: Electric Vehicle Charging Sessions Simulation
 Version: 0.1.0
 Authors@R: 
     person(given = "Marc",
@@ -8,8 +8,8 @@ Authors@R:
            email = "marc.canigueral@udg.edu",
            comment = c(ORCID = "0000-0001-9724-5829")
            )
-Description: This package provides functions to simulate Electric Vehicles charging 
-    sessions using Gaussian models built in {evprof} package, together with time-series
+Description: Tools to simulate Electric Vehicles charging sessions using 
+    Gaussian models built in {evprof} package, together with time-series
     power demand calculations.
 License: GPL-3
 Encoding: UTF-8
