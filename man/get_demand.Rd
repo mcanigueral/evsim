@@ -2,12 +2,12 @@
 % Please edit documentation in R/demand.R
 \name{get_demand}
 \alias{get_demand}
-\title{Obtain timeseries demand from sessions dataset}
+\title{Obtain time-series demand from sessions data set}
 \usage{
 get_demand(sessions, dttm_seq = NULL, by = "Profile", resolution = 15)
 }
 \arguments{
-\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
+\item{sessions}{tibble, sessions data set in standard format defined by \code{{evprof}} package}
 
 \item{dttm_seq}{sequence of datetime values that will be the datetime variable of the returned time-series data frame}
 
@@ -20,5 +20,5 @@ When \code{by='Profile'} each column corresponds to an EV user profile.}
 tibble
 }
 \description{
-Obtain timeseries demand from sessions dataset
+Obtain time-series demand from sessions data set
 }

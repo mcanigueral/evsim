@@ -16,6 +16,7 @@ reference:
   - contents:
     - simulate_sessions
     - update_profiles_ratios
+    - add_charging_infrastructure
   - title: Time-series
   - contents:
     - get_demand

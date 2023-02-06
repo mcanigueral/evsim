@@ -5,7 +5,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-devtools::load_all()  # ev_model included
+library(evsim)
+library(dplyr)
 ```
 
 This package provides the tools to simulate new EV charging session, on the basis of the **Gaussian Mixture Models (GMM)** of different EV user profiles found and modeled with [`{evprof}`](https://mcanigueral.github.io/evprof/). The EV model obtained with [`evprof::get_ev_model()`](https://mcanigueral.github.io/evprof/reference/get_ev_model.html) function is an object of class `evmodel`, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html) from website of `{evprof}` package.
@@ -22,13 +23,19 @@ The only function of `{evsim}` package necessary to simulate new EV sessions is 
 
 ### EV model
 
-Let's take a look to the example EV model:
+Package `{evsim}` provides an EV model of example, being the model created from California ACN data in the [California article](https://mcanigueral.github.io/evprof/articles/california.html) from `{evprof}` documentation. This model can be accessed loading the `{evsim}` package or with the following function:
+
+```{r}
+ev_model <- evsim::california_ev_model
+```
+
+Let's take a look to the information that the `print` function shows for an `evmodel` object:
 
 ```{r models obj}
 print(ev_model)
 ```
 
-We have 4 different time-cycles in this case (Workday, Friday, Saturday and Sunday), and each one has its corresponding user profiles. At the same time, each user profile of each time-cycle is modeled by two different models:
+We have 2 different time-cycles in this case (Workdays and Weekends), and each one has its corresponding user profiles. At the same time, each user profile of each time-cycle is modeled by two different models:
 
 - Connection Models: combination of multiple Gaussian distributions of two variables (Connection Start Time and Connection Duration)
 - Energy Models: combination of multiple Gaussian distributions of one variable (Energy)
@@ -37,17 +44,15 @@ Moreover, each User profile has a corresponding ratio over the total number of d
 
 ```{r workday models}
 workday_models <- ev_model$models$user_profiles[[1]]
-
 workday_models
 ```
-
 We can modify the ratios of the user profiles from one time-cycle with the function `update_profiles_ratios()`. The new ratios have to be specified as a tibble with variables `time_cycle`, `profile` and `ratio`. It is not mandatory that all time-cycles appear in the `new_ratios` tibble, but for a single time-cycle all user profiles must appear. For example, let's say we want to change only the **Workday** ratios with the following ones:
 
 ```{r}
 new_ratios <- tibble(
-  time_cycle = rep('Workday', 7),
+  time_cycle = rep('Workday', 2),
   profile = workday_models$profile,
-  ratio = c(0, 0.1, 0.1, 0.2, 0.2, 0.3, 0.1)
+  ratio = c(0.2, 0.8)
 )
 
 new_ratios
@@ -55,9 +60,9 @@ new_ratios
 
 Then, we can modify our `evmodel`object with:
 ```{r update models}
-ev_model <- update_profiles_ratios(ev_model, new_ratios)
+new_ev_model <- update_profiles_ratios(ev_model, new_ratios)
 
-ev_model$models$user_profiles[[1]]
+new_ev_model$models$user_profiles[[1]]
 ```
 
 Note, that we set the Dinner profile's ratio to 0. This is equivalent to discard this user profile from our simulation. To directly remove this profile from our model object, set the argument `discard = TRUE` in `update_profiles_ratios()` function.
@@ -71,7 +76,7 @@ For example:
 ```{r n_sessions}
 sessions_day <- tibble(
   time_cycle = ev_model$models$time_cycle,
-  n_sessions = c(250, 275, 200, 200)
+  n_sessions = c(150, 50)
 )
 sessions_day
 ```
@@ -83,13 +88,12 @@ We also need to specify the ratio of each charging power rate, as a tibble with 
 * 3.7 kW AC
 * 7.3 kW AC
 * 11 kW AC
-* 22 kW AC
 
 Then we will set the following charging power distribution:
 ```{r charging rates}
 charging_powers <- tibble(
-  power = c(3.7, 7.3, 11, 22),
-  ratio = c(0.2, 0.4, 0.3, 0.1)
+  power = c(3.7, 7.3, 11),
+  ratio = c(0.2, 0.4, 0.4)
 )
 charging_powers
 ```
@@ -113,7 +117,7 @@ We have now all required data and we are ready to simulate the new sessions:
 
 ```{r estimate sessions}
 sessions_estimated <- simulate_sessions(
-  ev_model,
+  new_ev_model,
   sessions_day, 
   charging_powers,
   dates_sim,
@@ -128,21 +132,29 @@ We have obtained a total of 1674 sessions for our 7 simulation dates, each sessi
 
 ## EV demand
 
-Finally, we can calculate the estimated demand with function `get_demand()`. This function needs an extra argument, `dttm_seq`, which will be the datetime sequence of the time-series demand data frame returned by the function. We will set the datetime sequence from our first to last date with a resolution of 15 minutes and the `Europe/Amsterdam` timezone (with the help of `lubridate::with_tz()` function):
+Finally, we can calculate the estimated demand with function `get_demand()`. This function accepts an optional argument, `dttm_seq`, which will be the datetime sequence of the time-series demand data frame returned by the function. We will set the datetime sequence from our first to last date with a **resolution of 15 minutes** and the timezone of the original model (using the `lubridate::with_tz()` function):
 
 ```{r dttm_seq}
-dttm_seq <- seq.POSIXt(from = as.POSIXct('2019-09-10'), to = as.POSIXct('2019-09-16'), by = '15 min') %>% 
-  lubridate::with_tz('Europe/Amsterdam')
+dttm_seq <- seq.POSIXt(
+  from = as.POSIXct('2019-09-10'), 
+  to = as.POSIXct('2019-09-16'), 
+  by = '15 min'
+) %>% 
+  lubridate::with_tz(
+    new_ev_model$metadata$tzone
+  )
 ```
 
 ```{r simualted demand}
-estimated_demand <- sessions_estimated %>% get_demand(dttm_seq)
+estimated_demand <- sessions_estimated %>% 
+  get_demand(dttm_seq)
 ```
 
-And the plot of the estimated demand (making use of [`{dygraphs}`](https://rstudio.github.io/dygraphs/) package):
+And the plot of the estimated demand (making use of [`{dygraphs}`](https://rstudio.github.io/dygraphs/) package through my custom package [`{dutils}`](https://github.com/mcanigueral/dutils/)):
 
 ```{r plot, echo=FALSE, fig.width=9}
-estimated_demand %>% dutils::dyplot(ylab = 'Power demand (kW)', fillGraph = T, stackedGraph = T)
+estimated_demand %>% 
+  dutils::dyplot(ylab = 'Power demand (kW)', fillGraph = T, stackedGraph = T)
 ```
 
 

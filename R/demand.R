@@ -1,9 +1,9 @@
 
 # Demand ------------------------------------------------------------------
 
-#' Obtain timeseries demand from sessions dataset
+#' Obtain time-series demand from sessions data set
 #'
-#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' @param sessions tibble, sessions data set in standard format defined by `{evprof}` package
 #' @param dttm_seq sequence of datetime values that will be the datetime variable of the returned time-series data frame
 #' @param by character, being 'Profile', 'Session' or 'ChargingStation', existing in the `sessions` data frame.
 #' When `by='Profile'` each column corresponds to an EV user profile.

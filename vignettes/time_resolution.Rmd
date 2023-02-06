@@ -5,52 +5,55 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F)
-devtools::load_all() # ev_model included
+library(evsim)
 library(dplyr)
 library(lubridate)
 library(dutils)
-
-sessions_day <- tibble(
-  time_cycle = ev_model$models$time_cycle,
-  n_sessions = c(10.5, 10.5, 10.5, 10.5)
-)
-
-charging_powers <- tibble(
-  power = c(3.7, 7.3, 11, 22),
-  ratio = c(0.2, 0.4, 0.3, 0.1)
-)
 ```
 
 
 Functions `simulate_sessions()`, `get_demand()` or `get_n_connections()` requires a parameter called **`resolution`**, which defines the minutes between a time-slot and the following one.
 
-For example, if `resolution = 15`, the charging sessions simulated during 4 PM of a specific day will start at `16:00`, `16:15`, `16:30` or `16:45`, but not during any time between these time-slots. However, the duration of every session has always a maximum of **5 minute resolution**, so a session that starts at `16:30` can have a duration of 25 minutes, ending at `16:55`, but not a duration of 22 minutes, for example. The same concept is applied to the charging times.
+For example, if `resolution = 15`, the charging sessions simulated during 4 PM of a specific day will start at `16:00`, `16:15`, `16:30` or `16:45`, but not during any time between these time-slots. However, the connection duration of every session can have any value, so the session can finish at `16:22` for instance. The same concept is applied to the charging times.
 
-The function `get_demand` gives the **average charging power** during a certain time-slot. For example, if we use the `get_demand` function with a `resolution = 15`, a demand of 55kW for time-slot `16:30` means that between `16:30` and `16:45` it has been consumed the energy corresponding to an average power of 55 kW (so 55·15/60=**13.75 kWh**). 
-This can modify the power profile of sessions that stop charging at a time between time-slots. For example, considering a `resolution = 15` and a session charging at 10kW from `16:30` to `16:55`, the demand of time-slot `16:30` will be 10kW but the demand of time-slot `16:45` will decrease to 6.67 kW (charging only 3/4 parts of the time-slot). The real power profile of the session is a constant power step of 10kW, but the demand profile obtained with a `resolution = 15` does not. To obtain the real power profile of the session, the `resolution` parameter should be set to 5 minutes (the maximum resolution value allowed).
+Therefore, the function `get_demand` gives the **average charging power** during a certain time-slot. If we use a `resolution = 15`, a demand of 55kW for time-slot `16:30` means that between `16:30` and `16:45` it has been consumed the energy corresponding to an average power of 55 kW (so 55·15/60=**13.75 kWh**). This can modify the power profile of sessions that stop charging at a time between time-slots. For example, considering a `resolution = 15` and a session charging at 10kW from `16:30` to `16:55`, the demand of time-slot `16:30` will be 10kW but the demand of time-slot `16:45` will decrease to 6.67 kW (charging only 3/4 parts of the time-slot). The "real" power profile of the session is a constant power step of 10kW, but the demand profile obtained with a `resolution = 15` does not. To obtain a more accurate power profile of the session, the `resolution` parameter should be set to higher resolutions (until a maximum of 1 minute).
 
-The `resolution` parameter of time-series functions (i.e. `get_demand()` and `get_n_connections()`) does not have to correspond necessarily to the `resolution` of simulated sessions, even though it would not have much sense to obtain the time-series demand in a lower resolution (longer time intervals) than sessions since we loose accuracy on the power profile. 
+Finally, note that the `resolution` parameter of time-series functions (i.e. `get_demand()` and `get_n_connections()`) does not have to correspond necessarily to the `resolution` of simulated sessions, even though it would not have much sense to obtain the time-series demand in a lower resolution (longer time intervals) than sessions since we loose accuracy on the power profile. 
 
-For example, we could have 10 simulated sessions with a `resolution` of 30 minutes:
+Let's see and example simulating 10 charging sessions with a `resolution` of 30 minutes:
 
 ```{r sessions, echo = F}
-set.seed(1234)
+# Required parameters first
+ev_model <- evsim::california_ev_model
+
+sessions_day <- tibble(
+  time_cycle = ev_model$models$time_cycle,
+  n_sessions = c(10, 10)
+)
+
+charging_powers <- tibble(
+  power = c(3.7, 7.3, 11),
+  ratio = c(0.2, 0.4, 0.4)
+)
+
+# Sessions simulation
+set.seed(123)
 sessions <- simulate_sessions(
   ev_model,
   sessions_day,
   charging_powers,
-  today(),
+  dmy("31/01/2023"),
   resolution = 30
 ) %>% 
-  mutate(Profile = 'Demand')
-sessions %>% 
-  select(-c(Profile)) %>% 
-  mutate_if(is.timepoint, format, "%d/%m/%Y %H:%M") %>% 
-  knitr::kable()
+  mutate(Profile = 'Users')
 ```
 
-
-**Important:** from a data set of sessions with a certain time resolution it's possible to calculate the aggregated demand with the same resolution or a higher one being multiple of it. For example, if a data set of sessions has a time resolution of 30 minutes, the demand can be calculated in 5, 10, 15 or 30 minutes resolution, but not with a resolution of 20 minutes (higher but not multiple) or 60 minutes (lower resolution).
+```{r}
+sessions %>% 
+  select_if(is.timepoint) %>% 
+  mutate_all(format, "%d/%m/%Y %H:%M") %>% 
+  knitr::kable()
+```
 
 If we calculate the aggregated demand of the above simulated sessions with a `resolution` of `5`, `15` and `30`, the resulting power profile loses accuracy when we decrease the time resolution (so higher time intervals):
 
@@ -66,30 +69,43 @@ demand_30 <- sessions %>%
 ```
 
 ```{r, echo = F}
-demand_5 %>% 
-  rename(`5-minute resolution` = Demand) %>% 
+demand_comparison <- demand_5 %>% 
+  rename(`5-minute resolution` = Users) %>% 
   left_join(
-    rename(demand_15, `15-minute resolution` = Demand)
+    rename(demand_15, `15-minute resolution` = Users)
   ) %>% 
-    left_join(
-    rename(demand_30, `30-minute resolution` = Demand)
+  left_join(
+    rename(demand_30, `30-minute resolution` = Users)
   ) %>% 
-  fill(-datetime, .direction = 'down') %>% 
+  tidyr::fill(-datetime, .direction = 'down')
+
+demand_comparison %>% 
   dyplot(stepPlot = T, strokeWidth = 2, ylab = 'Power (kW)')
 ```
 
-The power profile with a resolution of 5 minutes represents in a higher accuracy when sessions start and finish. However, the total area of the three lines (energy consumed) corresponds to the same value since the power values are the average power of every time-slot whatever the resolution is:
+The power profile with a resolution of 5 minutes represents in a higher accuracy when sessions start and finish. If we zoom-in, we can see clearly that the average power profile really depends on the time resolution:
 
 ```{r}
-sum(demand_5$Demand*5/60) # in kWh
+demand_comparison %>% 
+  filter(
+    datetime >= dmy_h("31/01/2023 16", tz = ev_model$metadata$tzone),
+    datetime < dmy_h("31/01/2023 19", tz = ev_model$metadata$tzone)
+  ) %>% 
+  dyplot(stepPlot = T, strokeWidth = 2, ylab = 'Power (kW)')
+```
+
+However, the total area of the three lines (energy consumed) corresponds to the same value since the power values are the average power of every time-slot whatever the resolution is:
+
+```{r}
+sum(demand_5$Users*5/60) # in kWh
 ```
 
 ```{r}
-sum(demand_15$Demand*15/60) # in kWh
+sum(demand_15$Users*15/60) # in kWh
 ```
 
 ```{r}
-sum(demand_30$Demand*30/60) # in kWh
+sum(demand_30$Users*30/60) # in kWh
 ```
 
 
