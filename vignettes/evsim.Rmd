@@ -4,20 +4,21 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(evsim)
 library(dplyr)
 ```
 
-This package provides the tools to simulate new EV charging session, on the basis of the **Gaussian Mixture Models (GMM)** of different EV user profiles found and modeled with [`{evprof}`](https://mcanigueral.github.io/evprof/). The EV model obtained with [`evprof::get_ev_model()`](https://mcanigueral.github.io/evprof/reference/get_ev_model.html) function is an object of class `evmodel`, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html) from website of `{evprof}` package.
+This package provides the tools to simulate new EV charging session, on the basis of the **Gaussian Mixture Models (GMM)** of different EV user profiles found and modeled with [`{evprof}`](https://mcanigueral.github.io/evprof/). The EV model obtained with [`evprof::get_ev_model`](https://mcanigueral.github.io/evprof/reference/get_ev_model.html) function is an object of class `evmodel`, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html) from website of `{evprof}` package.
 
 ## Required data
 
-The only function of `{evsim}` package necessary to simulate new EV sessions is function `simulate_sessions()`, which returns a tibble of EV charging sessions. The required input arguments to run this function are:
+The only function of `{evsim}` package necessary to simulate new EV sessions is function `simulate_sessions`, which returns a tibble of EV charging sessions. The required input arguments to run this function are:
 
 - The EV model (object of class `evmodel`)
 - Number of daily sessions for each time-cycle model
-- Charging powers shares relative to the number of daily sessions
+- User profiles distribution (ratio of every user profile) and specific charging power (if required)
+- Charging power distribution (ratio of every different charging rate)
 - Dates to simulate
 
 
@@ -40,32 +41,17 @@ We have 2 different time-cycles in this case (Workdays and Weekends), and each o
 - Connection Models: combination of multiple Gaussian distributions of two variables (Connection Start Time and Connection Duration)
 - Energy Models: combination of multiple Gaussian distributions of one variable (Energy)
 
-Moreover, each User profile has a corresponding ratio over the total number of daily sessions. For example for **Workday** time-cycle we see the following user profiles components:
+Moreover, each User profile has a corresponding ratio over the total number of daily sessions. In this case, for the **Workday** time-cycle the half of charging sessions are **Vist** users and the other half **Worktime** users, while for the **Weekend** time-cycle all sessions are **Visit** users.
 
 ```{r workday models}
 workday_models <- ev_model$models$user_profiles[[1]]
 workday_models
 ```
-We can modify the ratios of the user profiles from one time-cycle with the function `update_profiles_ratios()`. The new ratios have to be specified as a tibble with variables `time_cycle`, `profile` and `ratio`. It is not mandatory that all time-cycles appear in the `new_ratios` tibble, but for a single time-cycle all user profiles must appear. For example, let's say we want to change only the **Workday** ratios with the following ones:
-
-```{r}
-new_ratios <- tibble(
-  time_cycle = rep('Workday', 2),
-  profile = workday_models$profile,
-  ratio = c(0.2, 0.8)
-)
-
-new_ratios
+```{r workday models}
+weekend_models <- ev_model$models$user_profiles[[2]]
+weekend_models
 ```
 
-Then, we can modify our `evmodel`object with:
-```{r update models}
-new_ev_model <- update_profiles_ratios(ev_model, new_ratios)
-
-new_ev_model$models$user_profiles[[1]]
-```
-
-Note, that we set the Dinner profile's ratio to 0. This is equivalent to discard this user profile from our simulation. To directly remove this profile from our model object, set the argument `discard = TRUE` in `update_profiles_ratios()` function.
 
 
 ### Number of sessions per day
@@ -81,15 +67,48 @@ sessions_day <- tibble(
 sessions_day
 ```
 
+
+### User profiles distribution
+
+In the "EV model" section we have seen that inside the `ev_model` object there is already a default distribution of user profiles, each one with the corresponding ratio. These ratio values were obtained from the clustering process done by `{evprof}` package and represent the presence of every user profile over the total number of sessions clustered.
+
+However, we may want to simulate different scenarios or use cases where these ratios differ from the current ones. For example, to simulate the EV demand in an industrial area it could be interesting to prioritize the presence of Worktime sessions over Visit sessions. This can be done by setting a new user profiles' distribution tibble, which must contain the variables `time_cycle`, `profile` and `ratio`. It is not mandatory that all time-cycles and user profiles appear in the `user_profiles` tibble. The rule is simple: only time cycles and user profiles appearing in the `user_profiles` tibble will be simulated.
+
+Moreover, we can specify the **charging power** of a concrete user profile. This is useful in some scenarios where there is a type of vehicle (e.g. truck) that charges at different rate than the rest of vehicles. This can be done with the column `power` in the `user_profiles` tibble, setting the power values in kW. All user profiles without a specific `power` value will be simulated with a random charging power obtained according to the charging power distribution (see next section).
+
+For example, let's say we want to simulate a  **Workday** distribution with 80% of sessions being Worktime and 20% of sessions being Visit, and considering that all Worktime sessions charge with three-phase AC vehicles with 16A connection (11 kW). Then our `user_profiles` tibble should be the following one:
+
+```{r}
+user_profiles <- tibble(
+  time_cycle = c('Workday', 'Workday', 'Weekend'),
+  profile = c('Visit', 'Worktime', 'Visit'),
+  ratio = c(0.2, 0.8, 1),
+  power = c(NA, 11, NA)
+)
+
+user_profiles
+```
+
+
 ### Charging powers distribution
 
-We also need to specify the ratio of each charging power rate, as a tibble with variables `power` and `ratio`. In the public charging infrastructure the most common and standard power rates are:
+The charging power is not a variable modeled by Gaussian Mixture Models (GMM) like the connection variables or the energy. However, the energy GMM can be built by charging power separately (see [User profiles modelling](https://mcanigueral.github.io/evprof/articles/evprof.html#user-profiles-modeling) on `{evprof}` website), since in general the energy charged depends on the charging power (the higher the charging power the higher the energy demand).
 
-* 3.7 kW AC
-* 7.3 kW AC
-* 11 kW AC
+The purpose of letting the charging power out of the GMM is that it is a variable that depends on the EV model and the charging point, so it may change between scenarios. For example, we may want to simulate a scenario where all vehicles have a three-phase connection (11 kW) instead of the current scenario with still a lot of vehicles charging with a single phase (3.7 kW). Therefore, it was convenient to set an option to simulate a specific distribution of charging powers for the simulated EV fleet. This is done with a `charging_powers` tibble with variables `power` and `ratio`. In the public charging infrastructure the most common and standard power rates are:
 
-Then we will set the following charging power distribution:
+* 3.7 kW AC (single-phase 16A)
+* 7.3 kW AC (two-phase 16A)
+* 11 kW AC (three-phase 16A)
+
+If the energy GMM were built according to the charging power, it is recommended that the `power` values in the `charging_powers` tibble match the original charging power values. These can be found inside the models. For the example `ev_model` at issue, we see that the Workday energy models of the `Visit` user profile are not built by charging power since the `charging_rate` column shows an `Unknown` value:
+
+```{r}
+workday_models$energy_models[[1]] # Visit profile energy models
+```
+
+In this case, the same energy GMM will be used for all `power` values. However, if we had energy models for 3.7 kW and 11 kW separately, and we want to simulate 22 kW sessions, the models used for the 22 kW sessions will be the 11 kW models since they are the best approximate solution. 
+
+To follow the example, we can set the following charging power distribution:
 ```{r charging rates}
 charging_powers <- tibble(
   power = c(3.7, 7.3, 11),
@@ -97,7 +116,10 @@ charging_powers <- tibble(
 )
 charging_powers
 ```
-  
+
+This complements the variable `power` from the `user_profiles` tibble (see previous section). This `charging_powers` tibble will be used to assign a charging power to all user profiles' sessions without a `power` specified in `user_profiles`.
+
+
   
 ### Datetime values
 
@@ -117,8 +139,9 @@ We have now all required data and we are ready to simulate the new sessions:
 
 ```{r estimate sessions}
 sessions_estimated <- simulate_sessions(
-  new_ev_model,
+  ev_model,
   sessions_day, 
+  user_profiles,
   charging_powers,
   dates_sim,
   resolution = 15
@@ -127,7 +150,17 @@ sessions_estimated <- simulate_sessions(
 head(sessions_estimated)
 ```
 
-We have obtained a total of 1674 sessions for our 7 simulation dates, each session corresponding to a specific charging profile. We can notice that the datetime variables have a resolution of 15 minutes according to our configuration, and the energy required corresponds to product of `Power` and `ChargingHours`. 
+We have obtained a total of 700 sessions for our 7 simulation dates (i.e. 100 sessions/day), each session corresponding to a specific charging profile. We can notice that the datetime variables have a resolution of 15 minutes according to our configuration, and the energy required corresponds to product of `Power` and `ChargingHours`. 
+
+We can check that the number of sessions of each power rate corresponds to our configuration:
+
+```{r}
+sessions_estimated %>% 
+  group_by(Profile, Power) %>% 
+  summarise(n = n()) %>% 
+  mutate(pct = n/sum(n)*100)
+```
+
 
 
 ## EV demand
@@ -141,7 +174,7 @@ dttm_seq <- seq.POSIXt(
   by = '15 min'
 ) %>% 
   lubridate::with_tz(
-    new_ev_model$metadata$tzone
+    ev_model$metadata$tzone
   )
 ```
 
@@ -156,6 +189,5 @@ And the plot of the estimated demand (making use of [`{dygraphs}`](https://rstud
 estimated_demand %>% 
   dutils::dyplot(ylab = 'Power demand (kW)', fillGraph = T, stackedGraph = T)
 ```
-
 
 

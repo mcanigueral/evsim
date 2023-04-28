@@ -69,14 +69,13 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
 
 # Server ------------------------------------------------------------------
 
-      ev_model_srv <- shiny::reactive({
+      user_profiles_srv <- shiny::reactive({
         walk2(profiles_ratios[['time_cycle']], profiles_ratios[['profile']], ~ shiny::req(input[[paste0("ratio_", .y, "_", .x)]]/100)) # Evaluate all inputs to continue
-        new_ratios <- tibble(
+        tibble(
           time_cycle = profiles_ratios[['time_cycle']],
           profile = profiles_ratios[['profile']],
           ratio = map2_dbl(.data$time_cycle, .data$profile, ~ input[[paste0("ratio_", .y, "_", .x)]]/100)
         )
-        update_profiles_ratios(evmodel, new_ratios)
       })
 
       sessions_day_srv <- shiny::reactive({
@@ -99,7 +98,7 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
         shiny::eventReactive(input[['update_ev_setup']], ignoreNULL=F, ignoreInit=F, {
           set.seed(seed)
           simulate_sessions(
-            ev_model_srv(), sessions_day_srv(), power_ratios_srv(), dates(), resolution()
+            evmodel, sessions_day_srv(), user_profiles_srv(), power_ratios_srv(), dates(), resolution()
           )
         })
       })

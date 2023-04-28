@@ -7,6 +7,7 @@
 estimate_sessions(
   profile_name,
   n_sessions,
+  power,
   connection_models,
   energy_models,
   connection_log,
@@ -15,17 +16,19 @@ estimate_sessions(
 )
 }
 \arguments{
-\item{profile_name}{profile name}
+\item{profile_name}{character, profile name}
 
-\item{n_sessions}{total number of sessions per day}
+\item{n_sessions}{integer, total number of sessions per day}
 
-\item{connection_models}{bivariate GMM of the profile}
+\item{power}{numeric, charging power of the session}
 
-\item{energy_models}{univariate GMM of the profile}
+\item{connection_models}{tibble, bivariate GMM of the profile}
 
-\item{connection_log}{Logical, true if connection models have logarithmic transformations}
+\item{energy_models}{tibble, univariate GMM of the profile}
 
-\item{energy_log}{Logical, true if energy models have logarithmic transformations}
+\item{connection_log}{logical, true if connection models have logarithmic transformations}
+
+\item{energy_log}{logical, true if energy models have logarithmic transformations}
 
 \item{charging_powers}{tibble with variables \code{power} and \code{ratio}
 The powers must be in kW and the ratios between 0 and 1.}

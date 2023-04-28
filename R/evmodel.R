@@ -31,44 +31,65 @@ print.evmodel <- function(x, ...) {
 
 # Modify the models -------------------------------------------------------
 
-#' Update the ratios of the user profiles inside `evmodel` object
+#' Prepare the `evmodel` object ready for the simulation
 #'
-#' @param evmodel object of class `evmodel`
-#' @param new_ratios tibble with columns: `time_cycle`, `profile`, `ratio`
-#' It must have all profiles from every model, including the ones with `ratio = 0`.
-#' The ratios must be between 0 and 1.
-#' @param discard If TRUE, profiles with `ratio == 0` will be discarded from the `evmodel` object
+#' The ratios and default charging power for every user profile,
+#' and the sessions per day for every time cycle are included.
+#'
+#' @param evmodel object of class `evprof`
+#' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
+#' @param user_profiles tibble with variables `time_cycle`, `user_profile`, `ratio` and optionally `power`.
+#' The powers must be in kW and the ratios between 0 and 1.
+#' The user profiles with a value of `power` will be simulated with this specific charging power.
+#' If `power` is `NA` then it is simulated according to the ratios of parameter `charging_powers` in function. `simulate_sessions`.
 #'
 #' @details If any user profile is not in the `new_ratios` data frame, its corresponding ratio in the `evmodel` object is updated with a `0`
 #'
 #' @return the updated `evmodel` object
 #' @export
 #'
-#' @importFrom purrr map_dbl
-#' @importFrom dplyr left_join
+#' @importFrom dplyr left_join select %>%
+#' @importFrom tidyr nest
 #'
-update_profiles_ratios <- function(evmodel, new_ratios, discard=FALSE) {
-  ev_model <- evmodel[['models']]
+prepare_model <- function(evmodel, sessions_day, user_profiles) {
+
+  if (!('power' %in% colnames(user_profiles))) {
+    user_profiles['power'] <- NA
+  }
+
+  ev_model <- user_profiles %>%
+    select('time_cycle', 'profile', 'ratio', 'power') %>%
+    nest(.by = 'time_cycle', .key = 'user_profiles') %>%
+    left_join(
+      select(evmodel, 'time_cycle', 'months', 'wdays'),
+      by = 'time_cycle'
+    ) %>%
+    left_join(
+      sessions_day,
+      by = 'time_cycle'
+    ) %>%
+    select('time_cycle', 'months', 'wdays', 'user_profiles', 'n_sessions')
+
   for (m in 1:nrow(ev_model)) {
-
-    time_cycle_name <- ev_model[["time_cycle"]][[m]]
-    if (!(time_cycle_name %in% new_ratios[["time_cycle"]])) next
-
-    gmm <- ev_model[["user_profiles"]][[m]]
-    new_ratios_time_cycle <- new_ratios[new_ratios[["time_cycle"]] == time_cycle_name, ]
-    gmm_new_ratios <- left_join(gmm['profile'], new_ratios_time_cycle[c('profile', 'ratio')], by = 'profile')
-    gmm_new_ratios[is.na(gmm_new_ratios)] <- 0
-    gmm[["ratio"]] <- gmm_new_ratios[["ratio"]]
-
-    if (discard) {
-      gmm <- gmm[gmm[["ratio"]] > 0, ]
+    time_cycle_name <- ev_model$time_cycle[[m]]
+    if (!(time_cycle_name %in% evmodel$time_cycle)) {
+      message(paste("Error: Time cycle", time_cycle_name, "does not exist"))
+      return(NULL)
     }
+    evmodel_idx <- which(time_cycle_name == evmodel$time_cycle)
+
+    gmm <- left_join(
+      ev_model$user_profiles[[m]],
+      evmodel$user_profiles[[evmodel_idx]] %>%
+        select('profile', 'connection_models', 'energy_models'),
+      by = 'profile'
+    )
 
     ev_model[["user_profiles"]][[m]] <- gmm
   }
 
-  evmodel[['models']] <- ev_model
-  return(evmodel)
+  return(ev_model)
 }
+
 
 

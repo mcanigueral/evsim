@@ -4,15 +4,28 @@
 \alias{simulate_sessions}
 \title{Simulate sessions given the \code{evmodel} object and a datetime sequence}
 \usage{
-simulate_sessions(evmodel, sessions_day, charging_powers, dates, resolution)
+simulate_sessions(
+  evmodel,
+  sessions_day,
+  user_profiles,
+  charging_powers,
+  dates,
+  resolution
+)
 }
 \arguments{
 \item{evmodel}{object of type \code{evmodel} (see this \href{https://mcanigueral.github.io/evprof/articles/evmodel.html}{link} for more information)}
 
 \item{sessions_day}{tibble with variables \code{time_cycle} (names corresponding to \code{evmodel$models$time_cycle}) and \code{n_sessions} (number of daily sessions per day for each time-cycle model)}
 
-\item{charging_powers}{tibble with variables \code{power} and \code{ratio}
-The powers must be in kW and the ratios between 0 and 1.}
+\item{user_profiles}{tibble with variables \code{time_cycle}, \code{user_profile}, \code{ratio} and optionally \code{power}.
+The powers must be in kW and the ratios between 0 and 1.
+The user profiles with a value of \code{power} will be simulated with this specific charging power.
+If \code{power} is \code{NA} then it is simulated according to the ratios of next parameter \code{charging_powers}.}
+
+\item{charging_powers}{tibble with variables \code{power} and \code{ratio}.
+The powers must be in kW and the ratios between 0 and 1.
+This is used to simulate the charging power of user profiles without a specific charging power in \code{user_profiles} parameter.}
 
 \item{dates}{date sequence that will set the time frame of the simulated sessions}
 

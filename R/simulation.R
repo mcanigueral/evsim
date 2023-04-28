@@ -113,7 +113,7 @@ estimate_energy <- function(n, mu, sigma, log) {
 #' @return list of numeric vectors
 #' @keywords internal
 #'
-#' @importFrom purrr pmap map_lgl
+#' @importFrom purrr pmap map_lgl simplify
 #' @importFrom dplyr tibble bind_rows
 #'
 get_estimated_energy <- function(power_vct, energy_models, energy_log) {
@@ -222,12 +222,13 @@ get_estimated_connections <- function(n, profile_models, log) {
 
 #' Estimate sessions parameters of a specific profile
 #'
-#' @param profile_name profile name
-#' @param n_sessions total number of sessions per day
-#' @param connection_models bivariate GMM of the profile
-#' @param energy_models univariate GMM of the profile
-#' @param connection_log Logical, true if connection models have logarithmic transformations
-#' @param energy_log Logical, true if energy models have logarithmic transformations
+#' @param profile_name character, profile name
+#' @param n_sessions integer, total number of sessions per day
+#' @param power numeric, charging power of the session
+#' @param connection_models tibble, bivariate GMM of the profile
+#' @param energy_models tibble, univariate GMM of the profile
+#' @param connection_log logical, true if connection models have logarithmic transformations
+#' @param energy_log logical, true if energy models have logarithmic transformations
 #' @param charging_powers tibble with variables `power` and `ratio`
 #' The powers must be in kW and the ratios between 0 and 1.
 #'
@@ -235,10 +236,10 @@ get_estimated_connections <- function(n, profile_models, log) {
 #' @keywords internal
 #'
 #' @importFrom dplyr tibble bind_rows slice_sample sample_frac mutate select everything
-#' @importFrom purrr simplify
+#' @importFrom purrr map
 #' @importFrom tidyr fill
 #'
-estimate_sessions <- function(profile_name, n_sessions, connection_models, energy_models, connection_log, energy_log, charging_powers) {
+estimate_sessions <- function(profile_name, n_sessions, power, connection_models, energy_models, connection_log, energy_log, charging_powers) {
 
   if (n_sessions == 0) {
     return( NULL )
@@ -249,17 +250,49 @@ estimate_sessions <- function(profile_name, n_sessions, connection_models, energ
 
   while (n_sessions_objective > 0) {
 
+    # Connections ----------------------------------------------------
     estimated_connections <- do.call(
       rbind,
       get_estimated_connections(n_sessions_objective, connection_models, connection_log)
     )
 
-    estimated_power <- sample_frac(
-      charging_powers['power'], size = n_sessions_objective,
-      prob = charging_powers$ratio, replace = T
-    )[["power"]]
+    # Power ----------------------------------------------------
+    if (is.na(power)) {
+      # Create all possible power bags to match the ratios
+      power_bags <- map(
+        charging_powers$ratio,
+        ~ ceiling(.x*n_sessions_objective)
+      )
 
+      # Create a vector with random power indexes to choose from
+      # From 1000 upwards the obtained ratios already matches the objective ratios
+      random_idxs <- sample(
+        1:nrow(charging_powers),
+        size = 1000,
+        prob = charging_powers$ratio,
+        replace = T
+      )
+
+      # Assign power from the bags
+      estimated_power <- c()
+      for (i in seq(1, n_sessions_objective)) {
+        power_valid <- FALSE
+        while (!power_valid) {
+          power_idx <- sample(random_idxs, 1)
+          if (power_bags[[power_idx]] > 0) {
+            power_valid <- TRUE
+          }
+        }
+        estimated_power <- c(estimated_power, charging_powers$power[power_idx])
+        power_bags[[power_idx]] <- power_bags[[power_idx]] - 1
+      }
+    } else {
+      estimated_power <- rep(power, times = n_sessions_objective)
+    }
+
+    # Energy ----------------------------------------------------
     estimated_energy <- get_estimated_energy(estimated_power, energy_models, energy_log)
+
 
     estimated_sessions <- tibble(
       start = round(estimated_connections[[1]], 2),
@@ -294,11 +327,16 @@ get_day_features <- function(day, ev_models) {
   models_month_idx <- purrr::map_lgl(ev_models[["months"]], ~ month_day %in% .x)
   models_wday_idx <- purrr::map_lgl(ev_models[["wdays"]], ~ wday_day %in% .x)
 
-  day_timecycle <- ev_models[["time_cycle"]][models_month_idx & models_wday_idx][[1]]
-  day_models <- ev_models[["user_profiles"]][models_month_idx & models_wday_idx][[1]]
-  day_n_sessions <- ev_models[["n_sessions"]][models_month_idx & models_wday_idx][[1]]
-
-  if (is.na(day_n_sessions) | is.null(day_n_sessions) | is.nan(day_n_sessions)) {
+  if (any(models_month_idx & models_wday_idx)) {
+    day_timecycle <- ev_models[["time_cycle"]][models_month_idx & models_wday_idx][[1]]
+    day_models <- ev_models[["user_profiles"]][models_month_idx & models_wday_idx][[1]]
+    day_n_sessions <- ev_models[["n_sessions"]][models_month_idx & models_wday_idx][[1]]
+    # if (is.na(day_n_sessions) | is.null(day_n_sessions) | is.nan(day_n_sessions)) {
+    #   day_n_sessions <- 0
+    # }
+  } else {
+    day_timecycle <- NA
+    day_models <- NA
     day_n_sessions <- 0
   }
 
@@ -336,7 +374,15 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 
   day_sessions <- pmap_dfr(
     day_features$models,
-    ~ estimate_sessions(..1, ceiling(..2*day_features$n_sessions), ..3, ..4, connection_log, energy_log, charging_powers)
+    ~ estimate_sessions(
+      profile_name = ..1,
+      n_sessions = ceiling(..2*day_features$n_sessions),
+      power = ..3,
+      connection_models = ..4,
+      energy_models = ..5,
+      connection_log, energy_log,
+      charging_powers
+    )
   ) %>%
     mutate(
       start_dt = day + convert_time_num_to_period(.data$start),
@@ -357,8 +403,14 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 #'
 #' @param evmodel object of type `evmodel` (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
-#' @param charging_powers tibble with variables `power` and `ratio`
+#' @param user_profiles tibble with variables `time_cycle`, `user_profile`, `ratio` and optionally `power`.
 #' The powers must be in kW and the ratios between 0 and 1.
+#' The user profiles with a value of `power` will be simulated with this specific charging power.
+#' If `power` is `NA` then it is simulated according to the ratios of next parameter `charging_powers`.
+#' @param charging_powers tibble with variables `power` and `ratio`.
+#' The powers must be in kW and the ratios between 0 and 1.
+#' This is used to simulate the charging power of user profiles without a specific charging power in `user_profiles` parameter.
+#'
 #' @param dates date sequence that will set the time frame of the simulated sessions
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
 #'
@@ -371,14 +423,14 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 #' @importFrom rlang .data
 #' @importFrom tidyr drop_na
 #'
-simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, resolution) {
+simulate_sessions <- function(evmodel, sessions_day, user_profiles, charging_powers, dates, resolution) {
 
   if (sum(sessions_day[["n_sessions"]]) == 0) {
     message("No EV sessions to simulate")
     return( tibble() )
   }
 
-  ev_models <- evmodel[["models"]]
+  ev_models <- prepare_model(evmodel[["models"]], sessions_day, user_profiles)
   connection_log <- evmodel[['metadata']][['connection_log']]
   energy_log <- evmodel[['metadata']][['energy_log']]
   tzone_model <- evmodel[['metadata']][['tzone']]
@@ -388,12 +440,16 @@ simulate_sessions <- function(evmodel, sessions_day, charging_powers, dates, res
   }
 
   dates_dttm <- round_date(as_datetime(dates, tz = tzone_model), unit = 'day')
-  ev_models <- left_join(ev_models, sessions_day, by = 'time_cycle')
 
   simulated_sessions <- map_dfr(
     dates_dttm,
     ~ get_day_sessions(.x, ev_models, connection_log, energy_log, charging_powers)
   )
+
+  if (nrow(simulated_sessions) == 0) {
+    message("No EV sessions have been simulated")
+    return( tibble() )
+  }
 
   simulated_sessions <- simulated_sessions %>%
     mutate(

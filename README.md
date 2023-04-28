@@ -70,6 +70,18 @@ articles about the methodology used in this paper:
   limiting charging power**. CIRED Porto Workshop 2022: E-mobility and
   power distribution systems. Institution of Engineering and
   Technology, 2022. DOI: [10.1049/icp.2022.0744](10.1049/icp.2022.0744).
+  
+  
+## Roadmap
+
+The next steps in the development of `{evsim}` are stated below:
+
+* [X] Possibility to simulate a user profile with a specific charging power
+* [ ] Possibility to read a model from JSON file instead of RDS file
+* [ ] Add a shiny module to create your own model with simple parameters
+* [ ] Add a shiny module to simulate new sessions (demo app)
+
+
 
 ## Acknowledgements
 

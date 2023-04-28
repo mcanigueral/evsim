@@ -37,12 +37,12 @@ knitr::opts_chunk$set(
 
 ## Usage
 
-If you have your own data set of EV charging sessions or you have already built your EV model with {evprof}, the best place to start is the [Get started chapter](https://mcanigueral.github.io/evsim/articles/evsim.html) in the package website.
+If you have your own data set of EV charging sessions or you have already built your EV model with [evprof](https://mcanigueral.github.io/evprof/), the best place to start is the [Get started chapter](https://mcanigueral.github.io/evsim/articles/evsim.html) in the package website.
 
 
 ## Installation
 
-Since the package is not yet in CRAN, you can install the development version of {evsim} from GitHub:
+Since the package is not yet in CRAN, you can install the development version of [evsim](https://github.com/mcanigueral/evsim/) from GitHub:
 
 ```{r, eval = FALSE}
 # install.packages("devtools")
