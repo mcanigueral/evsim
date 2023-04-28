@@ -1,7 +1,8 @@
 
 #' `print` method for EV model object of `evmodel` class
 #'
-#' @param x  object of class `evmodel` built with package `{evprof}`
+#' @param x  object of class `evmodel` built with `{evprof}`
+#' (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @export
@@ -35,7 +36,11 @@ print.evmodel <- function(x, ...) {
 #' Get the user profiles distribution from the original data set
 #' used to build the model
 #'
-#' @param evmodel object of class `evmodel` built with package `{evprof}`
+#' @param evmodel object of class `evmodel` built with `{evprof}`
+#' (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
+#'
+#' @return tibble
+#' @export
 #'
 #' @importFrom purrr map_dfr set_names
 #' @importFrom dplyr %>% select any_of
@@ -53,27 +58,25 @@ get_user_profiles_distribution <- function(evmodel) {
 
 # Modify the models -------------------------------------------------------
 
-#' Prepare the `evmodel` object ready for the simulation
+#' Prepare the models from the `evmodel` object ready for the simulation
 #'
 #' The ratios and default charging power for every user profile,
 #' and the sessions per day for every time cycle are included.
 #'
-#' @param evmodel object of class `evmodel` built with package `{evprof}`
+#' @param ev_models tibble with models from an `evmodel` object
 #' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
 #' @param user_profiles tibble with variables `time_cycle`, `user_profile`, `ratio` and optionally `power`.
 #' The powers must be in kW and the ratios between 0 and 1.
 #' The user profiles with a value of `power` will be simulated with this specific charging power.
 #' If `power` is `NA` then it is simulated according to the ratios of parameter `charging_powers` in function. `simulate_sessions`.
 #'
-#' @details If any user profile is not in the `new_ratios` data frame, its corresponding ratio in the `evmodel` object is updated with a `0`
-#'
-#' @return the updated `evmodel` object
-#' @export
+#' @return tibble
+#' @keywords internal
 #'
 #' @importFrom dplyr left_join select %>%
 #' @importFrom tidyr nest
 #'
-prepare_model <- function(evmodel, sessions_day, user_profiles) {
+prepare_model <- function(ev_models, sessions_day, user_profiles) {
 
   if (!('power' %in% colnames(user_profiles))) {
     user_profiles['power'] <- NA
@@ -83,7 +86,7 @@ prepare_model <- function(evmodel, sessions_day, user_profiles) {
     select('time_cycle', 'profile', 'ratio', 'power') %>%
     nest(.by = 'time_cycle', .key = 'user_profiles') %>%
     left_join(
-      select(evmodel, 'time_cycle', 'months', 'wdays'),
+      select(ev_models, 'time_cycle', 'months', 'wdays'),
       by = 'time_cycle'
     ) %>%
     left_join(
@@ -94,15 +97,15 @@ prepare_model <- function(evmodel, sessions_day, user_profiles) {
 
   for (m in 1:nrow(ev_model)) {
     time_cycle_name <- ev_model$time_cycle[[m]]
-    if (!(time_cycle_name %in% evmodel$time_cycle)) {
+    if (!(time_cycle_name %in% ev_models$time_cycle)) {
       message(paste("Error: Time cycle", time_cycle_name, "does not exist"))
       return(NULL)
     }
-    evmodel_idx <- which(time_cycle_name == evmodel$time_cycle)
+    evmodel_idx <- which(time_cycle_name == ev_models$time_cycle)
 
     gmm <- left_join(
       ev_model$user_profiles[[m]],
-      evmodel$user_profiles[[evmodel_idx]] %>%
+      ev_models$user_profiles[[evmodel_idx]] %>%
         select('profile', 'connection_models', 'energy_models'),
       by = 'profile'
     )

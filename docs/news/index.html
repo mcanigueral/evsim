@@ -16,7 +16,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">evsim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,10 +60,18 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.0" id="evsim-100">evsim 1.0.0<a class="anchor" aria-label="anchor" href="#evsim-100"></a></h2>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="evsim-010">evsim 0.1.0<a class="anchor" aria-label="anchor" href="#evsim-010"></a></h2>
-<ul><li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
+<ul><li>Bug fix in the <code>evmodel</code> class printing function</li>
+<li>Adding california EV model as example evmodel.</li>
+<li>Function “simulate_sessions” now requires a “user_profiles” parameter with the ratio of every user profile and the optional specific power.</li>
+<li>Add function “get_user_profiles_distribution” to facilitate the creation of the newly requested parameter “user_profiles” by function “simulate_sessions”</li>
+<li>Remove function <code>update_profiles_ratios</code> in favour of <code>prepare_models</code>. This new function is used inside the <code>simulate_sessions</code> function using the <code>sessions_day</code> and <code>user_profiles</code> parameters to modify the <code>evmodel</code> input.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

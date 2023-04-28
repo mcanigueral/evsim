@@ -7,7 +7,8 @@
 \method{print}{evmodel}(x, ...)
 }
 \arguments{
-\item{x}{object of class \code{evmodel} built with package \code{{evprof}}}
+\item{x}{object of class \code{evmodel} built with \code{{evprof}}
+(see this \href{https://mcanigueral.github.io/evprof/articles/evmodel.html}{link} for more information)}
 
 \item{...}{further arguments passed to or from other methods.}
 }

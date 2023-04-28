@@ -2,12 +2,12 @@
 % Please edit documentation in R/evmodel.R
 \name{prepare_model}
 \alias{prepare_model}
-\title{Prepare the \code{evmodel} object ready for the simulation}
+\title{Prepare the models from the \code{evmodel} object ready for the simulation}
 \usage{
-prepare_model(evmodel, sessions_day, user_profiles)
+prepare_model(ev_models, sessions_day, user_profiles)
 }
 \arguments{
-\item{evmodel}{object of class \code{evmodel} built with package \code{{evprof}}}
+\item{ev_models}{tibble with models from an \code{evmodel} object}
 
 \item{sessions_day}{tibble with variables \code{time_cycle} (names corresponding to \code{evmodel$models$time_cycle}) and \code{n_sessions} (number of daily sessions per day for each time-cycle model)}
 
@@ -17,12 +17,10 @@ The user profiles with a value of \code{power} will be simulated with this speci
 If \code{power} is \code{NA} then it is simulated according to the ratios of parameter \code{charging_powers} in function. \code{simulate_sessions}.}
 }
 \value{
-the updated \code{evmodel} object
+tibble
 }
 \description{
 The ratios and default charging power for every user profile,
 and the sessions per day for every time cycle are included.
 }
-\details{
-If any user profile is not in the \code{new_ratios} data frame, its corresponding ratio in the \code{evmodel} object is updated with a \code{0}
-}
+\keyword{internal}

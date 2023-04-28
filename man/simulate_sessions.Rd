@@ -14,7 +14,8 @@ simulate_sessions(
 )
 }
 \arguments{
-\item{evmodel}{object of type \code{evmodel} (see this \href{https://mcanigueral.github.io/evprof/articles/evmodel.html}{link} for more information)}
+\item{evmodel}{object of class \code{evmodel} built with \code{{evprof}}
+(see this \href{https://mcanigueral.github.io/evprof/articles/evmodel.html}{link} for more information)}
 
 \item{sessions_day}{tibble with variables \code{time_cycle} (names corresponding to \code{evmodel$models$time_cycle}) and \code{n_sessions} (number of daily sessions per day for each time-cycle model)}
 

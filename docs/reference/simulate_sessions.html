@@ -16,7 +16,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">evsim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,22 +66,38 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simulate_sessions</span><span class="op">(</span><span class="va">evmodel</span>, <span class="va">sessions_day</span>, <span class="va">charging_powers</span>, <span class="va">dates</span>, <span class="va">resolution</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simulate_sessions</span><span class="op">(</span></span>
+<span>  <span class="va">evmodel</span>,</span>
+<span>  <span class="va">sessions_day</span>,</span>
+<span>  <span class="va">user_profiles</span>,</span>
+<span>  <span class="va">charging_powers</span>,</span>
+<span>  <span class="va">dates</span>,</span>
+<span>  <span class="va">resolution</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>evmodel</dt>
-<dd><p>object of type <code>evmodel</code> (see this <a href="https://mcanigueral.github.io/evprof/articles/evmodel.html" class="external-link">link</a> for more information)</p></dd>
+<dd><p>object of class <code>evmodel</code> built with <code>{evprof}</code>
+(see this <a href="https://mcanigueral.github.io/evprof/articles/evmodel.html" class="external-link">link</a> for more information)</p></dd>
 
 
 <dt>sessions_day</dt>
 <dd><p>tibble with variables <code>time_cycle</code> (names corresponding to <code>evmodel$models$time_cycle</code>) and <code>n_sessions</code> (number of daily sessions per day for each time-cycle model)</p></dd>
 
 
+<dt>user_profiles</dt>
+<dd><p>tibble with variables <code>time_cycle</code>, <code>user_profile</code>, <code>ratio</code> and optionally <code>power</code>.
+The powers must be in kW and the ratios between 0 and 1.
+The user profiles with a value of <code>power</code> will be simulated with this specific charging power.
+If <code>power</code> is <code>NA</code> then it is simulated according to the ratios of next parameter <code>charging_powers</code>.</p></dd>
+
+
 <dt>charging_powers</dt>
-<dd><p>tibble with variables <code>power</code> and <code>ratio</code>
-The powers must be in kW and the ratios between 0 and 1.</p></dd>
+<dd><p>tibble with variables <code>power</code> and <code>ratio</code>.
+The powers must be in kW and the ratios between 0 and 1.
+This is used to simulate the charging power of user profiles without a specific charging power in <code>user_profiles</code> parameter.</p></dd>
 
 
 <dt>dates</dt>

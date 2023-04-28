@@ -16,7 +16,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">evsim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,6 +69,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">estimate_sessions</span><span class="op">(</span></span>
 <span>  <span class="va">profile_name</span>,</span>
 <span>  <span class="va">n_sessions</span>,</span>
+<span>  <span class="va">power</span>,</span>
 <span>  <span class="va">connection_models</span>,</span>
 <span>  <span class="va">energy_models</span>,</span>
 <span>  <span class="va">connection_log</span>,</span>
@@ -80,27 +81,31 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>profile_name</dt>
-<dd><p>profile name</p></dd>
+<dd><p>character, profile name</p></dd>
 
 
 <dt>n_sessions</dt>
-<dd><p>total number of sessions per day</p></dd>
+<dd><p>integer, total number of sessions per day</p></dd>
+
+
+<dt>power</dt>
+<dd><p>numeric, charging power of the session</p></dd>
 
 
 <dt>connection_models</dt>
-<dd><p>bivariate GMM of the profile</p></dd>
+<dd><p>tibble, bivariate GMM of the profile</p></dd>
 
 
 <dt>energy_models</dt>
-<dd><p>univariate GMM of the profile</p></dd>
+<dd><p>tibble, univariate GMM of the profile</p></dd>
 
 
 <dt>connection_log</dt>
-<dd><p>Logical, true if connection models have logarithmic transformations</p></dd>
+<dd><p>logical, true if connection models have logarithmic transformations</p></dd>
 
 
 <dt>energy_log</dt>
-<dd><p>Logical, true if energy models have logarithmic transformations</p></dd>
+<dd><p>logical, true if energy models have logarithmic transformations</p></dd>
 
 
 <dt>charging_powers</dt>

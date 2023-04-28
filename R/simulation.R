@@ -401,7 +401,8 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 
 #' Simulate sessions given the `evmodel` object and a datetime sequence
 #'
-#' @param evmodel object of type `evmodel` (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
+#' @param evmodel object of class `evmodel` built with `{evprof}`
+#' (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
 #' @param user_profiles tibble with variables `time_cycle`, `user_profile`, `ratio` and optionally `power`.
 #' The powers must be in kW and the ratios between 0 and 1.

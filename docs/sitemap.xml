@@ -94,7 +94,13 @@
     <loc>mcanigueral.github.io/evsim/reference/get_profile_sessions.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_user_profiles_distribution.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/prepare_model.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/print.evmodel.html</loc>
