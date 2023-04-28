@@ -1,7 +1,7 @@
 
-#' `print` method for EV model object of `evprof` class
+#' `print` method for EV model object of `evmodel` class
 #'
-#' @param x  `evprof` model object
+#' @param x  object of class `evmodel` built with package `{evprof}`
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @export
@@ -9,7 +9,7 @@
 #'
 print.evmodel <- function(x, ...) {
   m <- x$models
-  cat('EV sessions model of class "evprof", created on', as.character(x$metadata$creation), '\n')
+  cat('EV sessions model of class "evmodel", created on', as.character(x$metadata$creation), '\n')
   cat('Timezone of the model:', x$metadata$tzone, '\n')
   cat('The Gaussian Mixture Models of EV user profiles are built in:\n')
   cat('  - Connection Models:', if (x$metadata$connection_log) "logarithmic" else "natural", 'scale\n')
@@ -35,7 +35,7 @@ print.evmodel <- function(x, ...) {
 #' Get the user profiles distribution from the original data set
 #' used to build the model
 #'
-#' @param evmodel object of class `evprof`
+#' @param evmodel object of class `evmodel` built with package `{evprof}`
 #'
 #' @importFrom purrr map_dfr set_names
 #' @importFrom dplyr %>% select any_of
@@ -58,7 +58,7 @@ get_user_profiles_distribution <- function(evmodel) {
 #' The ratios and default charging power for every user profile,
 #' and the sessions per day for every time cycle are included.
 #'
-#' @param evmodel object of class `evprof`
+#' @param evmodel object of class `evmodel` built with package `{evprof}`
 #' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
 #' @param user_profiles tibble with variables `time_cycle`, `user_profile`, `ratio` and optionally `power`.
 #' The powers must be in kW and the ratios between 0 and 1.

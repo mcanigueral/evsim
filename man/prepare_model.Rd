@@ -7,7 +7,7 @@
 prepare_model(evmodel, sessions_day, user_profiles)
 }
 \arguments{
-\item{evmodel}{object of class \code{evprof}}
+\item{evmodel}{object of class \code{evmodel} built with package \code{{evprof}}}
 
 \item{sessions_day}{tibble with variables \code{time_cycle} (names corresponding to \code{evmodel$models$time_cycle}) and \code{n_sessions} (number of daily sessions per day for each time-cycle model)}
 

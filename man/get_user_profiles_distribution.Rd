@@ -8,7 +8,7 @@ used to build the model}
 get_user_profiles_distribution(evmodel)
 }
 \arguments{
-\item{evmodel}{object of class \code{evprof}}
+\item{evmodel}{object of class \code{evmodel} built with package \code{{evprof}}}
 }
 \description{
 Get the user profiles distribution from the original data set
