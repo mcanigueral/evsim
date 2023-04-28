@@ -22,6 +22,7 @@ reference:
     - get_n_connections
   - title: Utils
   - contents:
+    - read_ev_model
     - get_user_profiles_distribution
     - get_charging_rates_distribution
     - adapt_charging_features

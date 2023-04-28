@@ -23,7 +23,8 @@ Imports:
   purrr,
   rlang,
   tidyr,
-  dtplyr
+  dtplyr,
+  jsonlite
 Suggests:
     shiny,
     shinydashboard,
