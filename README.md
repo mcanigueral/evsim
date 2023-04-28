@@ -33,15 +33,16 @@ the charging behavior of electric vehicle users:
 ## Usage
 
 If you have your own data set of EV charging sessions or you have
-already built your EV model with {evprof}, the best place to start is
-the [Get started
+already built your EV model with
+[evprof](https://mcanigueral.github.io/evprof/), the best place to start
+is the [Get started
 chapter](https://mcanigueral.github.io/evsim/articles/evsim.html) in the
 package website.
 
 ## Installation
 
 Since the package is not yet in CRAN, you can install the development
-version of {evsim} from GitHub:
+version of [evsim](https://github.com/mcanigueral/evsim/) from GitHub:
 
 ``` r
 # install.packages("devtools")
@@ -70,24 +71,11 @@ articles about the methodology used in this paper:
   limiting charging power**. CIRED Porto Workshop 2022: E-mobility and
   power distribution systems. Institution of Engineering and
   Technology, 2022. DOI: [10.1049/icp.2022.0744](10.1049/icp.2022.0744).
-  
-  
-## Roadmap
-
-The next steps in the development of `{evsim}` are stated below:
-
-* [X] Possibility to simulate a user profile with a specific charging power
-* [ ] Possibility to read a model from JSON file instead of RDS file
-* [ ] Add a shiny module to create your own model with simple parameters
-* [ ] Add a shiny module to simulate new sessions (demo app)
-
-
 
 ## Acknowledgements
 
-This work has been developed under a PhD program in the University of
+This work has been developed under a PhD program in the
+[eXiT](https://exit.udg.edu) research group from the University of
 Girona (Catalonia) in collaboration with
 [Resourcefully](https://resourcefully.nl/), an energy transition
 consulting company based in Amsterdam, The Netherlands.
-
-------------------------------------------------------------------------

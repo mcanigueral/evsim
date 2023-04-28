@@ -63,6 +63,5 @@ For further technical details, you can read the following academic articles abou
 
 ## Acknowledgements
 
-This work has been developed under a PhD program in the University of Girona (Catalonia) in collaboration with [Resourcefully](https://resourcefully.nl/), an energy transition consulting company based in Amsterdam, The Netherlands.
+This work has been developed under a PhD program in the [eXiT](https://exit.udg.edu) research group from the University of Girona (Catalonia) in collaboration with [Resourcefully](https://resourcefully.nl/), an energy transition consulting company based in Amsterdam, The Netherlands.
 
----
