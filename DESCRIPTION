@@ -1,6 +1,6 @@
 Package: evsim
 Title: Electric Vehicle Charging Sessions Simulation
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: 
     person(given = "Marc",
            family = "Cañigueral",
