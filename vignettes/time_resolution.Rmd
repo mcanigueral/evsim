@@ -31,6 +31,8 @@ sessions_day <- tibble(
   n_sessions = c(10, 10)
 )
 
+user_profiles <- get_user_profiles_distribution(ev_model)
+
 charging_powers <- tibble(
   power = c(3.7, 7.3, 11),
   ratio = c(0.2, 0.4, 0.4)
@@ -41,6 +43,7 @@ set.seed(123)
 sessions <- simulate_sessions(
   ev_model,
   sessions_day,
+  user_profiles,
   charging_powers,
   dmy("31/01/2023"),
   resolution = 30

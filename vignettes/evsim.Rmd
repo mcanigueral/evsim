@@ -47,7 +47,7 @@ Moreover, each User profile has a corresponding ratio over the total number of d
 workday_models <- ev_model$models$user_profiles[[1]]
 workday_models
 ```
-```{r workday models}
+```{r weekend models}
 weekend_models <- ev_model$models$user_profiles[[2]]
 weekend_models
 ```
@@ -72,7 +72,9 @@ sessions_day
 
 In the "EV model" section we have seen that inside the `ev_model` object there is already a default distribution of user profiles, each one with the corresponding ratio. These ratio values were obtained from the clustering process done by `{evprof}` package and represent the presence of every user profile over the total number of sessions clustered.
 
-However, we may want to simulate different scenarios or use cases where these ratios differ from the current ones. For example, to simulate the EV demand in an industrial area it could be interesting to prioritize the presence of Worktime sessions over Visit sessions. This can be done by setting a new user profiles' distribution tibble, which must contain the variables `time_cycle`, `profile` and `ratio`. It is not mandatory that all time-cycles and user profiles appear in the `user_profiles` tibble. The rule is simple: only time cycles and user profiles appearing in the `user_profiles` tibble will be simulated.
+However, we may want to simulate different scenarios or use cases where these ratios differ from the current ones. For example, to simulate the EV demand in an industrial area it could be interesting to prioritize the presence of Worktime sessions over Visit sessions. This can be done by setting a new user profiles' distribution tibble, which must contain the variables `time_cycle`, `profile` and `ratio`.
+
+The default values for these variables, included within the model, can be obtained with the function `get_user_profiles_distribution`. It is not mandatory that all time-cycles and user profiles appear in the `user_profiles` tibble. The rule is simple: only time cycles and user profiles appearing in the `user_profiles` tibble will be simulated.
 
 Moreover, we can specify the **charging power** of a concrete user profile. This is useful in some scenarios where there is a type of vehicle (e.g. truck) that charges at different rate than the rest of vehicles. This can be done with the column `power` in the `user_profiles` tibble, setting the power values in kW. All user profiles without a specific `power` value will be simulated with a random charging power obtained according to the charging power distribution (see next section).
 

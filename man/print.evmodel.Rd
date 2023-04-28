@@ -2,16 +2,16 @@
 % Please edit documentation in R/evmodel.R
 \name{print.evmodel}
 \alias{print.evmodel}
-\title{\code{print} method for \code{evmodel} object class}
+\title{\code{print} method for EV model object of \code{evprof} class}
 \usage{
 \method{print}{evmodel}(x, ...)
 }
 \arguments{
-\item{x}{\code{evmodel} object}
+\item{x}{\code{evprof} model object}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-\code{print} method for \code{evmodel} object class
+\code{print} method for EV model object of \code{evprof} class
 }
 \keyword{internal}

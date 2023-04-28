@@ -1,7 +1,7 @@
 
-#' `print` method for `evmodel` object class
+#' `print` method for EV model object of `evprof` class
 #'
-#' @param x  `evmodel` object
+#' @param x  `evprof` model object
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @export
@@ -26,6 +26,28 @@ print.evmodel <- function(x, ...) {
       '\n', sep = ''
     )
   }
+}
+
+
+
+# Get user profiles distribution ------------------------------------------
+
+#' Get the user profiles distribution from the original data set
+#' used to build the model
+#'
+#' @param evmodel object of class `evprof`
+#'
+#' @importFrom purrr map_dfr set_names
+#' @importFrom dplyr %>% select any_of
+#'
+get_user_profiles_distribution <- function(evmodel) {
+  evmodel$models$user_profiles %>%
+    set_names(evmodel$models$time_cycle) %>%
+    map_dfr(
+      ~ .x %>%
+        select(any_of(c('profile', 'ratio', 'power'))),
+      .id = 'time_cycle'
+    )
 }
 
 
