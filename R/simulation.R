@@ -100,7 +100,11 @@ get_charging_rates_distribution <- function(sessions, unit="year") {
 #'
 estimate_energy <- function(n, mu, sigma, log) {
   energy <- rnorm(n, mu, sigma)
-  if (log) energy <- exp(energy)
+  if (log) {
+    energy <- exp(energy)
+  } else {
+    energy <- abs(energy)
+  }
   return( energy )
 }
 
@@ -196,7 +200,11 @@ get_estimated_energy <- function(power_vct, energy_models, energy_log) {
 #'
 estimate_connection <- function(n, mu, sigma, log) {
   ev_connections <- as.data.frame(matrix(mvrnorm(n = n, mu = mu, Sigma = sigma), ncol = 2))
-  if (log) ev_connections <- exp(ev_connections)
+  if (log) {
+    ev_connections <- exp(ev_connections)
+  } else {
+    ev_connections <- abs(ev_connections)
+  }
   return( ev_connections )
 }
 
