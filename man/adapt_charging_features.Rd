@@ -2,9 +2,9 @@
 % Please edit documentation in R/simulation.R
 \name{adapt_charging_features}
 \alias{adapt_charging_features}
-\title{Adapt charging time and energy according to power and time resolution}
+\title{Calculate connection and charging times according to energy, power and time resolution}
 \usage{
-adapt_charging_features(sessions, resolution = 15)
+adapt_charging_features(sessions, resolution)
 }
 \arguments{
 \item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
@@ -15,5 +15,8 @@ adapt_charging_features(sessions, resolution = 15)
 tibble
 }
 \description{
-Adapt charging time and energy according to power and time resolution
+The \code{ConnectionStartDateTime} is first aligned to the desired time resolution,
+and the \code{ConnectionEndDateTime} is calculated according to the \code{ConnectionHours}.
+The \code{ChargingHours} is recalculated with the values of \code{Energy} and \code{Power},
+limited by \code{ConnectionHours}. Finally, the charging times are also calculated.
 }

@@ -14,7 +14,12 @@ round_to_interval <- function(dbl, interval) {
 }
 
 
-#' Adapt charging time and energy according to power and time resolution
+#' Calculate connection and charging times according to energy, power and time resolution
+#'
+#' The `ConnectionStartDateTime` is first aligned to the desired time resolution,
+#' and the `ConnectionEndDateTime` is calculated according to the `ConnectionHours`.
+#' The `ChargingHours` is recalculated with the values of `Energy` and `Power`,
+#' limited by `ConnectionHours`. Finally, the charging times are also calculated.
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
@@ -24,11 +29,14 @@ round_to_interval <- function(dbl, interval) {
 #'
 #' @importFrom dplyr mutate
 #' @importFrom rlang .data
+#' @importFrom lubridate round_date
 #'
-adapt_charging_features <- function (sessions, resolution = 15) {
+adapt_charging_features <- function (sessions, resolution) {
   sessions %>%
     mutate(
-      ChargingHours = pmin(.data$Energy/.data$Power, .data$ConnectionHours),
+      ConnectionStartDateTime = round_date(.data$ConnectionStartDateTime, paste(resolution, "mins")),
+      ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
+      ChargingHours = round(pmin(.data$Energy/.data$Power, .data$ConnectionHours), 2),
       Energy = round(.data$Power * .data$ChargingHours, 2),
       ChargingStartDateTime = .data$ConnectionStartDateTime,
       ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
