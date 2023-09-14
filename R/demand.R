@@ -150,11 +150,11 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
     group_by(!!sym(by), datetime = .data$Timeslot) %>%
     summarise(Power = sum(.data$Power)) %>%
     pivot_wider(names_from = !!sym(by), values_from = 'Power', values_fill = 0) %>%
-    arrange(.data$datetime) %>%
     right_join(
       tibble(datetime = dttm_seq),
       by = 'datetime'
-    )
+    ) %>%
+    arrange(.data$datetime)
 
   return( replace(demand, is.na(demand), 0) )
 }
