@@ -40,6 +40,12 @@
     <loc>mcanigueral.github.io/evsim/reference/california_ev_model.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/reference/california_ev_sessions.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/california_ev_sessions_profiles.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/reference/convert_time_num_to_period.html</loc>
   </url>
   <url>
@@ -56,6 +62,12 @@
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/evSessionsUI.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/expand_session.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/expand_sessions.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/get_charging_powers_ratios.html</loc>
@@ -110,6 +122,9 @@
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/round_to_interval.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/sessions_feature_names.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/simulate_sessions.html</loc>
