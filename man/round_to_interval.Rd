@@ -2,19 +2,16 @@
 % Please edit documentation in R/simulation.R
 \name{round_to_interval}
 \alias{round_to_interval}
-\title{Round to nearest interval}
+\title{Round a numeric value to interval}
 \usage{
 round_to_interval(dbl, interval)
 }
 \arguments{
-\item{dbl}{number to round}
+\item{dbl}{numeric value}
 
-\item{interval}{rounding interval}
-}
-\value{
-numeric value
+\item{interval}{decimal interval (from 0 to 1)}
 }
 \description{
-Round to nearest interval
+Round a numeric value to interval
 }
 \keyword{internal}

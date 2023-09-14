@@ -5,7 +5,8 @@
 #' Variable `ChargingStation` and `Socket`will be assigned to the `sessions`
 #' tibble with a name pattern being: `names_prefix` + "CHS" + number
 #'
-#' @param sessions tibble, charging sessions data set
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param resolution integer, time resolution in minutes
 #' @param min_stations integer, minimum number of charging stations to consider
 #' @param names_prefix character, prefix of the charging station names (optional)

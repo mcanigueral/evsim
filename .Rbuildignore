@@ -10,3 +10,4 @@ vignettes
 pkgdown/
 ^README.Rmd
 ^\.github$
+data-raw

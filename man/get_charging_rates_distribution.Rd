@@ -7,7 +7,8 @@
 get_charging_rates_distribution(sessions, unit = "year")
 }
 \arguments{
-\item{sessions}{sessions data set in standard format}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
+(see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this article})t}
 
 \item{unit}{lubridate \code{floor_date} unit parameter}
 }

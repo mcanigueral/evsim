@@ -13,7 +13,8 @@ add_charging_infrastructure(
 )
 }
 \arguments{
-\item{sessions}{tibble, charging sessions data set}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
+(see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this article})}
 
 \item{resolution}{integer, time resolution in minutes}
 

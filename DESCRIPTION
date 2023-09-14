@@ -23,7 +23,6 @@ Imports:
   purrr,
   rlang,
   tidyr,
-  dtplyr,
   jsonlite
 Suggests:
     shiny,
@@ -31,7 +30,6 @@ Suggests:
     shinyWidgets,
     spelling
 Depends: 
-    R (>= 2.10),
-    data.table
+    R (>= 2.10)
 URL: https://github.com/mcanigueral/evsim/
 Language: en-US

@@ -2,23 +2,25 @@
 % Please edit documentation in R/demand.R
 \name{get_demand}
 \alias{get_demand}
-\title{Obtain time-series demand from sessions data set}
+\title{Obtain timeseries demand from sessions dataset}
 \usage{
 get_demand(sessions, dttm_seq = NULL, by = "Profile", resolution = 15)
 }
 \arguments{
-\item{sessions}{tibble, sessions data set in standard format defined by \code{{evprof}} package}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
+(see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this article})}
 
-\item{dttm_seq}{sequence of datetime values that will be the datetime variable of the returned time-series data frame}
+\item{dttm_seq}{sequence of datetime values that will be the \code{datetime}
+variable of the returned time-series data frame.}
 
-\item{by}{character, being 'Profile', 'Session' or 'ChargingStation', existing in the \code{sessions} data frame.
-When \code{by='Profile'} each column corresponds to an EV user profile.}
+\item{by}{character, being 'Profile' or 'Session'. When \code{by='Profile'} each column corresponds to an EV user profile.}
 
-\item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables. If \code{dttm_seq} is defined this parameter is ignored.}
+\item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables.
+If \code{dttm_seq} is defined this parameter is ignored.}
 }
 \value{
 tibble
 }
 \description{
-Obtain time-series demand from sessions data set
+Obtain timeseries demand from sessions dataset
 }

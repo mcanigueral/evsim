@@ -4,17 +4,28 @@
 \alias{adapt_charging_features}
 \title{Calculate connection and charging times according to energy, power and time resolution}
 \usage{
-adapt_charging_features(sessions, resolution)
+adapt_charging_features(
+  sessions,
+  time_resolution = 15,
+  power_resolution = 0.01
+)
 }
 \arguments{
-\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
+(see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this article})}
 
-\item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables}
+\item{time_resolution}{integer, time resolution (in minutes) of the sessions' datetime variables}
+
+\item{power_resolution}{numeric, power resolution (in kW) of the sessions' power}
 }
 \value{
 tibble
 }
 \description{
+All sessions' \code{Power} must be higher than \code{0}, to avoid \code{NaN} values from dividing
+by zero.
+}
+\details{
 The \code{ConnectionStartDateTime} is first aligned to the desired time resolution,
 and the \code{ConnectionEndDateTime} is calculated according to the \code{ConnectionHours}.
 The \code{ChargingHours} is recalculated with the values of \code{Energy} and \code{Power},

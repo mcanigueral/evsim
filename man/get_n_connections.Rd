@@ -2,20 +2,25 @@
 % Please edit documentation in R/demand.R
 \name{get_n_connections}
 \alias{get_n_connections}
-\title{Get number of existing connections}
+\title{Obtain time series of EV connected from sessions data set}
 \usage{
-get_n_connections(sessions, dttm_seq = NULL, resolution = 15)
+get_n_connections(sessions, dttm_seq = NULL, by = "Profile", resolution = 15)
 }
 \arguments{
-\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
+(see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this article})}
 
-\item{dttm_seq}{sequence of datetime values that will be the datetime variable of the returned time-series data frame}
+\item{dttm_seq}{sequence of datetime values that will be the \code{datetime}
+variable of the returned time-series data frame.}
 
-\item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables. If \code{dttm_seq} is defined this parameter is ignored.}
+\item{by}{character, being 'Profile' or 'Session'. When \code{by='Profile'} each column corresponds to an EV user profile.}
+
+\item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables.
+If \code{dttm_seq} is defined this parameter is ignored.}
 }
 \value{
 tibble
 }
 \description{
-Get number of existing connections
+Obtain time series of EV connected from sessions data set
 }

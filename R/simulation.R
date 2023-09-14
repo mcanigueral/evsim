@@ -1,48 +1,15 @@
 
 # Utils -------------------------------------------------------------------
-
-#' Round to nearest interval
+#' Round a numeric value to interval
 #'
-#' @param dbl number to round
-#' @param interval rounding interval
+#' @param dbl numeric value
+#' @param interval decimal interval (from 0 to 1)
 #'
-#' @return numeric value
 #' @keywords internal
 #'
-round_to_interval <- function(dbl, interval) {
-  round(dbl/interval)*interval
+round_to_interval <- function (dbl, interval) {
+  round(dbl/interval) * interval
 }
-
-
-#' Calculate connection and charging times according to energy, power and time resolution
-#'
-#' The `ConnectionStartDateTime` is first aligned to the desired time resolution,
-#' and the `ConnectionEndDateTime` is calculated according to the `ConnectionHours`.
-#' The `ChargingHours` is recalculated with the values of `Energy` and `Power`,
-#' limited by `ConnectionHours`. Finally, the charging times are also calculated.
-#'
-#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' @param resolution integer, time resolution (in minutes) of the sessions datetime variables
-#'
-#' @return tibble
-#' @export
-#'
-#' @importFrom dplyr mutate
-#' @importFrom rlang .data
-#' @importFrom lubridate round_date
-#'
-adapt_charging_features <- function (sessions, resolution) {
-  sessions %>%
-    mutate(
-      ConnectionStartDateTime = round_date(.data$ConnectionStartDateTime, paste(resolution, "mins")),
-      ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
-      ChargingHours = round(pmin(.data$Energy/.data$Power, .data$ConnectionHours), 2),
-      Energy = round(.data$Power * .data$ChargingHours, 2),
-      ChargingStartDateTime = .data$ConnectionStartDateTime,
-      ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
-    )
-}
-
 
 #' Convert numeric time value to a datetime period (hour-based)
 #'
@@ -58,9 +25,46 @@ convert_time_num_to_period <- function(time_num) {
 }
 
 
+#' Calculate connection and charging times according to energy, power and time resolution
+#'
+#' All sessions' `Power` must be higher than `0`, to avoid `NaN` values from dividing
+#' by zero.
+#'
+#' The `ConnectionStartDateTime` is first aligned to the desired time resolution,
+#' and the `ConnectionEndDateTime` is calculated according to the `ConnectionHours`.
+#' The `ChargingHours` is recalculated with the values of `Energy` and `Power`,
+#' limited by `ConnectionHours`. Finally, the charging times are also calculated.
+#'
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
+#' @param time_resolution integer, time resolution (in minutes) of the sessions' datetime variables
+#' @param power_resolution numeric, power resolution (in kW) of the sessions' power
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom dplyr mutate
+#' @importFrom rlang .data
+#' @importFrom lubridate round_date
+#'
+adapt_charging_features <- function (sessions, time_resolution = 15, power_resolution = 0.01) {
+  sessions %>%
+    mutate(
+      ConnectionStartDateTime = round_date(.data$ConnectionStartDateTime, paste(time_resolution, "mins")),
+      ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
+      Power = round_to_interval(.data$Power, interval = power_resolution),
+      ChargingHours = round(pmin(.data$Energy/.data$Power, .data$ConnectionHours), 2),
+      Energy = round(.data$Power * .data$ChargingHours, 2),
+      ChargingStartDateTime = .data$ConnectionStartDateTime,
+      ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
+    )
+}
+
+
 #' Get charging rates distribution in percentages
 #'
-#' @param sessions sessions data set in standard format
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))t
 #' @param unit lubridate `floor_date` unit parameter
 #'
 #' @return tibble
