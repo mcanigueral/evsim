@@ -2,17 +2,25 @@
 % Please edit documentation in R/evmodel.R
 \name{print.evmodel}
 \alias{print.evmodel}
-\title{\code{print} method for EV model object of \code{evmodel} class}
+\title{\code{print} method for \code{evmodel} object class}
 \usage{
 \method{print}{evmodel}(x, ...)
 }
 \arguments{
-\item{x}{object of class \code{evmodel} built with \code{{evprof}}
+\item{x}{\code{evmodel} object
 (see this \href{https://mcanigueral.github.io/evprof/articles/evmodel.html}{link} for more information)}
 
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+nothing but prints information about the \code{evmodel} object
+}
 \description{
-\code{print} method for EV model object of \code{evmodel} class
+\code{print} method for \code{evmodel} object class
+}
+\examples{
+print(california_ev_model)
+
+
 }
 \keyword{internal}

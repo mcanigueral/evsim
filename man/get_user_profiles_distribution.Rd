@@ -8,8 +8,7 @@ used to build the model}
 get_user_profiles_distribution(evmodel)
 }
 \arguments{
-\item{evmodel}{object of class \code{evmodel} built with \code{{evprof}}
-(see this \href{https://mcanigueral.github.io/evprof/articles/evmodel.html}{link} for more information)}
+\item{evmodel}{object of class \code{evmodel}}
 }
 \value{
 tibble
