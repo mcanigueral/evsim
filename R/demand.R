@@ -82,6 +82,8 @@ expand_session <- function(session, resolution) {
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables.
 #' If `dttm_seq` is defined this parameter is ignored.
+#' @param mc.cores integer, number of cores to use.
+#' Must be at least one, and parallelization requires at least two cores.
 #'
 #' @return tibble
 #' @export
@@ -89,11 +91,22 @@ expand_session <- function(session, resolution) {
 #' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
-#' @importFrom lubridate floor_date days
+#' @importFrom lubridate floor_date days month
+#' @importFrom parallel detectCores mclapply
+#' @importFrom purrr list_rbind
 #'
-get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15) {
+get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 2) {
 
   # Parameter check and definition of `dttm_seq` and `resolution`
+  if (mc.cores < 1) {
+    message("Parameter mc.cores must be at leas 1. Setting mc.cores = 1.")
+    mc.cores <- 1
+  }
+  if (detectCores() <= (mc.cores)) {
+    message("Parameter mc.cores too high. Setting mc.cores = 1 to avoid parallelization.")
+    mc.cores <- 1
+  }
+
   if (nrow(sessions) == 0) {
     if (is.null(dttm_seq)) {
       message("Must provide sessions or dttm_seq parameter")
@@ -120,17 +133,27 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 
   # Expand sessions that are connected more than 1 time slot
   sessions_to_expand <- sessions %>%
-    filter(.data$ConnectionHours > resolution/60)
+    filter(.data$ConnectionHours > resolution/60) %>%
+    mutate(Month = month(.data$ConnectionStartDateTime))
 
   if (nrow(sessions_to_expand) > 0) {
+
+    # Expand sessions
+    sessions_expanded <- sessions_to_expand  %>%
+      split(sessions_to_expand$Month) %>%
+      mclapply(
+        expand_sessions, resolution = resolution, mc.cores = mc.cores
+      ) %>%
+      list_rbind()
+
     # Join all sessions together
-    sessions_expanded <- bind_rows(
-      sessions_to_expand %>%
-        expand_sessions(resolution = resolution),
-      sessions %>%
-        filter(!(.data$Session %in% sessions_to_expand$Session)) %>%
-        mutate(Timeslot = .data$ConnectionStartDateTime)
-    )
+    sessions_expanded <- sessions_expanded %>%
+      bind_rows(
+        sessions %>%
+          filter(!(.data$Session %in% sessions_to_expand$Session)) %>%
+          mutate(Timeslot = .data$ConnectionStartDateTime)
+      )
+
   } else {
     sessions_expanded <- sessions %>%
       mutate(Timeslot = .data$ConnectionStartDateTime)
@@ -171,6 +194,8 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables.
 #' If `dttm_seq` is defined this parameter is ignored.
+#' @param mc.cores integer, number of cores to use.
+#' Must be at least one, and parallelization requires at least two cores.
 #'
 #' @return tibble
 #' @export
@@ -178,9 +203,11 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
-#' @importFrom lubridate floor_date days round_date
+#' @importFrom lubridate floor_date days round_date month
+#' @importFrom parallel detectCores mclapply
+#' @importFrom purrr list_rbind
 #'
-get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15) {
+get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 2) {
 
   # Parameter check and definition of `dttm_seq` and `resolution`
   if (nrow(sessions) == 0) {
@@ -215,17 +242,27 @@ get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolut
 
   # Expand sessions that are connected more than 1 time slot
   sessions_to_expand <- sessions %>%
-    filter(.data$ConnectionHours > resolution/60)
+    filter(.data$ConnectionHours > resolution/60) %>%
+    mutate(Month = month(.data$ConnectionStartDateTime))
 
   if (nrow(sessions_to_expand) > 0) {
+
+    # Expand sessions
+    sessions_expanded <- sessions_to_expand  %>%
+      split(sessions_to_expand$Month) %>%
+      mclapply(
+        expand_sessions, resolution = resolution, mc.cores = mc.cores
+      ) %>%
+      list_rbind()
+
     # Join all sessions together
-    sessions_expanded <- bind_rows(
-      sessions_to_expand %>%
-        expand_sessions(resolution = resolution),
-      sessions %>%
-        filter(!(.data$Session %in% sessions_to_expand$Session)) %>%
-        mutate(Timeslot = .data$ConnectionStartDateTime)
-    )
+    sessions_expanded <- sessions_expanded %>%
+      bind_rows(
+        sessions %>%
+          filter(!(.data$Session %in% sessions_to_expand$Session)) %>%
+          mutate(Timeslot = .data$ConnectionStartDateTime)
+      )
+
   } else {
     sessions_expanded <- sessions %>%
       mutate(Timeslot = .data$ConnectionStartDateTime)

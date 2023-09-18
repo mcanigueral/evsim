@@ -1,6 +1,6 @@
 # evsim 1.2.0
 
-* Improved functions for calculating demand and occupancy.
+* Improved functions for calculating demand and occupancy (now with parallel computing)
 * Included more example data (`evsim::california_ev_sessions` and `evsim::california_ev_sessions_profiles`).
 * Included functions to create a model from Gaussian Mixture Models parameters.
 
