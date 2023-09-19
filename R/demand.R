@@ -215,7 +215,7 @@ get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolut
       message("Must provide sessions or dttm_seq parameter")
       return( NULL )
     } else {
-      return( tibble(datetime = dttm_seq, demand = 0) )
+      return( tibble(datetime = dttm_seq, n_connections = 0) )
     }
   } else {
 
