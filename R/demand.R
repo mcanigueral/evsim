@@ -282,11 +282,11 @@ get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolut
     group_by(!!sym(by), datetime = .data$Timeslot) %>%
     summarise(n_connections = n()) %>%
     pivot_wider(names_from = !!sym(by), values_from = 'n_connections', values_fill = 0) %>%
-    arrange(.data$datetime) %>%
     right_join(
       tibble(datetime = dttm_seq),
       by = 'datetime'
-    )
+    ) %>%
+    arrange(.data$datetime)
 
   return( replace(n_connections, is.na(n_connections), 0) )
 }
