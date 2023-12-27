@@ -61,8 +61,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.0" id="evsim-120">evsim 1.2.0<a class="anchor" aria-label="anchor" href="#evsim-120"></a></h2>
-<ul><li>Improved functions for calculating demand and occupancy.</li>
+<ul><li>Improved functions for calculating demand and occupancy (now with parallel computing)</li>
 <li>Included more example data (<code><a href="../reference/california_ev_sessions.html">evsim::california_ev_sessions</a></code> and <code><a href="../reference/california_ev_sessions_profiles.html">evsim::california_ev_sessions_profiles</a></code>).</li>
+<li>Included functions to create a model from Gaussian Mixture Models parameters.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="evsim-110">evsim 1.1.0<a class="anchor" aria-label="anchor" href="#evsim-110"></a></h2>
@@ -72,7 +73,7 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="evsim-100">evsim 1.0.0<a class="anchor" aria-label="anchor" href="#evsim-100"></a></h2>
 <ul><li>Bug fix in the <code>evmodel</code> class printing function</li>
-<li>Adding california’s EV model as example evmodel (<code><a href="../reference/california_ev_model.html">evsim::california_ev_model</a></code>).</li>
+<li>Adding California’s EV model as example evmodel (<code><a href="../reference/california_ev_model.html">evsim::california_ev_model</a></code>).</li>
 <li>Function “simulate_sessions” now requires a “user_profiles” parameter with the ratio of every user profile and the optional specific power.</li>
 <li>Add function “get_user_profiles_distribution” to facilitate the creation of the newly requested parameter “user_profiles” by function “simulate_sessions”</li>
 <li>Remove function <code>update_profiles_ratios</code> in favour of <code>prepare_models</code>. This new function is used inside the <code>simulate_sessions</code> function using the <code>sessions_day</code> and <code>user_profiles</code> parameters to modify the <code>evmodel</code> input.</li>

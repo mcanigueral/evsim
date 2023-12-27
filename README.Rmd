@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 
 evsim is part of a suite of packages to analyse, model and simulate the charging behavior of electric vehicle users:
 
-* [{evprof}](https://mcanigueral.github.io/evprof/): Electric Vehicle PROFiling
+* [evprof](https://mcanigueral.github.io/evprof/): Electric Vehicle PROFiling
 * [evsim](https://mcanigueral.github.io/evsim/): Electric Vehicle SIMulation
 
 evsim package provides the functions for:

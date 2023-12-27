@@ -76,6 +76,9 @@
     <loc>mcanigueral.github.io/evsim/reference/get_charging_rates_distribution.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_connection_models_from_parameters.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/reference/get_day_sessions.html</loc>
   </url>
   <url>
@@ -85,10 +88,16 @@
     <loc>mcanigueral.github.io/evsim/reference/get_demand_2.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_energy_models_from_parameters.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/reference/get_estimated_connections.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/get_estimated_energy.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_ev_model.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/get_interval_demand.html</loc>
@@ -122,6 +131,9 @@
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/round_to_interval.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/save_ev_model.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/sessions_feature_names.html</loc>
