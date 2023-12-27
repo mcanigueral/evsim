@@ -6,7 +6,7 @@
 #' Every session in `sessions` is divided in multiple time slots
 #' with the corresponding `Power` consumption, among other variables.
 #'
-#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' @param sessions tibble, sessions data set in standard format marked by `evprof` package
 #' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param resolution integer, time resolution (in minutes) of the time slots
 #'
@@ -33,7 +33,7 @@ expand_sessions <- function(sessions, resolution) {
 #' The `session` is divided in multiple time slots
 #' with the corresponding `Power` consumption, among other variables.
 #'
-#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' @param session tibble, sessions data set in standard format marked by `evprof` package
 #' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param resolution integer, time resolution (in minutes) of the time slots
 #'
@@ -95,7 +95,7 @@ expand_session <- function(session, resolution) {
 #' @importFrom parallel detectCores mclapply
 #' @importFrom purrr list_rbind
 #'
-get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 2) {
+get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
   # Parameter check and definition of `dttm_seq` and `resolution`
   if (mc.cores < 1) {
@@ -207,7 +207,7 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #' @importFrom parallel detectCores mclapply
 #' @importFrom purrr list_rbind
 #'
-get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 2) {
+get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
   # Parameter check and definition of `dttm_seq` and `resolution`
   if (mc.cores < 1) {

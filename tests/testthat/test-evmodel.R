@@ -56,6 +56,7 @@ test_that("Model is created correctly from parameters", {
 
 test_that("Model is printed correctly",  {
   print(ev_model)
+  expect_equal(class(ev_model), "evmodel")
 })
 
 test_that("Model file is saved correctly",  {

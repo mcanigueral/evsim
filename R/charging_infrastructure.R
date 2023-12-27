@@ -32,7 +32,7 @@ add_charging_infrastructure <- function(sessions, resolution = 15, min_stations 
   # How many charging stations (of two sockets) do we need?
   connections <- sessions %>%
     mutate(Profile = "n_connections") %>%
-    get_n_connections(resolution = resolution, by = "Profile")
+    get_n_connections(resolution = resolution, by = "Profile", mc.cores = 1)
   connections_pct <- tibble(
     n_connections = seq(1, max(connections$n_connections))
   ) %>%

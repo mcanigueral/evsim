@@ -14,12 +14,12 @@
 
 #' EV charging sessions example
 #'
-#' Example of an charging sessions data set ready to use by `{evprof}` functions.
+#' Example of an charging sessions data set ready to use by `evprof` functions.
 #' It is the open source data set downloaded from the
 #' [ACN-Data website](https://ev.caltech.edu/dataset), transformed according
 #' to the standard names defined by `evprof`
 #' (see [this](https://mcanigueral.github.io/evprof/articles/sessions-format.html) article).
-#' More information about the analysis of this data set in the {evprof} website:
+#' More information about the analysis of this data set in the evprof website:
 #' <https://mcanigueral.github.io/evprof/articles/california.html>
 #'
 #' @format ## `california_ev_sessions`
@@ -32,7 +32,7 @@
 
 #' Clustered EV charging sessions example
 #'
-#' Example of an charging sessions data set that has been clustered by `{evprof}` functions.
+#' Example of an charging sessions data set that has been clustered by `evprof` functions.
 #' (see [this article](https://mcanigueral.github.io/evprof/articles/california.html#sessions-classification-into-user-profiles)).
 #'
 #' @format ## `california_ev_sessions_profiles`
@@ -45,10 +45,10 @@
 
 #' EV model example
 #'
-#' Example of an `evmodel` object created with `{evprof}` for testing purposes.
+#' Example of an `evmodel` object created with `evprof` for testing purposes.
 #' It has been created using an Open source data set of EV charging sessions
 #' provided by [ACN](https://acnportal.readthedocs.io/en/latest/).
-#' More information about the development of the model in the {evprof} website:
+#' More information about the development of the model in the evprof website:
 #' <https://mcanigueral.github.io/evprof/articles/california.html>
 #'
 #' @format ## `california_ev_model`

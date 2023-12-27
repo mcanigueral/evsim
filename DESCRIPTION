@@ -9,8 +9,7 @@ Authors@R:
            comment = c(ORCID = "0000-0001-9724-5829")
            )
 Description: Tools to simulate Electric Vehicles charging sessions using 
-    Gaussian models built in {evprof} package, together with time-series
-    power demand calculations.
+    Gaussian models, together with time-series power demand calculations.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

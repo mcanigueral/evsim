@@ -49,6 +49,6 @@ test_that("multiprocessing settings are correct", {
 
   demand <- sessions %>%
     mutate(Profile = "All") %>%
-    get_demand(by = "Profile", resolution = 15, mc.cores = 10)
+    get_demand(by = "Profile", resolution = 15, mc.cores = 100)
   expect_true("All" %in% names(demand))
 })
