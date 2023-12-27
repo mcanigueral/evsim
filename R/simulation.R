@@ -287,15 +287,15 @@ estimate_sessions <- function(profile_name, n_sessions, power, connection_models
       # Create a vector with random power indexes to choose from
       # From 1000 upwards the obtained ratios already matches the objective ratios
       random_idxs <- sample(
-        1:nrow(charging_powers),
+        seq_len(nrow(charging_powers)),
         size = 1000,
         prob = charging_powers$ratio,
-        replace = T
+        replace = TRUE
       )
 
       # Assign power from the bags
       estimated_power <- c()
-      for (i in seq(1, n_sessions_objective)) {
+      for (i in seq_len(n_sessions_objective)) {
         power_valid <- FALSE
         while (!power_valid) {
           power_idx <- sample(random_idxs, 1)
@@ -317,8 +317,8 @@ estimate_sessions <- function(profile_name, n_sessions, power, connection_models
     estimated_sessions <- tibble(
       start = round(estimated_connections[[1]], 2),
       duration = round(estimated_connections[[2]], 2),
-      power = estimated_power[1:nrow(estimated_connections)],
-      energy = round(estimated_energy[1:nrow(estimated_connections)], 2)
+      power = estimated_power[seq_len(nrow(estimated_connections))],
+      energy = round(estimated_energy[seq_len(nrow(estimated_connections))], 2)
     ) %>%
       drop_na()
 
@@ -424,7 +424,7 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 #' @param evmodel object of class `evmodel` built with `{evprof}`
 #' (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
-#' @param user_profiles tibble with variables `time_cycle`, `user_profile`, `ratio` and optionally `power`.
+#' @param user_profiles tibble with variables `time_cycle`, `profile`, `ratio` and optionally `power`.
 #' The powers must be in kW and the ratios between 0 and 1.
 #' The user profiles with a value of `power` will be simulated with this specific charging power.
 #' If `power` is `NA` then it is simulated according to the ratios of next parameter `charging_powers`.

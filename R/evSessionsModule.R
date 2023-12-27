@@ -49,7 +49,7 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
                                 shiny::column(2, align="right", shinyWidgets::actionBttn(ns("update_ev_setup"), "Update", style = 'pill', color = 'primary', size = 'sm'))
               ),
               shiny::fluidRow(
-                shinydashboard::box(title = "Number of sessions per day", width = 12, collapsible = T, collapsed = T,
+                shinydashboard::box(title = "Number of sessions per day", width = 12, collapsible = TRUE, collapsed = TRUE,
                     do.call(
                       shinydashboard::tabBox,
                       append(
@@ -58,7 +58,7 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
                       )
                     )
                 ),
-                shinydashboard::box(title = "Charging power distribution", width = 12, collapsible = T, collapsed = T,
+                shinydashboard::box(title = "Charging power distribution", width = 12, collapsible = TRUE, collapsed = TRUE,
                     get_charging_powers_config(charging_powers, ns)
                 )
               )
@@ -95,7 +95,7 @@ evSessions <- function(id, evmodel, sessions_day, profiles_ratios, charging_powe
       })
 
       return({
-        shiny::eventReactive(input[['update_ev_setup']], ignoreNULL=F, ignoreInit=F, {
+        shiny::eventReactive(input[['update_ev_setup']], ignoreNULL=FALSE, ignoreInit=FALSE, {
           set.seed(seed)
           simulate_sessions(
             evmodel, sessions_day_srv(), user_profiles_srv(), power_ratios_srv(), dates(), resolution()
@@ -135,7 +135,7 @@ get_ev_profiles_config <- function(time_cycle, profiles_ratios, ns) {
   # Map over each user profile (one profile = one row in the df)
   ratios <- profiles_ratios[ profiles_ratios[["time_cycle"]] == time_cycle, c("profile", "ratio")]
   purrr::map(
-    1:nrow(ratios),
+    seq_len(nrow(ratios)),
     ~ shiny::column(
       width = 2,
       shiny::numericInput(ns(paste0("ratio_", ratios[["profile"]][.x], "_", time_cycle)),
@@ -150,7 +150,7 @@ get_ev_profiles_config <- function(time_cycle, profiles_ratios, ns) {
 get_charging_powers_config <- function(charging_powers, ns) {
   # Map over each charging power level (one charging level = one row in the df)
   purrr::map(
-    seq(1:nrow(charging_powers)),
+    seq_len(nrow(charging_powers)),
     ~ shiny::column(
       width = round(9/nrow(charging_powers)),
       shiny::numericInput(ns(paste0("charging_", charging_powers[["power"]][.x])),

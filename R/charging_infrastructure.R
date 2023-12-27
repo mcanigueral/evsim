@@ -22,15 +22,17 @@
 #' @export
 #'
 #' @importFrom dplyr %>% tibble mutate select all_of row_number filter group_by summarise
-#' @importFrom tidyr separate
+#' @importFrom tidyr separate drop_na
 #' @importFrom lubridate as_datetime tz
 #' @importFrom purrr map_dbl
 #' @importFrom rlang .data
 #'
-add_charging_infrastructure <- function(sessions, resolution, min_stations = 0, names_prefix = NULL, connections_th = 10) {
+add_charging_infrastructure <- function(sessions, resolution = 15, min_stations = 0, names_prefix = NULL, connections_th = 10) {
 
   # How many charging stations (of two sockets) do we need?
-  connections <- get_n_connections(sessions, resolution = resolution)
+  connections <- sessions %>%
+    mutate(Profile = "n_connections") %>%
+    get_n_connections(resolution = resolution, by = "Profile")
   connections_pct <- tibble(
     n_connections = seq(1, max(connections$n_connections))
   ) %>%
@@ -95,8 +97,8 @@ add_charging_infrastructure <- function(sessions, resolution, min_stations = 0, 
   }
 
   sessions_socket <- sessions_socket %>%
-    drop_na(.data$ChargingSocket) %>%
-    separate(.data$ChargingSocket, into = c("ChargingStation", "Socket"), sep = "-")
+    drop_na("ChargingSocket") %>%
+    separate("ChargingSocket", into = c("ChargingStation", "Socket"), sep = "-")
 
   message(paste("Discarded", round((1-nrow(sessions_socket)/nrow(sessions))*100, 2), "% of sessions due to infrastructure"))
 

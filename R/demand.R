@@ -66,7 +66,7 @@ expand_session <- function(session, resolution) {
   power_vct <- round(c(
     rep(session$Power, times = full_power_timeslots),
     (session$Energy - full_power_energy)/(resolution/60)
-  ), 2)[1:nrow(session_expanded)]
+  ), 2)[seq_len(nrow(session_expanded))]
   session_expanded$Power <- replace(power_vct, is.na(power_vct), 0)
 
   return( session_expanded )

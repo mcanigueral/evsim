@@ -6,7 +6,7 @@
 \usage{
 add_charging_infrastructure(
   sessions,
-  resolution,
+  resolution = 15,
   min_stations = 0,
   names_prefix = NULL,
   connections_th = 10

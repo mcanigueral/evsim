@@ -13,7 +13,7 @@
 # evsim 1.0.0
 
 * Bug fix in the `evmodel` class printing function
-* Adding california's EV model as example evmodel (`evsim::california_ev_model`).
+* Adding California's EV model as example evmodel (`evsim::california_ev_model`).
 * Function "simulate_sessions" now requires a "user_profiles" parameter with the ratio of every user profile and the optional specific power.
 * Add function "get_user_profiles_distribution" to facilitate the creation of the newly requested parameter "user_profiles" by function "simulate_sessions"
 * Remove function `update_profiles_ratios` in favour of `prepare_models`. This new function is used inside the `simulate_sessions` function using the `sessions_day` and `user_profiles` parameters to modify the `evmodel` input.

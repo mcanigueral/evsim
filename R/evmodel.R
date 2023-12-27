@@ -146,7 +146,7 @@ prepare_model <- function(ev_models, sessions_day, user_profiles) {
     ) %>%
     select('time_cycle', 'months', 'wdays', 'user_profiles', 'n_sessions')
 
-  for (m in 1:nrow(ev_model)) {
+  for (m in seq_len(nrow(ev_model))) {
     time_cycle_name <- ev_model$time_cycle[[m]]
     if (!(time_cycle_name %in% ev_models$time_cycle)) {
       message(paste("Error: Time cycle", time_cycle_name, "does not exist"))
