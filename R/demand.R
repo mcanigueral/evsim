@@ -210,6 +210,15 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 2) {
 
   # Parameter check and definition of `dttm_seq` and `resolution`
+  if (mc.cores < 1) {
+    message("Parameter mc.cores must be at leas 1. Setting mc.cores = 1.")
+    mc.cores <- 1
+  }
+  if (detectCores() <= (mc.cores)) {
+    message("Parameter mc.cores too high. Setting mc.cores = 1 to avoid parallelization.")
+    mc.cores <- 1
+  }
+
   if (nrow(sessions) == 0) {
     if (is.null(dttm_seq)) {
       message("Must provide sessions or dttm_seq parameter")

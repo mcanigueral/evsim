@@ -22,12 +22,14 @@ reference:
     - get_n_connections
   - title: Utils
   - contents:
-    - read_ev_model
     - get_user_profiles_distribution
     - get_charging_rates_distribution
-    - adapt_charging_features
-    - evSessions
-    - evSessionsUI
+    - prepare_model
+    - get_connection_models_from_parameters
+    - get_energy_models_from_parameters
+    - get_ev_model
+    - save_ev_model
+    - read_ev_model
 articles:
   - title: Articles
     navbar: ~

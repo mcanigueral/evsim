@@ -54,6 +54,10 @@ test_that("Model is created correctly from parameters", {
   expect_equal(class(ev_model), "evmodel")
 })
 
+test_that("Model is printed correctly",  {
+  print(ev_model)
+})
+
 test_that("Model file is saved correctly",  {
   temp_model_file <- file.path(temp_dir, "model.json")
   save_ev_model(ev_model, file = temp_model_file)
