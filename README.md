@@ -30,8 +30,6 @@ evsim package provides the functions for:
   specific time resolution
 - Calculating the occupancy (number of vehicles connected) in a specific
   time resolution
-- Including the EV model inputs in a Shiny Dashboard (a Shiny module is
-  provided)
 
 ## Usage
 

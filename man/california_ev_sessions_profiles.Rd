@@ -17,7 +17,7 @@ A \code{tibble} object with standard variable names defined by \code{evprof}
 california_ev_sessions_profiles
 }
 \description{
-Example of an charging sessions data set that has been clustered by \code{{evprof}} functions.
+Example of an charging sessions data set that has been clustered by \code{evprof} functions.
 (see \href{https://mcanigueral.github.io/evprof/articles/california.html#sessions-classification-into-user-profiles}{this article}).
 }
 \keyword{internal}

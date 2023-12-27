@@ -9,7 +9,7 @@ get_n_connections(
   dttm_seq = NULL,
   by = "Profile",
   resolution = 15,
-  mc.cores = 2
+  mc.cores = 1
 )
 }
 \arguments{
