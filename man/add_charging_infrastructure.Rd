@@ -37,3 +37,12 @@ tibble
 Variable \code{ChargingStation} and \code{Socket}will be assigned to the \code{sessions}
 tibble with a name pattern being: \code{names_prefix} + "CHS" + number
 }
+\examples{
+# Assign a `ChargingStation` to every session according to the occupancy
+sessions_infrastructure <- add_charging_infrastructure(
+  head(evsim::california_ev_sessions, 100), connections_th = 0
+)
+print(unique(sessions_infrastructure$ChargingStation))
+
+
+}

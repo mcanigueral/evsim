@@ -31,7 +31,8 @@ test_that("simulation of EV sessions works", {
   expect_true(nrow(simulated_sessions) > 0)
 })
 
-test_that("simulation of EV sessions works with specific charging power", {
+test_that("simulation of EV sessions works with specific charging power
+          for a specific user profile (Worktime sessions 11 kW)", {
   simulated_sessions <- simulate_sessions(
     ev_model,
     sessions_day = tibble(
@@ -42,7 +43,7 @@ test_that("simulation of EV sessions works with specific charging power", {
       time_cycle = c("Workday", "Workday", "Weekend"),
       profile = c("Visit", "Worktime", "Visit"),
       ratio = c(0.5, 0.5, 1),
-      power = c(3.7, 11, 3.7)
+      power = c(NA, 11, NA)
     ),
     charging_powers = tibble(
       power = c(3.7, 11),

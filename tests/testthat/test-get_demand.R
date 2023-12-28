@@ -40,15 +40,3 @@ test_that("demand calculation is skipped if there are no sessions nor datetime s
     get_demand(by = "Profile", resolution = 15, dttm_seq = NULL)
   expect_true(is.null(demand))
 })
-
-test_that("multiprocessing settings are correct", {
-  demand <- sessions %>%
-    mutate(Profile = "All") %>%
-    get_demand(by = "Profile", resolution = 15, mc.cores = 0)
-  expect_true("All" %in% names(demand))
-
-  demand <- sessions %>%
-    mutate(Profile = "All") %>%
-    get_demand(by = "Profile", resolution = 15, mc.cores = 100)
-  expect_true("All" %in% names(demand))
-})

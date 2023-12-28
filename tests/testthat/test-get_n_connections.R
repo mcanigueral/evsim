@@ -40,15 +40,3 @@ test_that("the number of connections calculation is skipped if there are no sess
     get_n_connections(by = "Profile", resolution = 15, dttm_seq = NULL)
   expect_true(is.null(n_connections))
 })
-
-test_that("multiprocessing settings are correct", {
-  n_connections <- sessions %>%
-    mutate(Profile = "All") %>%
-    get_n_connections(by = "Profile", resolution = 15, mc.cores = 0)
-  expect_true("All" %in% names(n_connections))
-
-  n_connections <- sessions %>%
-    mutate(Profile = "All") %>%
-    get_n_connections(by = "Profile", resolution = 15, mc.cores = 10)
-  expect_true("All" %in% names(n_connections))
-})

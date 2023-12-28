@@ -33,3 +33,30 @@ tibble
 \description{
 Obtain time series of EV connected from sessions data set
 }
+\examples{
+library(lubridate)
+library(dplyr)
+
+# Get occupancy with the complete datetime sequence from the sessions
+sessions <- head(evsim::california_ev_sessions, 100)
+get_n_connections(
+  sessions,
+  by = "Session",
+  resolution = 60
+)
+
+# Get occupancy with a custom datetime sequence and resolution of 15 minutes
+sessions <- head(evsim::california_ev_sessions_profiles, 100)
+dttm_seq <- seq.POSIXt(
+  as_datetime(dmy(01102018)) \%>\% force_tz(tz(sessions$ConnectionStartDateTime)),
+  as_datetime(dmy(07102018)) \%>\% force_tz(tz(sessions$ConnectionStartDateTime)),
+  by = "15 mins"
+)
+get_n_connections(
+  sessions,
+  dttm_seq = dttm_seq,
+  by = "Profile",
+  resolution = 15
+)
+
+}

@@ -444,6 +444,37 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 #' @importFrom rlang .data
 #' @importFrom tidyr drop_na
 #'
+#' @examples
+#' library(dplyr)
+#' library(lubridate)
+#'
+#' # Get the example `evmodel`
+#' ev_model <- evsim::california_ev_model
+#'
+#' # Simulate EV charging sessions, considering that the Worktime sessions
+#' # during Workdays have 11 kW, while all Visit sessions charge at 3.7kW or
+#' # 11kW, with a distribution of 30% and 70% respectively.
+#'
+#' simulate_sessions(
+#'   ev_model,
+#'   sessions_day = tibble(
+#'     time_cycle = c("Workday", "Weekend"),
+#'     n_sessions = c(15, 10)
+#'   ),
+#'   user_profiles = tibble(
+#'     time_cycle = c("Workday", "Workday", "Weekend"),
+#'     profile = c("Visit", "Worktime", "Visit"),
+#'     ratio = c(0.5, 0.5, 1),
+#'     power = c(NA, 11, NA)
+#'   ),
+#'   charging_powers = tibble(
+#'     power = c(3.7, 11),
+#'     ratio = c(0.3, 0.7)
+#'   ),
+#'   dates = seq.Date(today(), today()+days(4), length.out = 4),
+#'   resolution = 15
+#' )
+#'
 simulate_sessions <- function(evmodel, sessions_day, user_profiles, charging_powers, dates, resolution) {
 
   if (sum(sessions_day[["n_sessions"]]) == 0) {

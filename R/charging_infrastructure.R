@@ -27,6 +27,14 @@
 #' @importFrom purrr map_dbl
 #' @importFrom rlang .data
 #'
+#' @examples
+#' # Assign a `ChargingStation` to every session according to the occupancy
+#' sessions_infrastructure <- add_charging_infrastructure(
+#'   head(evsim::california_ev_sessions, 100), connections_th = 0
+#' )
+#' print(unique(sessions_infrastructure$ChargingStation))
+#'
+#'
 add_charging_infrastructure <- function(sessions, resolution = 15, min_stations = 0, names_prefix = NULL, connections_th = 10) {
 
   # How many charging stations (of two sockets) do we need?

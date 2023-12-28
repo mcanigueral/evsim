@@ -95,6 +95,32 @@ expand_session <- function(session, resolution) {
 #' @importFrom parallel detectCores mclapply
 #' @importFrom purrr list_rbind
 #'
+#' @examples
+#' library(lubridate)
+#' library(dplyr)
+#'
+#' # Get demand with the complete datetime sequence from the sessions
+#' sessions <- head(evsim::california_ev_sessions, 100)
+#' get_demand(
+#'   sessions,
+#'   by = "Session",
+#'   resolution = 60
+#' )
+#'
+#' # Get demand with a custom datetime sequence and resolution of 15 minutes
+#' sessions <- head(evsim::california_ev_sessions_profiles, 100)
+#' dttm_seq <- seq.POSIXt(
+#'   as_datetime(dmy(01102018)) %>% force_tz(tz(sessions$ConnectionStartDateTime)),
+#'   as_datetime(dmy(07102018)) %>% force_tz(tz(sessions$ConnectionStartDateTime)),
+#'   by = "15 mins"
+#' )
+#' get_demand(
+#'   sessions,
+#'   dttm_seq = dttm_seq,
+#'   by = "Profile",
+#'   resolution = 15
+#' )
+#'
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
   # Parameter check and definition of `dttm_seq` and `resolution`
@@ -206,6 +232,32 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #' @importFrom lubridate floor_date days round_date month
 #' @importFrom parallel detectCores mclapply
 #' @importFrom purrr list_rbind
+#'
+#' @examples
+#' library(lubridate)
+#' library(dplyr)
+#'
+#' # Get occupancy with the complete datetime sequence from the sessions
+#' sessions <- head(evsim::california_ev_sessions, 100)
+#' get_n_connections(
+#'   sessions,
+#'   by = "Session",
+#'   resolution = 60
+#' )
+#'
+#' # Get occupancy with a custom datetime sequence and resolution of 15 minutes
+#' sessions <- head(evsim::california_ev_sessions_profiles, 100)
+#' dttm_seq <- seq.POSIXt(
+#'   as_datetime(dmy(01102018)) %>% force_tz(tz(sessions$ConnectionStartDateTime)),
+#'   as_datetime(dmy(07102018)) %>% force_tz(tz(sessions$ConnectionStartDateTime)),
+#'   by = "15 mins"
+#' )
+#' get_n_connections(
+#'   sessions,
+#'   dttm_seq = dttm_seq,
+#'   by = "Profile",
+#'   resolution = 15
+#' )
 #'
 get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
