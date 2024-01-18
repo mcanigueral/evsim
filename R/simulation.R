@@ -47,6 +47,20 @@ convert_time_num_to_period <- function(time_num) {
 #' @importFrom rlang .data
 #' @importFrom lubridate round_date
 #'
+#' @examples
+#' adapt_charging_features(
+#'   evsim::california_ev_sessions,
+#'   time_resolution = 60,
+#'   power_resolution = 0.01
+#' )
+#'
+#' adapt_charging_features(
+#'   evsim::california_ev_sessions,
+#'   time_resolution = 15,
+#'   power_resolution = 1
+#' )
+#'
+#'
 adapt_charging_features <- function (sessions, time_resolution = 15, power_resolution = 0.01) {
   sessions %>%
     mutate(
@@ -65,7 +79,9 @@ adapt_charging_features <- function (sessions, time_resolution = 15, power_resol
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
 #' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))t
-#' @param unit lubridate `floor_date` unit parameter
+#' @param unit character. Valid base units are `second`, `minute`, `hour`, `day`,
+#' `week`, `month`, `bimonth`, `quarter`, `season`, `halfyear` and `year`.
+#' It corresponds to `unit` parameter in `lubridate::floor_date` function.
 #'
 #' @return tibble
 #' @export
@@ -73,6 +89,10 @@ adapt_charging_features <- function (sessions, time_resolution = 15, power_resol
 #' @importFrom dplyr %>% select mutate filter group_by ungroup summarise n all_of
 #' @importFrom lubridate floor_date
 #' @importFrom rlang .data
+#'
+#' @examples
+#' get_charging_rates_distribution(evsim::california_ev_sessions, unit = "year")
+#'
 #'
 get_charging_rates_distribution <- function(sessions, unit="year") {
   sessions_power_round <- sessions %>%
@@ -89,9 +109,11 @@ get_charging_rates_distribution <- function(sessions, unit="year") {
     ) %>%
     summarise(n = n()) %>%
     ungroup() %>%
+    group_by(.data$datetime) %>%
     mutate(
       ratio = .data$n/sum(.data$n)
-    )
+    ) %>%
+    ungroup()
 }
 
 

@@ -105,6 +105,57 @@ The <code>ChargingHours</code> is recalculated with the values of <code>Energy</
 limited by <code>ConnectionHours</code>. Finally, the charging times are also calculated.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">adapt_charging_features</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu">evsim</span><span class="fu">::</span><span class="va"><a href="california_ev_sessions.html">california_ev_sessions</a></span>,</span></span>
+<span class="r-in"><span>  time_resolution <span class="op">=</span> <span class="fl">60</span>,</span></span>
+<span class="r-in"><span>  power_resolution <span class="op">=</span> <span class="fl">0.01</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 30,114 × 12</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Session ConnectionStartDateTime ConnectionEndDateTime ChargingStartDateTime</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> S1      2018-10-08 <span style="color: #949494;">06:00:00</span>     2018-10-08 <span style="color: #949494;">16:40:00</span>   2018-10-08 <span style="color: #949494;">06:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> S2      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">18:09:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> S3      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">17:28:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> S4      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">17:05:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> S5      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">17:15:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> S6      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">17:16:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> S7      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">17:31:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> S8      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">17:34:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> S9      2018-10-08 <span style="color: #949494;">08:00:00</span>     2018-10-08 <span style="color: #949494;">17:46:00</span>   2018-10-08 <span style="color: #949494;">08:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> S10     2018-10-08 <span style="color: #949494;">08:00:00</span>     2018-10-08 <span style="color: #949494;">17:33:00</span>   2018-10-08 <span style="color: #949494;">08:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 30,104 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: ChargingEndDateTime &lt;dttm&gt;, Power &lt;dbl&gt;, Energy &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ConnectionHours &lt;dbl&gt;, ChargingHours &lt;dbl&gt;, FlexibilityHours &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ChargingStation &lt;chr&gt;, UserID &lt;chr&gt;</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">adapt_charging_features</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu">evsim</span><span class="fu">::</span><span class="va"><a href="california_ev_sessions.html">california_ev_sessions</a></span>,</span></span>
+<span class="r-in"><span>  time_resolution <span class="op">=</span> <span class="fl">15</span>,</span></span>
+<span class="r-in"><span>  power_resolution <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 30,114 × 12</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Session ConnectionStartDateTime ConnectionEndDateTime ChargingStartDateTime</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> S1      2018-10-08 <span style="color: #949494;">06:30:00</span>     2018-10-08 <span style="color: #949494;">17:10:00</span>   2018-10-08 <span style="color: #949494;">06:30:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> S2      2018-10-08 <span style="color: #949494;">06:30:00</span>     2018-10-08 <span style="color: #949494;">17:39:00</span>   2018-10-08 <span style="color: #949494;">06:30:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> S3      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">17:28:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> S4      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">17:05:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> S5      2018-10-08 <span style="color: #949494;">07:00:00</span>     2018-10-08 <span style="color: #949494;">17:15:00</span>   2018-10-08 <span style="color: #949494;">07:00:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> S6      2018-10-08 <span style="color: #949494;">07:15:00</span>     2018-10-08 <span style="color: #949494;">17:31:00</span>   2018-10-08 <span style="color: #949494;">07:15:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> S7      2018-10-08 <span style="color: #949494;">07:15:00</span>     2018-10-08 <span style="color: #949494;">17:46:00</span>   2018-10-08 <span style="color: #949494;">07:15:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> S8      2018-10-08 <span style="color: #949494;">07:30:00</span>     2018-10-08 <span style="color: #949494;">18:04:00</span>   2018-10-08 <span style="color: #949494;">07:30:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> S9      2018-10-08 <span style="color: #949494;">07:30:00</span>     2018-10-08 <span style="color: #949494;">17:16:00</span>   2018-10-08 <span style="color: #949494;">07:30:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> S10     2018-10-08 <span style="color: #949494;">07:30:00</span>     2018-10-08 <span style="color: #949494;">17:03:00</span>   2018-10-08 <span style="color: #949494;">07:30:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 30,104 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: ChargingEndDateTime &lt;dttm&gt;, Power &lt;dbl&gt;, Energy &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ConnectionHours &lt;dbl&gt;, ChargingHours &lt;dbl&gt;, FlexibilityHours &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ChargingStation &lt;chr&gt;, UserID &lt;chr&gt;</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

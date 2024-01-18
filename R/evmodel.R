@@ -96,6 +96,9 @@ print.evmodel <- function(x, ...) {
 #' @importFrom purrr map_dfr set_names
 #' @importFrom dplyr %>% select any_of
 #'
+#' @examples
+#' get_user_profiles_distribution(evsim::california_ev_model)
+#'
 get_user_profiles_distribution <- function(evmodel) {
   evmodel$models$user_profiles %>%
     set_names(evmodel$models$time_cycle) %>%
@@ -183,6 +186,37 @@ prepare_model <- function(ev_models, sessions_day, user_profiles) {
 #' @importFrom dplyr tibble mutate select %>%
 #' @importFrom purrr pmap
 #'
+#' @examples
+#' # For workdays time cycle
+#' workdays_parameters <- dplyr::tibble(
+#'   profile = c("Worktime", "Visit"),
+#'   ratio = c(80, 20),
+#'   start_mean = c(9, 11),
+#'   start_sd = c(1, 4),
+#'   duration_mean = c(8, 4),
+#'   duration_sd = c(0.5, 2),
+#'   energy_mean = c(15, 6),
+#'   energy_sd = c(4, 3)
+#' )
+#'
+#' # For weekends time cycle
+#' weekends_parameters <- dplyr::tibble(
+#'   profile = "Visit",
+#'   ratio = 100,
+#'   start_mean = 12,
+#'   start_sd = 4,
+#'   duration_mean = 3,
+#'   duration_sd = 2,
+#'   energy_mean = 4,
+#'   energy_sd = 4
+#' )
+#'
+#' connection_GMM <- purrr::map(
+#'   list(Workdays = workdays_parameters, Weekends = weekends_parameters),
+#'   ~ get_connection_models_from_parameters(.x)
+#' )
+#'
+#'
 get_connection_models_from_parameters <- function(time_cycle_parameters, connection_log = FALSE) {
   if (connection_log) {
     func_conv <- log
@@ -223,6 +257,36 @@ get_connection_models_from_parameters <- function(time_cycle_parameters, connect
 #'
 #' @importFrom dplyr tibble mutate select %>%
 #' @importFrom purrr pmap
+#'
+#' @examples
+#' # For workdays time cycle
+#' workdays_parameters <- dplyr::tibble(
+#'   profile = c("Worktime", "Visit"),
+#'   ratio = c(80, 20),
+#'   start_mean = c(9, 11),
+#'   start_sd = c(1, 4),
+#'   duration_mean = c(8, 4),
+#'   duration_sd = c(0.5, 2),
+#'   energy_mean = c(15, 6),
+#'   energy_sd = c(4, 3)
+#' )
+#'
+#' # For weekends time cycle
+#' weekends_parameters <- dplyr::tibble(
+#'   profile = "Visit",
+#'   ratio = 100,
+#'   start_mean = 12,
+#'   start_sd = 4,
+#'   duration_mean = 3,
+#'   duration_sd = 2,
+#'   energy_mean = 4,
+#'   energy_sd = 4
+#' )
+#'
+#' energy_GMM <- purrr::map(
+#'   list(Workdays = workdays_parameters, Weekends = weekends_parameters),
+#'   ~ get_energy_models_from_parameters(.x)
+#' )
 #'
 get_energy_models_from_parameters <- function(time_cycle_parameters, energy_log =  FALSE) {
   time_cycle_parameters %>%
@@ -287,20 +351,22 @@ get_energy_models_from_parameters <- function(time_cycle_parameters, energy_log 
 #'   energy_sd = 4
 #' )
 #'
+#' connection_GMM <- purrr::map(
+#'   list(Workdays = workdays_parameters, Weekends = weekends_parameters),
+#'   ~ get_connection_models_from_parameters(.x)
+#' )
+#' energy_GMM <- purrr::map(
+#'   list(Workdays = workdays_parameters, Weekends = weekends_parameters),
+#'   ~ get_energy_models_from_parameters(.x)
+#' )
 #'
 #' # Get the whole model
 #' ev_model <- get_ev_model(
 #'   names = c("Workdays", "Weekends"),
 #'   months_lst = list(1:12, 1:12),
 #'   wdays_lst = list(1:5, 6:7),
-#'   connection_GMM = purrr::map(
-#'     list(Workdays = workdays_parameters, Weekends = weekends_parameters),
-#'     ~ get_connection_models_from_parameters(.x)
-#'   ),
-#'   energy_GMM = purrr::map(
-#'     list(Workdays = workdays_parameters, Weekends = weekends_parameters),
-#'     ~ get_energy_models_from_parameters(.x)
-#'   ),
+#'   connection_GMM = connection_GMM,
+#'   energy_GMM = energy_GMM,
 #'   connection_log = FALSE,
 #'   energy_log = FALSE,
 #'   data_tz = "Europe/Amsterdam"

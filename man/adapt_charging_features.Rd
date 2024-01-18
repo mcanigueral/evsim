@@ -31,3 +31,18 @@ and the \code{ConnectionEndDateTime} is calculated according to the \code{Connec
 The \code{ChargingHours} is recalculated with the values of \code{Energy} and \code{Power},
 limited by \code{ConnectionHours}. Finally, the charging times are also calculated.
 }
+\examples{
+adapt_charging_features(
+  evsim::california_ev_sessions,
+  time_resolution = 60,
+  power_resolution = 0.01
+)
+
+adapt_charging_features(
+  evsim::california_ev_sessions,
+  time_resolution = 15,
+  power_resolution = 1
+)
+
+
+}

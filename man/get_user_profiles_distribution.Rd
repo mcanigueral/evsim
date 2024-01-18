@@ -17,3 +17,7 @@ tibble
 Get the user profiles distribution from the original data set
 used to build the model
 }
+\examples{
+get_user_profiles_distribution(evsim::california_ev_model)
+
+}

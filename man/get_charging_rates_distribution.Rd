@@ -10,11 +10,18 @@ get_charging_rates_distribution(sessions, unit = "year")
 \item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
 (see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this article})t}
 
-\item{unit}{lubridate \code{floor_date} unit parameter}
+\item{unit}{character. Valid base units are \code{second}, \code{minute}, \code{hour}, \code{day},
+\code{week}, \code{month}, \code{bimonth}, \code{quarter}, \code{season}, \code{halfyear} and \code{year}.
+It corresponds to \code{unit} parameter in \code{lubridate::floor_date} function.}
 }
 \value{
 tibble
 }
 \description{
 Get charging rates distribution in percentages
+}
+\examples{
+get_charging_rates_distribution(evsim::california_ev_sessions, unit = "year")
+
+
 }

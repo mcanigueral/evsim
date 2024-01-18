@@ -114,6 +114,21 @@ multiple iterations.</p></dd>
 <p>tibble</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Assign a `ChargingStation` to every session according to the occupancy</span></span></span>
+<span class="r-in"><span><span class="va">sessions_infrastructure</span> <span class="op">&lt;-</span> <span class="fu">add_charging_infrastructure</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  sessions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">evsim</span><span class="fu">::</span><span class="va"><a href="california_ev_sessions.html">california_ev_sessions</a></span>, <span class="fl">50</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  resolution <span class="op">=</span> <span class="fl">60</span>, connections_th <span class="op">=</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Discarded 0 % of sessions due to infrastructure</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">sessions_infrastructure</span><span class="op">$</span><span class="va">ChargingStation</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "CHS1"  "CHS2"  "CHS3"  "CHS4"  "CHS5"  "CHS6"  "CHS7"  "CHS8"  "CHS9" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "CHS10" "CHS11" "CHS12" "CHS13" "CHS14"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

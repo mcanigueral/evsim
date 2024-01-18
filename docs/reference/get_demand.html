@@ -108,6 +108,82 @@ Must be at least one, and parallelization requires at least two cores.</p></dd>
 <p>tibble</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘lubridate’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:base’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     date, intersect, setdiff, union</span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘dplyr’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:stats’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     filter, lag</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:base’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     intersect, setdiff, setequal, union</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get demand with the complete datetime sequence from the sessions</span></span></span>
+<span class="r-in"><span><span class="va">sessions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">evsim</span><span class="fu">::</span><span class="va"><a href="california_ev_sessions.html">california_ev_sessions</a></span>, <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">get_demand</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">sessions</span>,</span></span>
+<span class="r-in"><span>  by <span class="op">=</span> <span class="st">"Session"</span>,</span></span>
+<span class="r-in"><span>  resolution <span class="op">=</span> <span class="fl">60</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 73 × 101</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    datetime               S1   S10  S100   S11   S12   S13   S14   S15   S16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 2018-10-08 <span style="color: #949494;">00:00:00</span>   0    0        0  0     0     0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 2018-10-08 <span style="color: #949494;">01:00:00</span>   0    0        0  0     0     0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 2018-10-08 <span style="color: #949494;">02:00:00</span>   0    0        0  0     0     0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2018-10-08 <span style="color: #949494;">03:00:00</span>   0    0        0  0     0     0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 2018-10-08 <span style="color: #949494;">04:00:00</span>   0    0        0  0     0     0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2018-10-08 <span style="color: #949494;">05:00:00</span>   0    0        0  0     0     0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 2018-10-08 <span style="color: #949494;">06:00:00</span>   0.6  0        0  0     0     0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 2018-10-08 <span style="color: #949494;">07:00:00</span>   0.6  0        0  0     0     0     0     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 2018-10-08 <span style="color: #949494;">08:00:00</span>   0.6  6.17     0  2.04  0.78  1.58  1.36  1.52     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 2018-10-08 <span style="color: #949494;">09:00:00</span>   0.6  6.17     0  2.04  0.78  1.58  1.36  1.52     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 63 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 91 more variables: S17 &lt;dbl&gt;, S18 &lt;dbl&gt;, S19 &lt;dbl&gt;, S2 &lt;dbl&gt;, S20 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   S21 &lt;dbl&gt;, S22 &lt;dbl&gt;, S23 &lt;dbl&gt;, S24 &lt;dbl&gt;, S25 &lt;dbl&gt;, S26 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   S27 &lt;dbl&gt;, S28 &lt;dbl&gt;, S29 &lt;dbl&gt;, S3 &lt;dbl&gt;, S30 &lt;dbl&gt;, S31 &lt;dbl&gt;, S32 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   S33 &lt;dbl&gt;, S34 &lt;dbl&gt;, S35 &lt;dbl&gt;, S36 &lt;dbl&gt;, S37 &lt;dbl&gt;, S38 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   S39 &lt;dbl&gt;, S4 &lt;dbl&gt;, S40 &lt;dbl&gt;, S41 &lt;dbl&gt;, S42 &lt;dbl&gt;, S43 &lt;dbl&gt;, S44 &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   S45 &lt;dbl&gt;, S46 &lt;dbl&gt;, S47 &lt;dbl&gt;, S48 &lt;dbl&gt;, S49 &lt;dbl&gt;, S5 &lt;dbl&gt;, …</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get demand with a custom datetime sequence and resolution of 15 minutes</span></span></span>
+<span class="r-in"><span><span class="va">sessions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">evsim</span><span class="fu">::</span><span class="va"><a href="california_ev_sessions_profiles.html">california_ev_sessions_profiles</a></span>, <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dttm_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.POSIXt.html" class="external-link">seq.POSIXt</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://lubridate.tidyverse.org/reference/as_date.html" class="external-link">as_datetime</a></span><span class="op">(</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd.html" class="external-link">dmy</a></span><span class="op">(</span><span class="fl">01102018</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/force_tz.html" class="external-link">force_tz</a></span><span class="op">(</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/tz.html" class="external-link">tz</a></span><span class="op">(</span><span class="va">sessions</span><span class="op">$</span><span class="va">ConnectionStartDateTime</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://lubridate.tidyverse.org/reference/as_date.html" class="external-link">as_datetime</a></span><span class="op">(</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd.html" class="external-link">dmy</a></span><span class="op">(</span><span class="fl">07102018</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/force_tz.html" class="external-link">force_tz</a></span><span class="op">(</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/tz.html" class="external-link">tz</a></span><span class="op">(</span><span class="va">sessions</span><span class="op">$</span><span class="va">ConnectionStartDateTime</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  by <span class="op">=</span> <span class="st">"15 mins"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">get_demand</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">sessions</span>,</span></span>
+<span class="r-in"><span>  dttm_seq <span class="op">=</span> <span class="va">dttm_seq</span>,</span></span>
+<span class="r-in"><span>  by <span class="op">=</span> <span class="st">"Profile"</span>,</span></span>
+<span class="r-in"><span>  resolution <span class="op">=</span> <span class="fl">15</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 577 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    datetime            Visit Worktime</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 2018-10-01 <span style="color: #949494;">00:00:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 2018-10-01 <span style="color: #949494;">00:15:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 2018-10-01 <span style="color: #949494;">00:30:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2018-10-01 <span style="color: #949494;">00:45:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 2018-10-01 <span style="color: #949494;">01:00:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2018-10-01 <span style="color: #949494;">01:15:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 2018-10-01 <span style="color: #949494;">01:30:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 2018-10-01 <span style="color: #949494;">01:45:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 2018-10-01 <span style="color: #949494;">02:00:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 2018-10-01 <span style="color: #949494;">02:15:00</span>     0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 567 more rows</span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

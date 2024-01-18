@@ -42,10 +42,14 @@ package website.
 
 ## Installation
 
-Since the package is not yet in CRAN, you can install the development
-version of [evsim](https://github.com/mcanigueral/evsim/) from GitHub:
+You can install the package from CRAN or the development version from
+GitHub:
 
 ``` r
+# CRAN stable release
+install.packages("evsim")
+
+# Latest development version
 # install.packages("devtools")
 devtools::install_github("mcanigueral/evsim")
 ```
