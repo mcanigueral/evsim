@@ -136,33 +136,25 @@ get_estimated_energy <- function(power_vct, energy_models, energy_log) {
   n <- length(power_vct)
   energy_from_all_powers <- list()
 
-  if ("charging_rate" %in% colnames(energy_models)) {
-    if (is.numeric(energy_models$charging_rate)) {
-      # Check if we want to simulate energy for a charging rate that is not in the models
-      charging_powers <- unique(power_vct)
-      powers_not_in_models <- which(!(charging_powers %in% energy_models$charging_rate))
-      if (length(powers_not_in_models) > 0) {
-        for (power_extra in charging_powers[powers_not_in_models]) {
-          power_extra_closest_rate <- which.min(abs(energy_models$charging_rate - power_extra))
-          power_extra_model <- tibble(
-            charging_rate = power_extra,
-            energy_models = energy_models$energy_models[power_extra_closest_rate]
-          )
-          energy_models <- bind_rows(energy_models, power_extra_model)
-          message(paste(
-            "Warning:", power_extra,
-            "kW rate not in models. Using energy models from",
-            energy_models$charging_rate[power_extra_closest_rate], "kW rate."
-          ))
-        }
+  if (is.numeric(energy_models$charging_rate)) {
+    # Check if we want to simulate energy for a charging rate that is not in the models
+    charging_powers <- unique(power_vct)
+    powers_not_in_models <- which(!(charging_powers %in% energy_models$charging_rate))
+    if (length(powers_not_in_models) > 0) {
+      for (power_extra in charging_powers[powers_not_in_models]) {
+        power_extra_closest_rate <- which.min(abs(energy_models$charging_rate - power_extra))
+        power_extra_model <- tibble(
+          charging_rate = power_extra,
+          energy_models = energy_models$energy_models[power_extra_closest_rate]
+        )
+        energy_models <- bind_rows(energy_models, power_extra_model)
+        message(paste(
+          "Warning:", power_extra,
+          "kW rate not in models. Using energy models from",
+          energy_models$charging_rate[power_extra_closest_rate], "kW rate."
+        ))
       }
     }
-  } else {
-    # Shortcut for old models without charging rate
-    energy_models <- tibble(
-      charging_rate = "Unknown",
-      energy_models = list(energy_models)
-    )
   }
 
   for (rate in energy_models$charging_rate) {
@@ -351,10 +343,8 @@ get_day_features <- function(day, ev_models) {
     day_timecycle <- ev_models[["time_cycle"]][models_month_idx & models_wday_idx][[1]]
     day_models <- ev_models[["user_profiles"]][models_month_idx & models_wday_idx][[1]]
     day_n_sessions <- ev_models[["n_sessions"]][models_month_idx & models_wday_idx][[1]]
-    # if (is.na(day_n_sessions) | is.null(day_n_sessions) | is.nan(day_n_sessions)) {
-    #   day_n_sessions <- 0
-    # }
   } else {
+    message("Warning: the day to simulate is not considered by the models.")
     day_timecycle <- NA
     day_models <- NA
     day_n_sessions <- 0
@@ -487,10 +477,6 @@ simulate_sessions <- function(evmodel, sessions_day, user_profiles, charging_pow
   energy_log <- evmodel[['metadata']][['energy_log']]
   tzone_model <- evmodel[['metadata']][['tzone']]
 
-  if (!("charging_rate" %in% colnames(ev_models$user_profiles[[1]]$energy_models[[1]]))) {
-    message("Warning: old format of EV models")
-  }
-
   dates_dttm <- round_date(as_datetime(dates, tz = tzone_model), unit = 'day')
 
   simulated_sessions <- map_dfr(
@@ -499,7 +485,6 @@ simulate_sessions <- function(evmodel, sessions_day, user_profiles, charging_pow
   )
 
   if (nrow(simulated_sessions) == 0) {
-    message("No EV sessions have been simulated")
     return( tibble() )
   }
 

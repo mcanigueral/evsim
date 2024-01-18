@@ -30,7 +30,8 @@
 #' @examples
 #' # Assign a `ChargingStation` to every session according to the occupancy
 #' sessions_infrastructure <- add_charging_infrastructure(
-#'   head(evsim::california_ev_sessions, 100), connections_th = 0
+#'   sessions = head(evsim::california_ev_sessions, 50),
+#'   resolution = 60, connections_th = 0
 #' )
 #' print(unique(sessions_infrastructure$ChargingStation))
 #'
