@@ -427,7 +427,7 @@ get_ev_model <- function(names, months_lst = list(1:12, 1:12), wdays_lst = list(
 #'
 #' save_ev_model(ev_model, file = file.path(tempdir(), "evmodel.json"))
 #'
-save_ev_model <- function(evmodel, file = 'evmodel.json') {
+save_ev_model <- function(evmodel, file) {
   evmodel_lst <- list(
     metadata = evmodel$metadata,
     models = evmodel$models

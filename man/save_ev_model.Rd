@@ -4,7 +4,7 @@
 \alias{save_ev_model}
 \title{Save the EV model object of class \code{evmodel} to a JSON file}
 \usage{
-save_ev_model(evmodel, file = "evmodel.json")
+save_ev_model(evmodel, file)
 }
 \arguments{
 \item{evmodel}{object of class \code{evmodel}

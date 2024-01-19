@@ -8,8 +8,10 @@ Authors@R:
            email = "marc.canigueral@udg.edu",
            comment = c(ORCID = "0000-0001-9724-5829")
            )
-Description: Tools to simulate Electric Vehicles charging sessions using 
-    Gaussian models, together with time-series power demand calculations.
+Description: Simulation of Electric Vehicles charging sessions using 
+    Gaussian models, together with time-series power demand calculations. 
+    The simulation methodology is published in 
+    Cañigueral et al. (2023, ISBN:0957-4174) <doi:10.1016/j.eswa.2023.120318>.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -32,5 +34,6 @@ Suggests:
 Depends: 
     R (>= 2.10)
 URL: https://github.com/mcanigueral/evsim/
+BugReports: https://github.com/mcanigueral/evsim/issues
 Language: en-US
 Config/testthat/edition: 3

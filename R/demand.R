@@ -125,7 +125,7 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 
   # Parameter check and definition of `dttm_seq` and `resolution`
   if (detectCores() <= mc.cores) {
-    mc.cores <- trunc(detectCores()/2)
+    mc.cores <- 1
   }
   if (mc.cores < 1) {
     mc.cores <- 1
@@ -260,7 +260,7 @@ get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolut
 
   # Parameter check and definition of `dttm_seq` and `resolution`
   if (detectCores() <= mc.cores) {
-    mc.cores <- trunc(detectCores()/2)
+    mc.cores <- 1
   }
   if (mc.cores < 1) {
     mc.cores <- 1
