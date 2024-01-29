@@ -53,27 +53,3 @@ cores_time %>%
   labs(x = "Number of cores", y = "Computation time (seconds)")
 ```
 
-
-
-
-
-```{r}
-evmodel <- evsim::california_ev_model
-sessions_day 
-ev_models <- prepare_model(evmodel[["models"]], sessions_day, user_profiles)
-connection_log <- evmodel[['metadata']][['connection_log']]
-energy_log <- evmodel[['metadata']][['energy_log']]
-tzone_model <- evmodel[['metadata']][['tzone']]
-
-dates_dttm <- round_date(as_datetime(dates, tz = tzone_model), unit = 'day')
-
-simulated_sessions <- map_dfr(
-  dates_dttm,
-  ~ get_day_sessions(.x, ev_models, connection_log, energy_log, charging_powers)
-)
-```
-
-
-
-
-

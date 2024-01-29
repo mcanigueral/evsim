@@ -16,7 +16,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">evsim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/time_resolution.html">Time resolution</a>
+    <a class="dropdown-item" href="../articles/multi_processing.html">Multi-core processing</a>
   </div>
 </li>
 <li class="active nav-item">
@@ -60,8 +61,15 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.0" id="evsim-120">evsim 1.2.0<a class="anchor" aria-label="anchor" href="#evsim-120"></a></h2>
-<ul><li>Improved functions for calculating demand and occupancy (now with parallel computing)</li>
+<h2 class="pkg-version" data-toc-text="1.3.0" id="evsim-130">evsim 1.3.0<a class="anchor" aria-label="anchor" href="#evsim-130"></a></h2>
+<ul><li>Added multi-core processing for Windows distribution</li>
+<li>Energy GMM inside of <code>evmodel</code> also contain the <code>ratio</code> of every <code>charging_rate</code>
+</li>
+<li>Function <code>expand_sessions</code> is now exported</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.0" id="evsim-120">evsim 1.2.0<a class="anchor" aria-label="anchor" href="#evsim-120"></a></h2><p class="text-muted">CRAN release: 2024-01-23</p>
+<ul><li>Improved functions for calculating demand and occupancy (now with multi-core processing)</li>
 <li>Included more example data (<code><a href="../reference/california_ev_sessions.html">evsim::california_ev_sessions</a></code> and <code><a href="../reference/california_ev_sessions_profiles.html">evsim::california_ev_sessions_profiles</a></code>).</li>
 <li>Included functions to create a model from Gaussian Mixture Models parameters.</li>
 </ul></div>

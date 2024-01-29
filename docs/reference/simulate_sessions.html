@@ -16,7 +16,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">evsim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/time_resolution.html">Time resolution</a>
+    <a class="dropdown-item" href="../articles/multi_processing.html">Multi-core processing</a>
   </div>
 </li>
 <li class="nav-item">
@@ -146,20 +147,20 @@ This is used to simulate the charging power of user profiles without a specific 
 <span class="r-in"><span>  dates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.Date.html" class="external-link">seq.Date</a></span><span class="op">(</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/now.html" class="external-link">today</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="https://lubridate.tidyverse.org/reference/now.html" class="external-link">today</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/period.html" class="external-link">days</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  resolution <span class="op">=</span> <span class="fl">15</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 55 × 11</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 60 × 11</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Session Timecycle Profile  ConnectionStartDateTime ConnectionEndDateTime</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> S1      Workday   Visit    2024-01-18 <span style="color: #949494;">05:30:00</span>     2024-01-18 <span style="color: #949494;">09:48:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> S2      Workday   Worktime 2024-01-18 <span style="color: #949494;">05:45:00</span>     2024-01-18 <span style="color: #949494;">16:28:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> S3      Workday   Visit    2024-01-18 <span style="color: #949494;">05:45:00</span>     2024-01-18 <span style="color: #949494;">16:11:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> S4      Workday   Worktime 2024-01-18 <span style="color: #949494;">06:45:00</span>     2024-01-18 <span style="color: #949494;">16:54:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> S5      Workday   Worktime 2024-01-18 <span style="color: #949494;">07:00:00</span>     2024-01-18 <span style="color: #949494;">16:37:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> S6      Workday   Worktime 2024-01-18 <span style="color: #949494;">07:15:00</span>     2024-01-18 <span style="color: #949494;">17:30:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> S7      Workday   Worktime 2024-01-18 <span style="color: #949494;">07:15:00</span>     2024-01-18 <span style="color: #949494;">16:37:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> S8      Workday   Worktime 2024-01-18 <span style="color: #949494;">07:45:00</span>     2024-01-18 <span style="color: #949494;">16:20:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> S9      Workday   Visit    2024-01-18 <span style="color: #949494;">08:00:00</span>     2024-01-18 <span style="color: #949494;">13:15:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> S10     Workday   Worktime 2024-01-18 <span style="color: #949494;">08:15:00</span>     2024-01-18 <span style="color: #949494;">19:48:00</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 45 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> S1      Workday   Visit    2024-01-29 <span style="color: #949494;">05:00:00</span>     2024-01-29 <span style="color: #949494;">14:13:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> S2      Workday   Worktime 2024-01-29 <span style="color: #949494;">05:30:00</span>     2024-01-29 <span style="color: #949494;">15:26:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> S3      Workday   Worktime 2024-01-29 <span style="color: #949494;">05:30:00</span>     2024-01-29 <span style="color: #949494;">16:20:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> S4      Workday   Visit    2024-01-29 <span style="color: #949494;">06:30:00</span>     2024-01-29 <span style="color: #949494;">09:39:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> S5      Workday   Visit    2024-01-29 <span style="color: #949494;">06:45:00</span>     2024-01-29 <span style="color: #949494;">16:58:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> S6      Workday   Worktime 2024-01-29 <span style="color: #949494;">07:00:00</span>     2024-01-29 <span style="color: #949494;">17:16:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> S7      Workday   Worktime 2024-01-29 <span style="color: #949494;">07:00:00</span>     2024-01-29 <span style="color: #949494;">16:33:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> S8      Workday   Worktime 2024-01-29 <span style="color: #949494;">07:15:00</span>     2024-01-29 <span style="color: #949494;">16:45:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> S9      Workday   Worktime 2024-01-29 <span style="color: #949494;">08:00:00</span>     2024-01-29 <span style="color: #949494;">17:54:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> S10     Workday   Visit    2024-01-29 <span style="color: #949494;">09:00:00</span>     2024-01-29 <span style="color: #949494;">11:46:00</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 50 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 6 more variables: ChargingStartDateTime &lt;dttm&gt;, ChargingEndDateTime &lt;dttm&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Power &lt;dbl&gt;, Energy &lt;dbl&gt;, ConnectionHours &lt;dbl&gt;, ChargingHours &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
