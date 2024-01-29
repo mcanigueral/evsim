@@ -171,6 +171,158 @@ prepare_model <- function(ev_models, sessions_day, user_profiles) {
 }
 
 
+
+# Get parameters from model ----------------------------------------------------------
+
+#' Get `evmodel` parameters in a list of summary tables
+#'
+#' Every time cycle is an element of the returned list, containing a table with
+#' a user profile in every row and the mean and standard deviation values of the
+#' GMM variables (connection duration, connection start time and energy).
+#' If the energy models were built by charging rate, the average `mean` and `sd`
+#' are provided without taking into account different charging rates (this
+#' information is lost in this summary).
+#'
+#' @param evmodel object of class `evmodel`
+#'
+#' @return list
+#' @export
+#'
+#' @importFrom purrr map
+#'
+#' @examples
+#' get_evmodel_summary(evsim::california_ev_model)
+#'
+get_evmodel_summary <- function(evmodel) {
+  model_description <- get_evmodel_parameters(evmodel)
+  map(
+    model_description, get_time_cycle_summary
+  )
+}
+
+get_time_cycle_summary <- function(time_cycle_description) {
+  purrr::map_dfr(
+    time_cycle_description, get_user_profile_summary, .id = "profile"
+  )
+}
+
+get_user_profile_summary <- function(user_profile_models) {
+  dplyr::bind_cols(
+    dplyr::tibble(ratio = user_profile_models$ratio),
+    user_profile_models$connection_models %>%
+      dplyr::select(-ratio) %>%
+      dplyr::summarise_all(median),
+    user_profile_models$energy_models %>%
+      dplyr::select(-charging_rate) %>%
+      dplyr::summarise_all(median)
+  )
+}
+
+#' Get `evmodel` parameters in a list format
+#'
+#' Every time cycle is an element of the returned list, containing a list with
+#' the user profile as elements, each one containing the ratio and the
+#' corresponding tables with the statistic parameters of connection and
+#' energy GMM.
+#'
+#' @param evmodel object of class `evmodel`
+#'
+#' @return list
+#' @export
+#'
+#' @importFrom purrr set_names map
+#'
+#' @examples
+#' get_evmodel_parameters(evsim::california_ev_model)
+#'
+get_evmodel_parameters <- function(evmodel) {
+  evmodel$models$user_profiles %>%
+    set_names(evmodel$models$time_cycle) %>%
+    map(
+      get_time_cycle_parameters,
+      connection_log = evmodel$metadata$connection_log,
+      energy_log = evmodel$metadata$energy_log
+    )
+}
+
+get_time_cycle_parameters <- function(time_cycle_model, connection_log, energy_log) {
+  time_cycle_model <- time_cycle_model %>%
+    dplyr::mutate(
+      connection_parameters = purrr::map(
+        connection_models, get_connection_model_parameters, log = connection_log
+      ),
+      energy_parameters = purrr::map(
+        energy_models, get_energy_model_parameters, log = energy_log
+      )
+    )
+
+  purrr::set_names(
+    seq_len(nrow(time_cycle_model)),
+    time_cycle_model$profile
+  ) %>%
+    purrr::map(
+      ~ list(
+        ratio = time_cycle_model$ratio[.x],
+        connection_models = time_cycle_model$connection_parameters[[.x]],
+        energy_models = time_cycle_model$energy_parameters[[.x]]
+      )
+    )
+}
+
+get_connection_model_parameters <- function(user_profile_models, log = TRUE) {
+  if (log) {
+    func_conv <- exp
+  } else {
+    func_conv <- function(x){x}
+  }
+  purrr::pmap(
+    user_profile_models,
+    ~ dplyr::tibble(
+      start_mean = func_conv(..1[1]),
+      start_sd = func_conv(..2[1, 1]),
+      duration_mean = func_conv(..1[2]),
+      duration_sd = func_conv(..2[2, 2]),
+      ratio = ..3
+    )
+  ) %>%
+    purrr::list_rbind()
+}
+
+get_energy_model_parameters <- function(user_profile_models, log = TRUE) {
+  user_profile_models$energy_models %>%
+    purrr::set_names(user_profile_models$charging_rate) %>%
+    purrr::map(
+      ~ get_power_energy_model_parameters(.x, log),
+      .id = "charging_rate"
+    ) %>%
+    purrr::list_rbind()
+}
+
+get_power_energy_model_parameters <- function(user_profile_models_power, log = TRUE) {
+  if (log) {
+    func_conv <- exp
+  } else {
+    func_conv <- function(x){x}
+  }
+  purrr::pmap(
+    user_profile_models_power,
+    ~ tibble(
+      energy_mean = func_conv(..1)*..3,
+      energy_sd = func_conv(..2)*..3,
+    )
+  )  %>%
+    purrr::list_rbind() %>%
+    dplyr::summarise_all(sum)
+}
+
+
+
+
+
+
+
+
+
 # Create model from parameters --------------------------------------------
 
 #' Get connection Gaussian Mixture Models from parameters
@@ -295,6 +447,7 @@ get_energy_models_from_parameters <- function(time_cycle_parameters, energy_log 
         list(.data$energy_mean, .data$energy_sd),
         ~ tibble(
           charging_rate = "Unknown",
+          ratio = 1,
           energy_models = list(tibble(
             mu = ifelse(energy_log, log(..1), ..1),
             sigma = ifelse(energy_log, sd(log(rnorm(10000, ..1, ..2))), ..2),

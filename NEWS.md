@@ -1,6 +1,13 @@
+# evsim 1.3.0
+
+* Added multi-core processing for Windows distribution
+* Energy GMM inside of `evmodel` also contain the `ratio` of every `charging_rate`
+* Function `expand_sessions` is now exported
+
+
 # evsim 1.2.0
 
-* Improved functions for calculating demand and occupancy (now with parallel computing)
+* Improved functions for calculating demand and occupancy (now with multi-core processing)
 * Included more example data (`evsim::california_ev_sessions` and `evsim::california_ev_sessions_profiles`).
 * Included functions to create a model from Gaussian Mixture Models parameters.
 
