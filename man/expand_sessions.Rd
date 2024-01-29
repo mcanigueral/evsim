@@ -19,4 +19,20 @@ tibble
 Every session in \code{sessions} is divided in multiple time slots
 with the corresponding \code{Power} consumption, among other variables.
 }
-\keyword{internal}
+\details{
+The \code{Power} value is calculated for every time slot according to the original
+required energy. The columns \code{NominalPower}, \code{RequiredEnergy} and
+\code{FlexibilityHours} correspond to the values of the original session, and not
+to the expanded session in every time slot. The column \code{ID} shows the number
+of the time slot corresponding to the original session.
+}
+\examples{
+library(dplyr)
+
+sessions <- head(evsim::california_ev_sessions, 10)
+expand_sessions(
+  sessions,
+  resolution = 60
+)
+
+}

@@ -14,7 +14,24 @@
 #' @importFrom purrr map_dfr
 #'
 #' @return tibble
-#' @keywords internal
+#' @export
+#'
+#' @details
+#' The `Power` value is calculated for every time slot according to the original
+#' required energy. The columns `NominalPower`, `RequiredEnergy` and
+#' `FlexibilityHours` correspond to the values of the original session, and not
+#' to the expanded session in every time slot. The column `ID` shows the number
+#' of the time slot corresponding to the original session.
+#'
+#'
+#' @examples
+#' library(dplyr)
+#'
+#' sessions <- head(evsim::california_ev_sessions, 10)
+#' expand_sessions(
+#'   sessions,
+#'   resolution = 60
+#' )
 #'
 expand_sessions <- function(sessions, resolution) {
   sessions %>%
@@ -123,13 +140,18 @@ expand_session <- function(session, resolution) {
 #'
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
-  # Parameter check and definition of `dttm_seq` and `resolution`
-  if (detectCores() <= mc.cores) {
+  # Multi-processing parameter check
+  if (mc.cores > detectCores(logical = FALSE) | mc.cores < 1) {
     mc.cores <- 1
   }
-  if (mc.cores < 1) {
-    mc.cores <- 1
-  }
+  my.mclapply <- switch(
+    Sys.info()[['sysname']], # check OS
+    Windows = {mclapply.windows}, # case: windows
+    Linux   = {mclapply}, # case: linux
+    Darwin  = {mclapply} # case: mac
+  )
+
+  # Definition of `dttm_seq` and `resolution`
   if (nrow(sessions) == 0) {
     if (is.null(dttm_seq)) {
       message("Must provide sessions or dttm_seq parameter")
@@ -162,12 +184,17 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
   if (nrow(sessions_to_expand) > 0) {
 
     # Expand sessions
-    sessions_expanded <- sessions_to_expand  %>%
-      split(sessions_to_expand$Month) %>%
-      mclapply(
-        expand_sessions, resolution = resolution, mc.cores = mc.cores
-      ) %>%
-      list_rbind()
+    if (mc.cores == 1) {
+      sessions_expanded <- sessions_to_expand %>%
+        expand_sessions(resolution = resolution)
+    } else {
+      sessions_expanded <- sessions_to_expand  %>%
+        split(sessions_to_expand$Month) %>%
+        my.mclapply(
+          expand_sessions, resolution = resolution, mc.cores = mc.cores
+        ) %>%
+        list_rbind()
+    }
 
     # Join all sessions together
     sessions_expanded <- sessions_expanded %>%
@@ -258,13 +285,19 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #'
 get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
-  # Parameter check and definition of `dttm_seq` and `resolution`
-  if (detectCores() <= mc.cores) {
+  # Multi-processing parameter check
+  if (mc.cores > detectCores(logical = FALSE) | mc.cores < 1) {
     mc.cores <- 1
   }
-  if (mc.cores < 1) {
-    mc.cores <- 1
-  }
+  my.mclapply <- switch(
+    Sys.info()[['sysname']], # check OS
+    Windows = {mclapply.windows}, # case: windows
+    Linux   = {mclapply}, # case: linux
+    Darwin  = {mclapply} # case: mac
+  )
+
+  # Definition of `dttm_seq` and `resolution`
+
   if (nrow(sessions) == 0) {
     if (is.null(dttm_seq)) {
       message("Must provide sessions or dttm_seq parameter")
@@ -303,12 +336,17 @@ get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolut
   if (nrow(sessions_to_expand) > 0) {
 
     # Expand sessions
-    sessions_expanded <- sessions_to_expand  %>%
-      split(sessions_to_expand$Month) %>%
-      mclapply(
-        expand_sessions, resolution = resolution, mc.cores = mc.cores
-      ) %>%
-      list_rbind()
+    if (mc.cores == 1) {
+      sessions_expanded <- sessions_to_expand %>%
+        expand_sessions(resolution = resolution)
+    } else {
+      sessions_expanded <- sessions_to_expand  %>%
+        split(sessions_to_expand$Month) %>%
+        my.mclapply(
+          expand_sessions, resolution = resolution, mc.cores = mc.cores
+        ) %>%
+        list_rbind()
+    }
 
     # Join all sessions together
     sessions_expanded <- sessions_expanded %>%

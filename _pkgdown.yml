@@ -18,6 +18,7 @@ reference:
     - add_charging_infrastructure
   - title: Time-series
   - contents:
+    - expand_sessions
     - get_demand
     - get_n_connections
   - title: Utils

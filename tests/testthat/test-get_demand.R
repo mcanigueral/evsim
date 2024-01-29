@@ -3,6 +3,7 @@ library(evsim)
 library(dplyr)
 library(lubridate)
 
+
 # Get the example `evmodel` and `sessions` included in the package
 sessions <- evsim::california_ev_sessions %>%
   filter(year(ConnectionStartDateTime) == 2018, month(ConnectionStartDateTime) == 10)

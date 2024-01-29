@@ -1,0 +1,79 @@
+---
+title: "Multi-core processing"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F)
+devtools::load_all() # load evsim
+library(dplyr)
+library(lubridate)
+```
+
+The time-series calculations done by functions `get_demand` and `get_n_connections` can be done by multiple time windows in parallel. At the same time, in computer science, a common practice to reduce computation times is parallel processing when the computer has multiple CPUs (i.e. multi-core processing). In parallel processing, a task is divided into multiple sub-tasks and assigned to multiple cores to make de calculations in parallel. For parallel processing in R we make use of the R base package `parallel`.
+
+We can discover the number of physical CPUs in our computer with function `parallel::detectCores`:
+```{r}
+n_cores <- parallel::detectCores(logical = FALSE)
+print(n_cores)
+```
+
+We set the parameter `logical = FALSE` because it is important to know the **physical** CPUs, not the logical (or virtual/thread) ones seen by the OS. More information about this parameter can be found in `parallel::detectCores` documentation.
+
+Below, an example of calculating the demand of 10.000 EV charging sessions with different number of cores:
+
+```{r sessions, echo = T, eval = F}
+cores_time <- tibble(
+  cores = 1:n_cores,
+  time = 0
+)
+for (mcc in cores_time$cores) {
+  results <- system.time(
+    evsim::california_ev_sessions %>%
+       sample_n(10000) %>%
+       mutate(Profile = "All") %>%
+       get_demand(by = "Profile", resolution = 60, mc.cores = mcc)
+  )
+  cores_time$time[mcc] <- as.numeric(results[3])
+}
+```
+
+```{r saved data, echo=F, eval = T}
+# saveRDS(cores_time, "multi_processing_data/cores_time.RDS")
+cores_time <- readRDS("multi_processing_data/cores_time.RDS")
+```
+
+
+And below there's the plot of the results, were we can see that, for this computer, the optimal number of cores to use is 4:
+```{r}
+library(ggplot2)
+cores_time %>%
+  ggplot(aes(x = cores, y = time)) +
+  geom_col() + 
+  labs(x = "Number of cores", y = "Computation time (seconds)")
+```
+
+
+
+
+
+```{r}
+evmodel <- evsim::california_ev_model
+sessions_day 
+ev_models <- prepare_model(evmodel[["models"]], sessions_day, user_profiles)
+connection_log <- evmodel[['metadata']][['connection_log']]
+energy_log <- evmodel[['metadata']][['energy_log']]
+tzone_model <- evmodel[['metadata']][['tzone']]
+
+dates_dttm <- round_date(as_datetime(dates, tz = tzone_model), unit = 'day')
+
+simulated_sessions <- map_dfr(
+  dates_dttm,
+  ~ get_day_sessions(.x, ev_models, connection_log, energy_log, charging_powers)
+)
+```
+
+
+
+
+
