@@ -3,6 +3,7 @@
 * Added multi-core processing for Windows distribution
 * Energy GMM inside of `evmodel` also contain the `ratio` of every `charging_rate`
 * Function `expand_sessions` is now exported
+* Added functions to create summary tables from `evmodel` object
 
 
 # evsim 1.2.0

@@ -26,14 +26,19 @@ reference:
     - get_user_profiles_distribution
     - get_charging_rates_distribution
     - adapt_charging_features
+    - read_ev_model
+  - title: Custom model
+  - contents:
+    - get_evmodel_parameters
+    - get_evmodel_summary
     - get_connection_models_from_parameters
     - get_energy_models_from_parameters
     - get_ev_model
     - save_ev_model
-    - read_ev_model
 articles:
   - title: Articles
     navbar: ~
     contents:
       - time_resolution
       - multi_processing
+      - custom_evmodel

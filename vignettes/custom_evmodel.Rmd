@@ -1,0 +1,72 @@
+---
+title: "Custom evmodel"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F)
+library(evsim)
+library(dplyr)
+library(lubridate)
+```
+
+# Simplifying our model
+
+The `evmodel` object obtained with `evprof` contains all statistic parameters of the Gaussian Mixture Models for both connection and energy models (see [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html)). However, these GMM can be quite complex with a lot of clusters (mixtures) and the JSON file describing the model can result in a large file. 
+
+To check the complexity of the models and describe all parameters within the JSON file, the function `get_evmodel_parameters` provides the model parameters in a `list` form:
+
+```{r}
+ev_model <- evsim::california_ev_model
+get_evmodel_parameters(ev_model)
+```
+
+Even though the California EV model doesn't have a lot of clusters the composition of the model is complex enough, and the logarithmic scale makes it difficult to interpret. Therefore, the `evsim` package also provides a function to simplify the clusters calculating the average connection and energy pattern for every user profile, converting the logarithmic values to the natural scale:
+
+```{r}
+get_evmodel_summary(ev_model)
+```
+Now we can see that every time-cycle is defined by a simple user profile with an average behaviour. This format is also useful to save the model in Excel, since it can be saved directly in an Excel file where every time-cycle will be a different worksheet:
+
+```{r, eval = F}
+get_evmodel_summary(ev_model) %>% 
+  writexl::write_xlsx("ev_model.xlsx")
+```
+
+
+# Designing a custom model
+
+Moreover, sometimes maybe it is desired to build a custom model with specific average connection start time and duration and average energy charged. In this case, the Excel file created with the previous command can be used as a template to define our custom user profiles and parameters. After editing the file we can read it again:
+
+
+```{r, eval=F}
+custom_model <- purrr::map(
+  readxl::excel_sheets("ev_model_custom.xlsx") %>% purrr::set_names(),
+  ~ readxl::read_excel("ev_model_custom.xlsx", sheet = .x)
+)
+```
+
+Then, functions `get_connection_models_from_parameters` and `get_energy_models_from_parameters` can create the objects required as `connection_GMM` and `energy_GMM` in `evsim::get_ev_model` function. In the `evsim::get_ev_model` function also the months and weekdays corresponding to every time-cycle (worksheet in the Excel file) and the time-zone of the use case must be configured in parameters `months_lst`, `wdays_lst` and `data_tz`, respectively. Finally, `connection_log` and `energy_log` parameters may be always `FALSE` since it is assumed that a custom model is built in the natural scale:
+
+```{r, eval=F}
+evmodel_custom <- evsim::get_ev_model(
+  names = names(custom_model),
+  months_lst = list(1:12, 1:12),
+  wdays_lst = list(1:5, 6:7),
+  connection_GMM = map(
+    custom_model,
+    ~ get_connection_models_from_parameters(.x, connection_log = F) %>% 
+      mutate(ratio = .x$ratio)
+  ),
+  energy_GMM = map(
+    custom_model,
+    ~ get_energy_models_from_parameters(.x, energy_log = F)
+  ),
+  connection_log = F,
+  energy_log = F,
+  data_tz = "America/Los_Angeles"
+)
+```
+
+
+

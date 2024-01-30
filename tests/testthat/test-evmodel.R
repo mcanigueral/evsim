@@ -75,3 +75,8 @@ test_that("User profiles distribution is printed correctly", {
   upd <- get_user_profiles_distribution(ev_model)
   expect_equal(c("time_cycle", "profile", "ratio"), colnames(upd))
 })
+
+test_that("Model is summarised correctly", {
+  evmodel_summary <- get_evmodel_summary(ev_model)
+  expect_equal(c("Workday", "Weekend"), names(evmodel_summary))
+})

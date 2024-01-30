@@ -7,6 +7,9 @@
     <loc>mcanigueral.github.io/evsim/LICENSE.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/articles/custom_evmodel.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/articles/evsim.html</loc>
   </url>
   <url>
@@ -101,6 +104,12 @@
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/get_ev_model.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_evmodel_parameters.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_evmodel_summary.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/get_interval_demand.html</loc>
