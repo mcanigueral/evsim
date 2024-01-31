@@ -185,11 +185,11 @@ estimated_demand <- sessions_estimated %>%
   get_demand(dttm_seq)
 ```
 
-And the plot of the estimated demand (making use of [`{dygraphs}`](https://rstudio.github.io/dygraphs/) package through my custom package [`{dutils}`](https://github.com/mcanigueral/dutils/)):
+We can also visualize the estimated demand in an HTML plot using the function `plot_ts`:
 
-```{r plot, echo=FALSE, fig.width=9}
+```{r plot, echo=TRUE, fig.width=9}
 estimated_demand %>% 
-  dutils::dyplot(ylab = 'Power demand (kW)', fillGraph = T, stackedGraph = T)
+  plot_ts(ylab = 'Power demand (kW)', fillGraph = T, stackedGraph = T)
 ```
 
 
