@@ -9,6 +9,7 @@ get_n_connections(
   dttm_seq = NULL,
   by = "Profile",
   resolution = 15,
+  align_time = FALSE,
   mc.cores = 1
 )
 }
@@ -24,6 +25,8 @@ variable of the returned time-series data frame.}
 \item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables.
 If \code{dttm_seq} is defined this parameter is ignored.}
 
+\item{align_time}{logical, whether to align time variables or sessions with the corresponding time \code{resolution}}
+
 \item{mc.cores}{integer, number of cores to use.
 Must be at least one, and parallelization requires at least two cores.}
 }
@@ -33,17 +36,26 @@ tibble
 \description{
 Obtain time series of EV connected from sessions data set
 }
+\details{
+Note that the time resolution of variable \code{ConnectionStartDateTime} must coincide with
+\code{resolution} parameter. For example, if a charging session in \code{sessions} starts charging
+at 15:32 and \code{resolution = 15}, the load of this session won't be computed. To solve this,
+the parameter \code{align_time = TRUE} would align charging sessions' start time according to
+\code{resolution}, so following the previous example the session would start at 15:30.
+}
 \examples{
 library(lubridate)
 library(dplyr)
 
 # Get occupancy with the complete datetime sequence from the sessions
 sessions <- head(evsim::california_ev_sessions, 100)
-get_n_connections(
+connections <- get_n_connections(
   sessions,
   by = "Session",
-  resolution = 60
+  resolution = 60,
+  align_time = TRUE
 )
+connections \%>\% plot_ts()
 
 # Get occupancy with a custom datetime sequence and resolution of 15 minutes
 sessions <- head(evsim::california_ev_sessions_profiles, 100)
@@ -52,11 +64,13 @@ dttm_seq <- seq.POSIXt(
   as_datetime(dmy(07102018)) \%>\% force_tz(tz(sessions$ConnectionStartDateTime)),
   by = "15 mins"
 )
-get_n_connections(
+connections <- get_n_connections(
   sessions,
   dttm_seq = dttm_seq,
   by = "Profile",
-  resolution = 15
+  resolution = 15,
+  align_time = TRUE
 )
+connections \%>\% plot_ts()
 
 }

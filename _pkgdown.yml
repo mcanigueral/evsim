@@ -21,6 +21,7 @@ reference:
     - expand_sessions
     - get_demand
     - get_n_connections
+    - plot_ts
   - title: Utils
   - contents:
     - get_user_profiles_distribution

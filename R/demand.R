@@ -1,4 +1,58 @@
 
+# Utils -------------------------------------------------------------------
+
+#' Convert time-series data.frame to time-series object
+#'
+#' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
+#'
+#' @return xts time-series object
+#' @keywords internal
+#'
+#' @importFrom xts xts
+#'
+df_to_ts <- function(df) {
+  df <- df[!is.na(df[[1]]), ]
+  xts::xts(df[-1], order.by = df [[1]])
+}
+
+#' Plot a timeseries tibble in a Dygraphs HTML plot
+#'
+#' First column of the tibble must be a datetime or date variable.
+#' The rest of columns must be numeric of the same units.
+#'
+#' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
+#' @param title character, title of the plot (accepts HTML code)
+#' @param xlab character, X axis label (accepts HTML code)
+#' @param ylab character, Y axis label (accepts HTML code)
+#' @param group character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.
+#' @param legend_width integer, width (in pixels) of the div which shows the legend.
+#' @param ... extra arguments to pass to `dygraphs::dyOptions` function.
+#'
+#' @return dygraph
+#' @export
+#'
+#' @importFrom dygraphs dygraph dyLegend dyOptions
+#'
+#' @examples
+#' suppressMessages(library(lubridate))
+#' suppressMessages(library(dplyr))
+#'
+#' # Get demand with the complete datetime sequence from the sessions
+#' sessions <- head(evsim::california_ev_sessions, 100)
+#' demand <- get_demand(
+#'   sessions,
+#'   by = "Session",
+#'   resolution = 60,
+#'   align_time = TRUE
+#' )
+#' demand %>% plot_ts()
+#'
+plot_ts <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, legend_width = 250,  ...) {
+  dygraph(df_to_ts(df), main = title, xlab = xlab, ylab = ylab, group = group) %>%
+    dyLegend(show = "always", width = legend_width) %>%
+    dyOptions(...)
+}
+
 # Demand ------------------------------------------------------------------
 
 #' Expand sessions along time slots
@@ -90,7 +144,7 @@ expand_session <- function(session, resolution) {
 }
 
 
-#' Obtain timeseries demand from sessions dataset
+#' Obtain time-series demand from sessions dataset
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
 #' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
@@ -99,46 +153,60 @@ expand_session <- function(session, resolution) {
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables.
 #' If `dttm_seq` is defined this parameter is ignored.
+#' @param align_time logical, whether to align time variables or sessions with the corresponding time `resolution`
 #' @param mc.cores integer, number of cores to use.
 #' Must be at least one, and parallelization requires at least two cores.
 #'
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct
+#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct filter between
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
 #' @importFrom lubridate floor_date days month
 #' @importFrom parallel detectCores mclapply
 #' @importFrom purrr list_rbind
 #'
+#' @details
+#' Note that the time resolution of variables `ConnectionStartDateTime` and
+#' `ChargingStartDateTime` must coincide with
+#' `resolution` parameter. For example, if a charging session in `sessions` starts charging
+#' at 15:32 and `resolution = 15`, the load of this session won't be computed. To solve this,
+#' the parameter `align_time = TRUE` would align charging sessions' start time according to
+#' `resolution`, so following the previous example the session would start at 15:30.
+#'
+#'
 #' @examples
-#' library(lubridate)
-#' library(dplyr)
+#' suppressMessages(library(lubridate))
+#' suppressMessages(library(dplyr))
 #'
 #' # Get demand with the complete datetime sequence from the sessions
 #' sessions <- head(evsim::california_ev_sessions, 100)
-#' get_demand(
+#' demand <- get_demand(
 #'   sessions,
 #'   by = "Session",
-#'   resolution = 60
+#'   resolution = 60,
+#'   align_time = TRUE
 #' )
+#' demand %>% plot_ts()
 #'
 #' # Get demand with a custom datetime sequence and resolution of 15 minutes
 #' sessions <- head(evsim::california_ev_sessions_profiles, 100)
 #' dttm_seq <- seq.POSIXt(
-#'   as_datetime(dmy(01102018)) %>% force_tz(tz(sessions$ConnectionStartDateTime)),
-#'   as_datetime(dmy(07102018)) %>% force_tz(tz(sessions$ConnectionStartDateTime)),
+#'   as_datetime(dmy(08102018)) %>% force_tz(tz(sessions$ConnectionStartDateTime)),
+#'   as_datetime(dmy(11102018)) %>% force_tz(tz(sessions$ConnectionStartDateTime)),
 #'   by = "15 mins"
 #' )
-#' get_demand(
+#' demand <- get_demand(
 #'   sessions,
 #'   dttm_seq = dttm_seq,
 #'   by = "Profile",
-#'   resolution = 15
+#'   resolution = 15,
+#'   align_time = TRUE
 #' )
+#' demand %>% plot_ts()
 #'
-get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
+get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, align_time = FALSE, mc.cores = 1) {
 
   # Multi-processing parameter check
   if (mc.cores > detectCores(logical = FALSE) | mc.cores < 1) {
@@ -161,10 +229,6 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
     }
   } else {
 
-    sessions <- sessions %>%
-      filter(.data$Power > 0) %>%
-      adapt_charging_features(time_resolution = resolution)
-
     if (is.null(dttm_seq)) {
       dttm_seq <- seq.POSIXt(
         from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
@@ -173,6 +237,20 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
       )
     } else {
       resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
+      sessions <- sessions %>%
+        filter(
+          between(.data$ChargingStartDateTime, dttm_seq[1], dttm_seq[length(dttm_seq)])
+        )
+    }
+
+    # Remove sessions that are not consuming in certain time slots
+    sessions <- sessions %>%
+      filter(.data$Power > 0)
+
+    # Align time variables to current time resolution
+    if (align_time) {
+      sessions <- sessions %>%
+        adapt_charging_features(time_resolution = resolution)
     }
   }
 
@@ -222,6 +300,7 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
   demand <- sessions_expanded %>%
     group_by(!!sym(by), datetime = .data$Timeslot) %>%
     summarise(Power = sum(.data$Power)) %>%
+    arrange(factor(!!sym(by), levels = unique(sessions[[by]]))) %>%
     pivot_wider(names_from = !!sym(by), values_from = 'Power', values_fill = 0) %>%
     right_join(
       tibble(datetime = dttm_seq),
@@ -244,18 +323,26 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables.
 #' If `dttm_seq` is defined this parameter is ignored.
+#' @param align_time logical, whether to align time variables or sessions with the corresponding time `resolution`
 #' @param mc.cores integer, number of cores to use.
 #' Must be at least one, and parallelization requires at least two cores.
 #'
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct
+#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct filter between
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
 #' @importFrom lubridate floor_date days round_date month
 #' @importFrom parallel detectCores mclapply
 #' @importFrom purrr list_rbind
+#'
+#' @details
+#' Note that the time resolution of variable `ConnectionStartDateTime` must coincide with
+#' `resolution` parameter. For example, if a charging session in `sessions` starts charging
+#' at 15:32 and `resolution = 15`, the load of this session won't be computed. To solve this,
+#' the parameter `align_time = TRUE` would align charging sessions' start time according to
+#' `resolution`, so following the previous example the session would start at 15:30.
 #'
 #' @examples
 #' library(lubridate)
@@ -263,11 +350,13 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #'
 #' # Get occupancy with the complete datetime sequence from the sessions
 #' sessions <- head(evsim::california_ev_sessions, 100)
-#' get_n_connections(
+#' connections <- get_n_connections(
 #'   sessions,
 #'   by = "Session",
-#'   resolution = 60
+#'   resolution = 60,
+#'   align_time = TRUE
 #' )
+#' connections %>% plot_ts()
 #'
 #' # Get occupancy with a custom datetime sequence and resolution of 15 minutes
 #' sessions <- head(evsim::california_ev_sessions_profiles, 100)
@@ -276,14 +365,16 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #'   as_datetime(dmy(07102018)) %>% force_tz(tz(sessions$ConnectionStartDateTime)),
 #'   by = "15 mins"
 #' )
-#' get_n_connections(
+#' connections <- get_n_connections(
 #'   sessions,
 #'   dttm_seq = dttm_seq,
 #'   by = "Profile",
-#'   resolution = 15
+#'   resolution = 15,
+#'   align_time = TRUE
 #' )
+#' connections %>% plot_ts()
 #'
-get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
+get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, align_time = FALSE, mc.cores = 1) {
 
   # Multi-processing parameter check
   if (mc.cores > detectCores(logical = FALSE) | mc.cores < 1) {
@@ -307,16 +398,6 @@ get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolut
     }
   } else {
 
-    # Adapt date time variables to time resolution
-    sessions <- sessions  %>%
-      mutate(
-        ConnectionStartDateTime = round_date(.data$ConnectionStartDateTime, paste(resolution, "mins")),
-        ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
-        ChargingHours = round(pmin(.data$Energy/.data$Power, .data$ConnectionHours), 2),
-        ChargingStartDateTime = .data$ConnectionStartDateTime,
-        ChargingEndDateTime = .data$ChargingStartDateTime + convert_time_num_to_period(.data$ChargingHours)
-      )
-
     if (is.null(dttm_seq)) {
       dttm_seq <- seq.POSIXt(
         from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
@@ -325,6 +406,16 @@ get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolut
       )
     } else {
       resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
+      sessions <- sessions %>%
+        filter(
+          between(.data$ConnectionStartDateTime, dttm_seq[1], dttm_seq[length(dttm_seq)])
+        )
+    }
+
+    # Align time variables to current time resolution
+    if (align_time) {
+      sessions <- sessions %>%
+        adapt_charging_features(time_resolution = resolution)
     }
   }
 
@@ -374,6 +465,7 @@ get_n_connections <- function(sessions, dttm_seq = NULL, by = "Profile", resolut
   n_connections <- sessions_expanded %>%
     group_by(!!sym(by), datetime = .data$Timeslot) %>%
     summarise(n_connections = n()) %>%
+    arrange(factor(!!sym(by), levels = unique(sessions[[by]]))) %>%
     pivot_wider(names_from = !!sym(by), values_from = 'n_connections', values_fill = 0) %>%
     right_join(
       tibble(datetime = dttm_seq),

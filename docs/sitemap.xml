@@ -55,6 +55,9 @@
     <loc>mcanigueral.github.io/evsim/reference/convert_time_num_to_period.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/reference/df_to_ts.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/reference/estimate_connection.html</loc>
   </url>
   <url>
@@ -134,6 +137,9 @@
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/mclapply.windows.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/plot_ts.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/prepare_model.html</loc>

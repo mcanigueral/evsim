@@ -1,5 +1,7 @@
 # evsim 1.3.0
 
+* Improved the efficiency of `get_demand` and `get_n_connections`
+* Added function `plot_ts` to plot time-series in a `dygraphs` HTML plot
 * Added multi-core processing for Windows distribution
 * Energy GMM inside of `evmodel` also contain the `ratio` of every `charging_rate`
 * Function `expand_sessions` is now exported

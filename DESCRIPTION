@@ -24,13 +24,15 @@ Imports:
   purrr,
   rlang,
   tidyr,
-  jsonlite
+  jsonlite,
+  dygraphs,
+  xts
 Suggests:
-    shiny,
-    shinydashboard,
-    shinyWidgets,
-    spelling,
-    testthat (>= 3.0.0)
+  shiny,
+  shinydashboard,
+  shinyWidgets,
+  spelling,
+  testthat (>= 3.0.0)
 Depends: 
     R (>= 2.10)
 URL: https://mcanigueral.github.io/evsim/, https://github.com/mcanigueral/evsim/
