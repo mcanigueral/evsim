@@ -2,7 +2,7 @@
 % Please edit documentation in R/evmodel.R
 \name{save_ev_model}
 \alias{save_ev_model}
-\title{Save the EV model object of class \code{evmodel} to a JSON file}
+\title{Save the EV model}
 \usage{
 save_ev_model(evmodel, file)
 }

@@ -2,14 +2,14 @@
 % Please edit documentation in R/charging_infrastructure.R
 \name{add_charging_infrastructure}
 \alias{add_charging_infrastructure}
-\title{Assign charging station to charging sessions data set}
+\title{Assign a charging station to EV charging sessions}
 \usage{
 add_charging_infrastructure(
   sessions,
   resolution = 15,
   min_stations = 0,
   names_prefix = NULL,
-  connections_th = 10
+  duration_th = 0
 )
 }
 \arguments{
@@ -22,13 +22,13 @@ add_charging_infrastructure(
 
 \item{names_prefix}{character, prefix of the charging station names (optional)}
 
-\item{connections_th}{integer, minimum percentage of time intervals than a
-certain number of vehicles have been connected.
+\item{duration_th}{integer between 0 and 100, minimum share of time (in percentage)
+of the "occupancy duration curve" (see function \code{plot_occupancy_duration_curve}).
 This is used to avoid sizing a charging infrastructure to host for example
 100 vehicles when only 5\% of time there are more than 80 vehicles connected.
-Then, setting \code{connections_th = 5} will ensure that we don't over-size
-the charging infrastructure. It is recommended to find this value through
-multiple iterations.}
+Then, setting \code{duration_th = 5} will ensure that we don't over-size
+the charging infrastructure for the 100 vehicles.
+It is recommended to find this value through multiple iterations.}
 }
 \value{
 tibble
@@ -41,7 +41,15 @@ tibble with a name pattern being: \code{names_prefix} + "CHS" + number
 # Assign a `ChargingStation` to every session according to the occupancy
 sessions_infrastructure <- add_charging_infrastructure(
   sessions = head(evsim::california_ev_sessions, 50),
-  resolution = 60, connections_th = 0
+  resolution = 60
+)
+print(unique(sessions_infrastructure$ChargingStation))
+
+# Now without considering the occupancy values that only represent
+# a 10\% of the time
+sessions_infrastructure <- add_charging_infrastructure(
+  sessions = head(evsim::california_ev_sessions, 50),
+  resolution = 60, duration_th = 10
 )
 print(unique(sessions_infrastructure$ChargingStation))
 

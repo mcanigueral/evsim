@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation.R
 \name{adapt_charging_features}
 \alias{adapt_charging_features}
-\title{Calculate connection and charging times according to energy, power and time resolution}
+\title{Adapt charging features}
 \usage{
 adapt_charging_features(
   sessions,
@@ -22,27 +22,37 @@ adapt_charging_features(
 tibble
 }
 \description{
-All sessions' \code{Power} must be higher than \code{0}, to avoid \code{NaN} values from dividing
-by zero.
+Calculate connection and charging times according to energy, power and time resolution
 }
 \details{
+All sessions' \code{Power} must be higher than \code{0}, to avoid \code{NaN} values from dividing
+by zero.
 The \code{ConnectionStartDateTime} is first aligned to the desired time resolution,
 and the \code{ConnectionEndDateTime} is calculated according to the \code{ConnectionHours}.
 The \code{ChargingHours} is recalculated with the values of \code{Energy} and \code{Power},
 limited by \code{ConnectionHours}. Finally, the charging times are also calculated.
 }
 \examples{
-adapt_charging_features(
-  evsim::california_ev_sessions,
-  time_resolution = 60,
-  power_resolution = 0.01
-)
+suppressMessages(library(dplyr))
+
+sessions <- head(evsim::california_ev_sessions, 10)
+
+sessions \%>\%
+  select(ConnectionStartDateTime, ConnectionEndDateTime, Power)
 
 adapt_charging_features(
-  evsim::california_ev_sessions,
+  sessions,
+  time_resolution = 60,
+  power_resolution = 0.01
+) \%>\%
+  select(ConnectionStartDateTime, ConnectionEndDateTime, Power)
+
+adapt_charging_features(
+  sessions,
   time_resolution = 15,
   power_resolution = 1
-)
+) \%>\%
+  select(ConnectionStartDateTime, ConnectionEndDateTime, Power)
 
 
 }

@@ -1,5 +1,7 @@
 # Read EV models ---------------------------------------------------------
 
+#' Read EV model
+#'
 #' Read an EV model JSON file and convert it to object of class `evmodel`
 #'
 #' @param file path to the JSON file
@@ -83,8 +85,9 @@ print.evmodel <- function(x, ...) {
   }
 }
 
-# Get user profiles distribution ------------------------------------------
 
+#' User profiles distribution
+#'
 #' Get the user profiles distribution from the original data set
 #' used to build the model
 #'
@@ -233,7 +236,7 @@ get_user_profile_summary <- function(user_profile_parameters) {
 }
 
 
-#' Get `evmodel` parameters in a list format
+#' Get `evmodel` parameters in a list
 #'
 #' Every time cycle is an element of the returned list, containing a list with
 #' the user profile as elements, each one containing the ratio and the
@@ -344,6 +347,8 @@ get_power_energy_model_parameters <- function(user_profile_models_power, log) {
 
 # Create model from parameters --------------------------------------------
 
+#' Connection GMM
+#'
 #' Get connection Gaussian Mixture Models from parameters
 #'
 #' @param time_cycle_parameters tibble with Gaussian Mixture Models parameters.
@@ -416,6 +421,8 @@ get_connection_models_from_parameters <- function(time_cycle_parameters, connect
     select("profile", "ratio", "connection_models")
 }
 
+#' Energy GMM
+#'
 #' Get energy Gaussian Mixture Models from parameters
 #'
 #' @param time_cycle_parameters tibble with Gaussian Mixture Models parameters.
@@ -480,6 +487,8 @@ get_energy_models_from_parameters <- function(time_cycle_parameters, energy_log 
 }
 
 
+#' Create the EV model
+#'
 #' Get the EV model object of class `evmodel`
 #'
 #' @param names character vector with the given names of each time-cycle model
@@ -585,6 +594,8 @@ get_ev_model <- function(names, months_lst = list(1:12, 1:12), wdays_lst = list(
 }
 
 
+#' Save the EV model
+#'
 #' Save the EV model object of class `evmodel` to a JSON file
 #'
 #' @param evmodel object of class `evmodel`

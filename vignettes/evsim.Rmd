@@ -4,8 +4,8 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
-devtools::load_all() # load evsim
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 9)
+library(evsim)
 library(dplyr)
 ```
 
@@ -56,7 +56,7 @@ weekend_models
 
 ### Number of sessions per day
 
-To set the number of sessions per day to function `simulate_sessions()` function we need to pass a tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model).
+To set the number of sessions per day to function `simulate_sessions()` we need to pass a tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model).
 For example:
 
 ```{r n_sessions}

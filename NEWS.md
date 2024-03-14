@@ -1,3 +1,12 @@
+# evsim 1.4.0
+
+* Renamed `get_n_connections` to `get_occupancy`
+* Added function `plot_occupancy_duration_curve`
+* Removed dependency from `xts` package
+* Removed parameter `group` from `plot_ts` function
+* Improved reference documentation and examples in multiple functions
+
+
 # evsim 1.3.0
 
 * Improved the efficiency of `get_demand` and `get_n_connections`

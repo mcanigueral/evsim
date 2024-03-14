@@ -1,6 +1,6 @@
 
 
-#' Assign charging station to charging sessions data set
+#' Assign a charging station to EV charging sessions
 #'
 #' Variable `ChargingStation` and `Socket`will be assigned to the `sessions`
 #' tibble with a name pattern being: `names_prefix` + "CHS" + number
@@ -10,13 +10,13 @@
 #' @param resolution integer, time resolution in minutes
 #' @param min_stations integer, minimum number of charging stations to consider
 #' @param names_prefix character, prefix of the charging station names (optional)
-#' @param connections_th integer, minimum percentage of time intervals than a
-#' certain number of vehicles have been connected.
+#' @param duration_th integer between 0 and 100, minimum share of time (in percentage)
+#' of the "occupancy duration curve" (see function `plot_occupancy_duration_curve`).
 #' This is used to avoid sizing a charging infrastructure to host for example
 #' 100 vehicles when only 5% of time there are more than 80 vehicles connected.
-#' Then, setting `connections_th = 5` will ensure that we don't over-size
-#' the charging infrastructure. It is recommended to find this value through
-#' multiple iterations.
+#' Then, setting `duration_th = 5` will ensure that we don't over-size
+#' the charging infrastructure for the 100 vehicles.
+#' It is recommended to find this value through multiple iterations.
 #'
 #' @return tibble
 #' @export
@@ -31,26 +31,30 @@
 #' # Assign a `ChargingStation` to every session according to the occupancy
 #' sessions_infrastructure <- add_charging_infrastructure(
 #'   sessions = head(evsim::california_ev_sessions, 50),
-#'   resolution = 60, connections_th = 0
+#'   resolution = 60
+#' )
+#' print(unique(sessions_infrastructure$ChargingStation))
+#'
+#' # Now without considering the occupancy values that only represent
+#' # a 10% of the time
+#' sessions_infrastructure <- add_charging_infrastructure(
+#'   sessions = head(evsim::california_ev_sessions, 50),
+#'   resolution = 60, duration_th = 10
 #' )
 #' print(unique(sessions_infrastructure$ChargingStation))
 #'
 #'
-add_charging_infrastructure <- function(sessions, resolution = 15, min_stations = 0, names_prefix = NULL, connections_th = 10) {
+add_charging_infrastructure <- function(sessions, resolution = 15, min_stations = 0, names_prefix = NULL, duration_th = 0) {
 
   # How many charging stations (of two sockets) do we need?
   connections <- sessions %>%
     mutate(Profile = "n_connections") %>%
-    get_n_connections(resolution = resolution, by = "Profile", mc.cores = 1)
-  connections_pct <- tibble(
-    n_connections = seq(1, max(connections$n_connections))
-  ) %>%
-    mutate(
-      n = map_dbl(.data$n_connections, ~ sum(connections$n_connections >= .x)),
-      pct = n/nrow(connections)*100
-    )
+    get_occupancy(resolution = resolution, by = "Profile", mc.cores = 1)
+
+  connections_pct <- get_occupancy_curve_data(connections$n_connections)
+
   n_connections_required <- connections_pct %>%
-    filter(.data$pct > connections_th)
+    filter(.data$pct >= duration_th)
 
   n_required_stations <- ceiling(max(n_connections_required$n_connections)/2)
   if (n_required_stations < min_stations) {
@@ -113,4 +117,81 @@ add_charging_infrastructure <- function(sessions, resolution = 15, min_stations 
 
   return(sessions_socket)
 }
+
+
+
+
+
+#' Plot the occupancy duration curve
+#'
+#' This term is based on the "load duration curve" and is useful to see the
+#' behavior of occupancy over the time in your charging installation.
+#' The steeper the curve, the shorter the duration that higher number of connections
+#' are sustained. Conversely, the flatter the curve, the longer the duration that
+#' higher number of connections are sustained.
+#' This information is crucial for various purposes, such as infrastructure planning,
+#' capacity sizing, and resource allocation.
+#'
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
+#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
+#' @param dttm_seq sequence of datetime values that will be the `datetime`
+#' variable of the returned time-series data frame.
+#' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
+#' @param resolution integer, time resolution (in minutes) of the sessions datetime variables.
+#' If `dttm_seq` is defined this parameter is ignored.
+#' @param align_time logical, whether to align time variables or sessions with the corresponding time `resolution`
+#' @param mc.cores integer, number of cores to use.
+#' Must be at least one, and parallelization requires at least two cores.
+#'
+#' @return ggplot
+#' @export
+#'
+#' @importFrom dplyr %>%
+#' @importFrom ggplot2 ggplot aes geom_line labs
+#' @importFrom purrr map set_names list_rbind
+#'
+#' @examples
+#' library(dplyr)
+#'
+#' sessions <- head(evsim::california_ev_sessions_profiles, 100)
+#' plot_occupancy_duration_curve(
+#'   sessions,
+#'   by = "Profile",
+#'   resolution = 15,
+#'   align_time = TRUE
+#' )
+#'
+plot_occupancy_duration_curve <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, align_time = FALSE, mc.cores = 1) {
+  connections <- get_occupancy(
+    sessions,
+    dttm_seq = dttm_seq,
+    by = by,
+    resolution = resolution,
+    align_time = align_time,
+    mc.cores = mc.cores
+  )
+
+  connections_curves <- map(
+    unique(sessions[[by]]) %>% set_names(),
+    ~ get_occupancy_curve_data(connections[[.x]])
+  ) %>%
+    list_rbind(names_to = by)
+
+  connections_curves %>%
+    ggplot(aes(x = .data$pct, y = .data$n_connections, color = .data[[by]], group = .data[[by]])) +
+    geom_line() +
+    labs(x = "Share of time (%)", y = "Vehicles connected",
+         title = "Occupancy duration curve")
+}
+
+
+get_occupancy_curve_data <- function(vct) {
+  dplyr::tibble(
+    n_connections = seq(min(vct), max(vct)),
+    pct = round(purrr::map_dbl(.data$n_connections, ~ sum(vct >= .x)/length(vct)*100), 2)
+  ) %>%
+    dplyr::group_by(.data$pct) %>%
+    dplyr::summarise(n_connections = min(.data$n_connections)) # Just one value of kW per percentage
+}
+
 

@@ -18,19 +18,20 @@ reference:
     - add_charging_infrastructure
   - title: Time-series
   - contents:
-    - expand_sessions
     - get_demand
-    - get_n_connections
+    - get_occupancy
     - plot_ts
-  - title: Utils
+  - title: Support functions
   - contents:
-    - get_user_profiles_distribution
     - get_charging_rates_distribution
     - adapt_charging_features
+    - expand_sessions
     - read_ev_model
+    - get_evmodel_parameters
+    - get_user_profiles_distribution
+    - plot_occupancy_duration_curve
   - title: Custom model
   - contents:
-    - get_evmodel_parameters
     - get_evmodel_summary
     - get_connection_models_from_parameters
     - get_energy_models_from_parameters

@@ -2,7 +2,7 @@
 % Please edit documentation in R/evmodel.R
 \name{get_energy_models_from_parameters}
 \alias{get_energy_models_from_parameters}
-\title{Get energy Gaussian Mixture Models from parameters}
+\title{Energy GMM}
 \usage{
 get_energy_models_from_parameters(time_cycle_parameters, energy_log = FALSE)
 }

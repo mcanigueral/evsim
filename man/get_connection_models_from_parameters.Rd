@@ -2,7 +2,7 @@
 % Please edit documentation in R/evmodel.R
 \name{get_connection_models_from_parameters}
 \alias{get_connection_models_from_parameters}
-\title{Get connection Gaussian Mixture Models from parameters}
+\title{Connection GMM}
 \usage{
 get_connection_models_from_parameters(
   time_cycle_parameters,

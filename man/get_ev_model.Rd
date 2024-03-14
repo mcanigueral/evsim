@@ -2,7 +2,7 @@
 % Please edit documentation in R/evmodel.R
 \name{get_ev_model}
 \alias{get_ev_model}
-\title{Get the EV model object of class \code{evmodel}}
+\title{Create the EV model}
 \usage{
 get_ev_model(
   names,

@@ -1,6 +1,6 @@
 Package: evsim
 Title: Electric Vehicle Charging Sessions Simulation
-Version: 1.3.0
+Version: 1.4.0
 Authors@R: 
     person(given = "Marc",
            family = "Cañigueral",
@@ -26,7 +26,7 @@ Imports:
   tidyr,
   jsonlite,
   dygraphs,
-  xts
+  ggplot2
 Suggests:
   shiny,
   shinydashboard,

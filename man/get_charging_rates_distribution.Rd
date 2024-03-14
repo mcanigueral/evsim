@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation.R
 \name{get_charging_rates_distribution}
 \alias{get_charging_rates_distribution}
-\title{Get charging rates distribution in percentages}
+\title{Charging rates distribution}
 \usage{
 get_charging_rates_distribution(sessions, unit = "year")
 }
@@ -18,7 +18,7 @@ It corresponds to \code{unit} parameter in \code{lubridate::floor_date} function
 tibble
 }
 \description{
-Get charging rates distribution in percentages
+Get charging rates distribution in percentages from a charging sessions data set
 }
 \examples{
 get_charging_rates_distribution(evsim::california_ev_sessions, unit = "year")

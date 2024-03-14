@@ -4,15 +4,14 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F)
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.width = 9)
 library(evsim)
 library(dplyr)
 library(lubridate)
-library(dutils)
 ```
 
 
-Functions `simulate_sessions()`, `get_demand()` or `get_n_connections()` requires a parameter called **`resolution`**, which defines the minutes between a time-slot and the following one.
+Functions `simulate_sessions()`, `get_demand()` or `get_occupancy()` requires a parameter called **`resolution`**, which defines the minutes between a time-slot and the following one.
 
 For example, if `resolution = 15`, the charging sessions simulated during 4 PM of a specific day will start at `16:00`, `16:15`, `16:30` or `16:45`, but not during any time between these time-slots. However, the connection duration of every session can have any value, so the session can finish at `16:22` for instance. The same concept is applied to the charging times.
 
@@ -71,7 +70,9 @@ demand_30 <- sessions %>%
   get_demand(resolution = 30)
 ```
 
-```{r, echo = F}
+Then we can create a common object to compare the three vectors of EV demand, making use of `dplyr::left_join` to join by `datetime` and `tidyr::fill` to fill the gaps with the previous exisiting power:
+
+```{r}
 demand_comparison <- demand_5 %>% 
   rename(`5-minute resolution` = Users) %>% 
   left_join(
@@ -83,7 +84,7 @@ demand_comparison <- demand_5 %>%
   tidyr::fill(-datetime, .direction = 'down')
 
 demand_comparison %>% 
-  dyplot(stepPlot = T, strokeWidth = 2, ylab = 'Power (kW)')
+  plot_ts(stepPlot = T, strokeWidth = 2, ylab = "EV demand (kW)")
 ```
 
 The power profile with a resolution of 5 minutes represents in a higher accuracy when sessions start and finish. If we zoom-in, we can see clearly that the average power profile really depends on the time resolution:
@@ -94,7 +95,7 @@ demand_comparison %>%
     datetime >= dmy_h("31/01/2023 16", tz = ev_model$metadata$tzone),
     datetime < dmy_h("31/01/2023 19", tz = ev_model$metadata$tzone)
   ) %>% 
-  dyplot(stepPlot = T, strokeWidth = 2, ylab = 'Power (kW)')
+  plot_ts(stepPlot = T, strokeWidth = 2, ylab = "EV demand (kW)")
 ```
 
 However, the total area of the three lines (energy consumed) corresponds to the same value since the power values are the average power of every time-slot whatever the resolution is:

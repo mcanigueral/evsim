@@ -25,11 +25,12 @@ convert_time_num_to_period <- function(time_num) {
 }
 
 
+#' Adapt charging features
+#'
 #' Calculate connection and charging times according to energy, power and time resolution
 #'
 #' All sessions' `Power` must be higher than `0`, to avoid `NaN` values from dividing
 #' by zero.
-#'
 #' The `ConnectionStartDateTime` is first aligned to the desired time resolution,
 #' and the `ConnectionEndDateTime` is calculated according to the `ConnectionHours`.
 #' The `ChargingHours` is recalculated with the values of `Energy` and `Power`,
@@ -48,17 +49,26 @@ convert_time_num_to_period <- function(time_num) {
 #' @importFrom lubridate round_date
 #'
 #' @examples
-#' adapt_charging_features(
-#'   evsim::california_ev_sessions,
-#'   time_resolution = 60,
-#'   power_resolution = 0.01
-#' )
+#' suppressMessages(library(dplyr))
+#'
+#' sessions <- head(evsim::california_ev_sessions, 10)
+#'
+#' sessions %>%
+#'   select(ConnectionStartDateTime, ConnectionEndDateTime, Power)
 #'
 #' adapt_charging_features(
-#'   evsim::california_ev_sessions,
+#'   sessions,
+#'   time_resolution = 60,
+#'   power_resolution = 0.01
+#' ) %>%
+#'   select(ConnectionStartDateTime, ConnectionEndDateTime, Power)
+#'
+#' adapt_charging_features(
+#'   sessions,
 #'   time_resolution = 15,
 #'   power_resolution = 1
-#' )
+#' ) %>%
+#'   select(ConnectionStartDateTime, ConnectionEndDateTime, Power)
 #'
 #'
 adapt_charging_features <- function (sessions, time_resolution = 15, power_resolution = 0.01) {
@@ -75,7 +85,9 @@ adapt_charging_features <- function (sessions, time_resolution = 15, power_resol
 }
 
 
-#' Get charging rates distribution in percentages
+#' Charging rates distribution
+#'
+#' Get charging rates distribution in percentages from a charging sessions data set
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
 #' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))t
@@ -431,7 +443,9 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 }
 
 
-#' Simulate sessions given the `evmodel` object and a datetime sequence
+#' Simulation of EV sessions
+#'
+#' Simulate EV charging sessions given the `evmodel` object and other contextual parameters.
 #'
 #' @param evmodel object of class `evmodel` built with `{evprof}`
 #' (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)

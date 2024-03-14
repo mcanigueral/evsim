@@ -2,8 +2,7 @@
 % Please edit documentation in R/evmodel.R
 \name{get_user_profiles_distribution}
 \alias{get_user_profiles_distribution}
-\title{Get the user profiles distribution from the original data set
-used to build the model}
+\title{User profiles distribution}
 \usage{
 get_user_profiles_distribution(evmodel)
 }

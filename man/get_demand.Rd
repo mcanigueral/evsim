@@ -2,7 +2,7 @@
 % Please edit documentation in R/demand.R
 \name{get_demand}
 \alias{get_demand}
-\title{Obtain time-series demand from sessions dataset}
+\title{Time-series EV demand}
 \usage{
 get_demand(
   sessions,
@@ -31,10 +31,10 @@ If \code{dttm_seq} is defined this parameter is ignored.}
 Must be at least one, and parallelization requires at least two cores.}
 }
 \value{
-tibble
+time-series tibble with first column of type \code{datetime}
 }
 \description{
-Obtain time-series demand from sessions dataset
+Obtain time-series of EV demand from sessions data set
 }
 \details{
 Note that the time resolution of variables \code{ConnectionStartDateTime} and
@@ -56,7 +56,7 @@ demand <- get_demand(
   resolution = 60,
   align_time = TRUE
 )
-demand \%>\% plot_ts()
+demand \%>\% plot_ts(ylab = "EV demand (kW)")
 
 # Get demand with a custom datetime sequence and resolution of 15 minutes
 sessions <- head(evsim::california_ev_sessions_profiles, 100)
@@ -72,6 +72,6 @@ demand <- get_demand(
   resolution = 15,
   align_time = TRUE
 )
-demand \%>\% plot_ts()
+demand \%>\% plot_ts(ylab = "EV demand (kW)")
 
 }

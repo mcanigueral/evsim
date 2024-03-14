@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation.R
 \name{simulate_sessions}
 \alias{simulate_sessions}
-\title{Simulate sessions given the \code{evmodel} object and a datetime sequence}
+\title{Simulation of EV sessions}
 \usage{
 simulate_sessions(
   evmodel,
@@ -36,7 +36,7 @@ This is used to simulate the charging power of user profiles without a specific 
 tibble
 }
 \description{
-Simulate sessions given the \code{evmodel} object and a datetime sequence
+Simulate EV charging sessions given the \code{evmodel} object and other contextual parameters.
 }
 \examples{
 library(dplyr)

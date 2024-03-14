@@ -2,17 +2,9 @@
 % Please edit documentation in R/demand.R
 \name{plot_ts}
 \alias{plot_ts}
-\title{Plot a timeseries tibble in a Dygraphs HTML plot}
+\title{Interactive plot for time-series tibbles}
 \usage{
-plot_ts(
-  df,
-  title = NULL,
-  xlab = NULL,
-  ylab = NULL,
-  group = NULL,
-  legend_width = 250,
-  ...
-)
+plot_ts(df, title = NULL, xlab = NULL, ylab = NULL, legend_width = 250, ...)
 }
 \arguments{
 \item{df}{data.frame or tibble, first column of name \code{datetime} being of class datetime and rest of columns being numeric}
@@ -23,8 +15,6 @@ plot_ts(
 
 \item{ylab}{character, Y axis label (accepts HTML code)}
 
-\item{group}{character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.}
-
 \item{legend_width}{integer, width (in pixels) of the div which shows the legend.}
 
 \item{...}{extra arguments to pass to \code{dygraphs::dyOptions} function.}
@@ -33,8 +23,9 @@ plot_ts(
 dygraph
 }
 \description{
-First column of the tibble must be a datetime or date variable.
-The rest of columns must be numeric of the same units.
+First column of the \code{df} tibble must be a \code{datetime} or date variable.
+The rest of columns must be numeric of the same units. This functions makes
+use of \code{dygraphs} package to generate an HTML Dygraphs plot.
 }
 \examples{
 suppressMessages(library(lubridate))

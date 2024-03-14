@@ -124,6 +124,9 @@
     <loc>mcanigueral.github.io/evsim/reference/get_n_connections_2.html</loc>
   </url>
   <url>
+    <loc>mcanigueral.github.io/evsim/reference/get_occupancy.html</loc>
+  </url>
+  <url>
     <loc>mcanigueral.github.io/evsim/reference/get_profile_day_sessions.html</loc>
   </url>
   <url>
@@ -137,6 +140,9 @@
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/mclapply.windows.html</loc>
+  </url>
+  <url>
+    <loc>mcanigueral.github.io/evsim/reference/plot_occupancy_duration_curve.html</loc>
   </url>
   <url>
     <loc>mcanigueral.github.io/evsim/reference/plot_ts.html</loc>

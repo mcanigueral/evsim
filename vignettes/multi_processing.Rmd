@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F)
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.width = 9)
 library(evsim)
 library(dplyr)
 library(lubridate)

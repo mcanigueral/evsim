@@ -2,7 +2,7 @@
 % Please edit documentation in R/evmodel.R
 \name{get_evmodel_parameters}
 \alias{get_evmodel_parameters}
-\title{Get \code{evmodel} parameters in a list format}
+\title{Get \code{evmodel} parameters in a list}
 \usage{
 get_evmodel_parameters(evmodel)
 }

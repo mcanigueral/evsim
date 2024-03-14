@@ -10,14 +10,14 @@ sessions <- evsim::california_ev_sessions %>%
 
 test_that("the number of connections is calculated properly by Session", {
   n_connections <- sessions %>%
-    get_n_connections(by = "Session", resolution = 15)
+    get_occupancy(by = "Session", resolution = 15)
   expect_true(any(names(n_connections) %in% sessions$Session))
 })
 
 test_that("the number of connections is calculated properly by Profile", {
   n_connections <- sessions %>%
     mutate(Profile = "All") %>%
-    get_n_connections(by = "Profile", resolution = 15)
+    get_occupancy(by = "Profile", resolution = 15)
   expect_true("All" %in% names(n_connections))
 })
 
@@ -29,7 +29,7 @@ test_that("the number of connections is calculated properly with custom datetime
   )
   n_connections <- sessions %>%
     mutate(Profile = "All") %>%
-    get_n_connections(by = "Profile", resolution = 15, dttm_seq = dttm_seq)
+    get_occupancy(by = "Profile", resolution = 15, dttm_seq = dttm_seq)
   expect_true(nrow(n_connections) == length(dttm_seq))
 })
 
@@ -37,6 +37,6 @@ test_that("the number of connections calculation is skipped if there are no sess
   n_connections <- sessions %>%
     mutate(Profile = "All") %>%
     filter(Profile == "all") %>%
-    get_n_connections(by = "Profile", resolution = 15, dttm_seq = NULL)
+    get_occupancy(by = "Profile", resolution = 15, dttm_seq = NULL)
   expect_true(is.null(n_connections))
 })

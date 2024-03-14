@@ -2,7 +2,7 @@
 % Please edit documentation in R/evmodel.R
 \name{read_ev_model}
 \alias{read_ev_model}
-\title{Read an EV model JSON file and convert it to object of class \code{evmodel}}
+\title{Read EV model}
 \usage{
 read_ev_model(file)
 }
