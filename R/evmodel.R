@@ -78,7 +78,7 @@ print.evmodel <- function(x, ...) {
       '\n     Months = ', if (length(m[['months']][[n]]) == 1) m[['months']][[n]][1] else
         paste0(m[['months']][[n]][1], '-', m[['months']][[n]][length(m[['months']][[n]])]),
       ', Week days = ', if (length(m[['wdays']][[n]]) == 1) m[['wdays']][[n]][1] else
-        paste0(m[['wdays']][[n]][1], '-', m[['wdays']][[n]][length(m[['wdays']])]),
+        paste0(m[['wdays']][[n]][1], '-', m[['wdays']][[n]][length(m[['wdays']][[n]])]),
       '\n     User profiles = ', paste(m[['user_profiles']][[n]][['profile']], collapse = ", "),
       '\n', sep = ''
     )
@@ -402,7 +402,7 @@ get_connection_models_from_parameters <- function(time_cycle_parameters, connect
 
   time_cycle_parameters %>%
     mutate(
-      ratio = .data$ratio/100,
+      ratio = .data$ratio,
       connection_models = pmap(
         list(.data$start_mean, .data$start_sd, .data$duration_mean, .data$duration_sd),
         ~ tibble(
