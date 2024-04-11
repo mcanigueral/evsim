@@ -4,7 +4,7 @@
 \alias{get_charging_rates_distribution}
 \title{Charging rates distribution}
 \usage{
-get_charging_rates_distribution(sessions, unit = "year")
+get_charging_rates_distribution(sessions, unit = "year", power_interval = NULL)
 }
 \arguments{
 \item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
@@ -13,6 +13,10 @@ get_charging_rates_distribution(sessions, unit = "year")
 \item{unit}{character. Valid base units are \code{second}, \code{minute}, \code{hour}, \code{day},
 \code{week}, \code{month}, \code{bimonth}, \code{quarter}, \code{season}, \code{halfyear} and \code{year}.
 It corresponds to \code{unit} parameter in \code{lubridate::floor_date} function.}
+
+\item{power_interval}{numeric, interval of kW between power rates.
+It is used to round the \code{Power} values into this interval resolution.
+It can also be \code{NULL} to use all the original \code{Power} values.}
 }
 \value{
 tibble

@@ -8,6 +8,9 @@
 #' @keywords internal
 #'
 round_to_interval <- function (dbl, interval) {
+  if (is.null(interval)) {
+    return( dbl )
+  }
   round(dbl/interval) * interval
 }
 
@@ -94,6 +97,9 @@ adapt_charging_features <- function (sessions, time_resolution = 15, power_resol
 #' @param unit character. Valid base units are `second`, `minute`, `hour`, `day`,
 #' `week`, `month`, `bimonth`, `quarter`, `season`, `halfyear` and `year`.
 #' It corresponds to `unit` parameter in `lubridate::floor_date` function.
+#' @param power_interval numeric, interval of kW between power rates.
+#' It is used to round the `Power` values into this interval resolution.
+#' It can also be `NULL` to use all the original `Power` values.
 #'
 #' @return tibble
 #' @export
@@ -106,14 +112,12 @@ adapt_charging_features <- function (sessions, time_resolution = 15, power_resol
 #' get_charging_rates_distribution(evsim::california_ev_sessions, unit = "year")
 #'
 #'
-get_charging_rates_distribution <- function(sessions, unit="year") {
+get_charging_rates_distribution <- function(sessions, unit="year", power_interval = NULL) {
   sessions_power_round <- sessions %>%
     select(all_of(c("ConnectionStartDateTime", "Power"))) %>%
     mutate(
-      power = round_to_interval(.data$Power, 3.7)
-    ) %>%
-    filter(.data$power > 0)
-  sessions_power_round$power[sessions_power_round$power >= 11] <- 11
+      power = round_to_interval(.data$Power, power_interval)
+    )
   sessions_power_round %>%
     group_by(
       datetime = floor_date(.data$ConnectionStartDateTime, unit = unit),
