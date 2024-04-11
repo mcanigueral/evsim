@@ -36,7 +36,7 @@
 plot_ts <- function(df, title = NULL, xlab = NULL, ylab = NULL, legend_width = 250,  ...) {
   dygraph(df, main = title, xlab = xlab, ylab = ylab) %>%
     dyLegend(show = "always", width = legend_width) %>%
-    dyOptions(...)
+    dyOptions(retainDateWindow = TRUE, useDataTimezone = TRUE, ...)
 }
 
 # Demand ------------------------------------------------------------------
