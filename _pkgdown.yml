@@ -33,9 +33,7 @@ reference:
   - title: Custom model
   - contents:
     - get_evmodel_summary
-    - get_connection_models_from_parameters
-    - get_energy_models_from_parameters
-    - get_ev_model
+    - get_custom_ev_model
     - save_ev_model
 articles:
   - title: Articles

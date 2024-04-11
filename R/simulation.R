@@ -451,6 +451,7 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 #' (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
 #' @param user_profiles tibble with variables `time_cycle`, `profile`, `ratio` and optionally `power`.
+#' It can also be `NULL` to use the `evmodel` original user profiles distribution.
 #' The powers must be in kW and the ratios between 0 and 1.
 #' The user profiles with a value of `power` will be simulated with this specific charging power.
 #' If `power` is `NA` then it is simulated according to the ratios of next parameter `charging_powers`.
@@ -506,6 +507,10 @@ simulate_sessions <- function(evmodel, sessions_day, user_profiles, charging_pow
   if (sum(sessions_day[["n_sessions"]]) == 0) {
     message("No EV sessions to simulate")
     return( tibble() )
+  }
+
+  if (is.null(user_profiles)) {
+    user_profiles <- get_user_profiles_distribution(evmodel)
   }
 
   ev_models <- prepare_model(evmodel[["models"]], sessions_day, user_profiles)

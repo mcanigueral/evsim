@@ -20,6 +20,7 @@ simulate_sessions(
 \item{sessions_day}{tibble with variables \code{time_cycle} (names corresponding to \code{evmodel$models$time_cycle}) and \code{n_sessions} (number of daily sessions per day for each time-cycle model)}
 
 \item{user_profiles}{tibble with variables \code{time_cycle}, \code{profile}, \code{ratio} and optionally \code{power}.
+It can also be \code{NULL} to use the \code{evmodel} original user profiles distribution.
 The powers must be in kW and the ratios between 0 and 1.
 The user profiles with a value of \code{power} will be simulated with this specific charging power.
 If \code{power} is \code{NA} then it is simulated according to the ratios of next parameter \code{charging_powers}.}

@@ -357,41 +357,10 @@ get_power_energy_model_parameters <- function(user_profile_models_power, log) {
 #' @param connection_log logical, true if connection models have logarithmic transformations
 #'
 #' @return connection GMM tibble
-#' @export
+#' @keywords internal
 #'
 #' @importFrom dplyr tibble mutate select %>%
 #' @importFrom purrr pmap
-#'
-#' @examples
-#' # For workdays time cycle
-#' workdays_parameters <- dplyr::tibble(
-#'   profile = c("Worktime", "Visit"),
-#'   ratio = c(80, 20),
-#'   start_mean = c(9, 11),
-#'   start_sd = c(1, 4),
-#'   duration_mean = c(8, 4),
-#'   duration_sd = c(0.5, 2),
-#'   energy_mean = c(15, 6),
-#'   energy_sd = c(4, 3)
-#' )
-#'
-#' # For weekends time cycle
-#' weekends_parameters <- dplyr::tibble(
-#'   profile = "Visit",
-#'   ratio = 100,
-#'   start_mean = 12,
-#'   start_sd = 4,
-#'   duration_mean = 3,
-#'   duration_sd = 2,
-#'   energy_mean = 4,
-#'   energy_sd = 4
-#' )
-#'
-#' connection_GMM <- purrr::map(
-#'   list(Workdays = workdays_parameters, Weekends = weekends_parameters),
-#'   ~ get_connection_models_from_parameters(.x)
-#' )
-#'
 #'
 get_connection_models_from_parameters <- function(time_cycle_parameters, connection_log = FALSE) {
   if (connection_log) {
@@ -431,40 +400,10 @@ get_connection_models_from_parameters <- function(time_cycle_parameters, connect
 #' @param energy_log logical, true if connection models have logarithmic transformations
 #'
 #' @return energy GMM tibble
-#' @export
+#' @keywords internal
 #'
 #' @importFrom dplyr tibble mutate select %>%
 #' @importFrom purrr pmap
-#'
-#' @examples
-#' # For workdays time cycle
-#' workdays_parameters <- dplyr::tibble(
-#'   profile = c("Worktime", "Visit"),
-#'   ratio = c(80, 20),
-#'   start_mean = c(9, 11),
-#'   start_sd = c(1, 4),
-#'   duration_mean = c(8, 4),
-#'   duration_sd = c(0.5, 2),
-#'   energy_mean = c(15, 6),
-#'   energy_sd = c(4, 3)
-#' )
-#'
-#' # For weekends time cycle
-#' weekends_parameters <- dplyr::tibble(
-#'   profile = "Visit",
-#'   ratio = 100,
-#'   start_mean = 12,
-#'   start_sd = 4,
-#'   duration_mean = 3,
-#'   duration_sd = 2,
-#'   energy_mean = 4,
-#'   energy_sd = 4
-#' )
-#'
-#' energy_GMM <- purrr::map(
-#'   list(Workdays = workdays_parameters, Weekends = weekends_parameters),
-#'   ~ get_energy_models_from_parameters(.x)
-#' )
 #'
 get_energy_models_from_parameters <- function(time_cycle_parameters, energy_log =  FALSE) {
   time_cycle_parameters %>%
@@ -478,8 +417,7 @@ get_energy_models_from_parameters <- function(time_cycle_parameters, energy_log 
             mu = ifelse(energy_log, log(..1), ..1),
             sigma = ifelse(energy_log, sd(log(rnorm(10000, ..1, ..2))), ..2),
             ratio = 1
-          )),
-          mclust = NA
+          ))
         )
       )
     ) %>%
@@ -487,15 +425,14 @@ get_energy_models_from_parameters <- function(time_cycle_parameters, energy_log 
 }
 
 
-#' Create the EV model
+#' Create the custom EV model
 #'
 #' Get the EV model object of class `evmodel`
 #'
 #' @param names character vector with the given names of each time-cycle model
 #' @param months_lst list of integer vectors with the corresponding months of the year for each time-cycle model
-#' @param wdays_lst list of integer vectors with the corresponding days of the week for each model (week start = 1)
-#' @param connection_GMM list of different connection bivariate GMM obtained from `get_connection_models_from_parameters`
-#' @param energy_GMM list of different energy univariate GMM obtained from `get_energy_models_from_parameters`
+#' @param wdays_lst list of integer vectors with the corresponding days of the week for each time-cycle model (week start = 1)
+#' @param parameters_lst list of tibbles corresponding to the GMM parameters of every time-cycle model
 #' @param connection_log logical, true if connection models have logarithmic transformations
 #' @param energy_log logical, true if energy models have logarithmic transformations
 #' @param data_tz character, time zone of the original data (necessary to properly simulate new sessions)
@@ -532,42 +469,28 @@ get_energy_models_from_parameters <- function(time_cycle_parameters, energy_log 
 #'   energy_sd = 4
 #' )
 #'
-#' connection_GMM <- purrr::map(
-#'   list(Workdays = workdays_parameters, Weekends = weekends_parameters),
-#'   ~ get_connection_models_from_parameters(.x)
-#' )
-#' energy_GMM <- purrr::map(
-#'   list(Workdays = workdays_parameters, Weekends = weekends_parameters),
-#'   ~ get_energy_models_from_parameters(.x)
-#' )
+#' parameters_lst <- list(workdays_parameters, weekends_parameters)
 #'
 #' # Get the whole model
-#' ev_model <- get_ev_model(
+#' ev_model <- get_custom_ev_model(
 #'   names = c("Workdays", "Weekends"),
 #'   months_lst = list(1:12, 1:12),
 #'   wdays_lst = list(1:5, 6:7),
-#'   connection_GMM = connection_GMM,
-#'   energy_GMM = energy_GMM,
+#'   parameters_lst = parameters_lst,
 #'   connection_log = FALSE,
 #'   energy_log = FALSE,
 #'   data_tz = "Europe/Amsterdam"
 #' )
 #'
 #'
-get_ev_model <- function(names, months_lst = list(1:12, 1:12), wdays_lst = list(1:5, 6:7),
-                         connection_GMM, energy_GMM, connection_log, energy_log,
-                         data_tz) {
+get_custom_ev_model <- function(names, months_lst = list(1:12, 1:12), wdays_lst = list(1:5, 6:7),
+                                parameters_lst, connection_log, energy_log, data_tz) {
 
-  # Remove `mclust` component from energy models tibble
+  connection_GMM <- map(
+    parameters_lst, get_connection_models_from_parameters, connection_log
+  )
   energy_GMM <- map(
-    energy_GMM,
-    ~ .x %>%
-      mutate(
-        energy_models = map(
-          .data$energy_models,
-          ~ select(.x, - "mclust")
-        )
-      )
+    parameters_lst, get_energy_models_from_parameters, energy_log
   )
 
   GMM <- map2(

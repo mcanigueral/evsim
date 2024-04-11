@@ -22,35 +22,4 @@ connection GMM tibble
 \description{
 Get connection Gaussian Mixture Models from parameters
 }
-\examples{
-# For workdays time cycle
-workdays_parameters <- dplyr::tibble(
-  profile = c("Worktime", "Visit"),
-  ratio = c(80, 20),
-  start_mean = c(9, 11),
-  start_sd = c(1, 4),
-  duration_mean = c(8, 4),
-  duration_sd = c(0.5, 2),
-  energy_mean = c(15, 6),
-  energy_sd = c(4, 3)
-)
-
-# For weekends time cycle
-weekends_parameters <- dplyr::tibble(
-  profile = "Visit",
-  ratio = 100,
-  start_mean = 12,
-  start_sd = 4,
-  duration_mean = 3,
-  duration_sd = 2,
-  energy_mean = 4,
-  energy_sd = 4
-)
-
-connection_GMM <- purrr::map(
-  list(Workdays = workdays_parameters, Weekends = weekends_parameters),
-  ~ get_connection_models_from_parameters(.x)
-)
-
-
-}
+\keyword{internal}

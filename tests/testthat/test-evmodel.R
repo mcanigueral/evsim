@@ -32,20 +32,14 @@ test_that("Model is created correctly from parameters", {
     energy_sd = 4
   )
 
+  parameters_lst <- list(workdays_parameters, weekends_parameters)
 
   # Get the whole model
-  ev_model <- get_ev_model(
+  ev_model <- get_custom_ev_model(
     names = c("Workdays", "Weekends"),
     months_lst = list(1:12, 1:12),
     wdays_lst = list(1:5, 6:7),
-    connection_GMM = purrr::map(
-      list(Workdays = workdays_parameters, Weekends = weekends_parameters),
-      ~ get_connection_models_from_parameters(.x)
-    ),
-    energy_GMM = purrr::map(
-      list(Workdays = workdays_parameters, Weekends = weekends_parameters),
-      ~ get_energy_models_from_parameters(.x)
-    ),
+    parameters_lst,
     connection_log = FALSE,
     energy_log = FALSE,
     data_tz = "Europe/Amsterdam"
