@@ -1,3 +1,11 @@
+# evsim 1.5.0
+* In `simulate_sessions` now `user_profiles` can also be `NULL` to use the default `evmodel` config.
+* Changed `get_ev_model` to `get_custom_ev_model` to avoid using auxiliary functions to get GMM from parameters. Thus, the argument `parameters_lst` has been introduced to directly use all time-cycles parameters, and functions `get_connection_models_from_parameters` and `get_energy_models_from_parameters` are now internal and not exported.
+* Custom models ratio’s in `parameters_lst` argument of function `get_custom_ev_model` must be now between 0 and 1 and not between 0 and 100, to be consistent with the `evmodel` created by `evprof`.
+* Introduced `power_interval` parameter in `get_charging_rates_distribution` function. It is used to round the `Power` values into this interval resolution. It can also be `NULL` to use all the original `Power` values.
+* Now `plot_ts` function plots with the data timezone by default with `dygraphs::dyOptions` parameter `useDataTimezone=TRUE`.
+
+
 # evsim 1.4.0
 
 * Renamed `get_n_connections` to `get_occupancy`
