@@ -39,7 +39,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">evsim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -197,7 +197,7 @@ profile with an average behaviour. This format is also useful to save
 the model in Excel, since it can be saved directly in an Excel file
 where every time-cycle will be a different worksheet:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_evmodel_summary.html">get_evmodel_summary</a></span><span class="op">(</span><span class="va">ev_model</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_evmodel_summary.html">get_evmodel_summary</a></span><span class="op">(</span><span class="va">ev_model</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu">writexl</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/writexl/reference/write_xlsx.html" class="external-link">write_xlsx</a></span><span class="op">(</span><span class="st">"ev_model.xlsx"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -210,14 +210,15 @@ can be used as a template to define our custom user profiles and
 parameters. After editing the file we can read it again:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">custom_model</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
-<span>  <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/excel_sheets.html" class="external-link">excel_sheets</a></span><span class="op">(</span><span class="st">"ev_model_custom.xlsx"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/excel_sheets.html" class="external-link">excel_sheets</a></span><span class="op">(</span><span class="st">"ev_model_custom.xlsx"</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="op">~</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="st">"ev_model_custom.xlsx"</span>, sheet <span class="op">=</span> <span class="va">.x</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Then, functions <code>get_connection_models_from_parameters</code>
-and <code>get_energy_models_from_parameters</code> can create the
-objects required as <code>connection_GMM</code> and
-<code>energy_GMM</code> in <code><a href="../reference/get_ev_model.html">evsim::get_ev_model</a></code> function. In
-the <code><a href="../reference/get_ev_model.html">evsim::get_ev_model</a></code> function also the months and
+<p>Then, these parameters can be passed to argument
+<code>parameters_lst</code> of function
+<code><a href="../reference/get_custom_ev_model.html">evsim::get_custom_ev_model</a></code>, where every element of this
+list must be a different time-cycle (as our object
+<code>custom_model</code> is). In the
+<code><a href="../reference/get_custom_ev_model.html">evsim::get_custom_ev_model</a></code> function also the months and
 weekdays corresponding to every time-cycle (worksheet in the Excel file)
 and the time-zone of the use case must be configured in parameters
 <code>months_lst</code>, <code>wdays_lst</code> and
@@ -226,19 +227,11 @@ and <code>energy_log</code> parameters may be always <code>FALSE</code>
 since it is assumed that a custom model is built in the natural
 scale:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">evmodel_custom</span> <span class="op">&lt;-</span> <span class="fu">evsim</span><span class="fu">::</span><span class="fu"><a href="../reference/get_ev_model.html">get_ev_model</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">evmodel_custom</span> <span class="op">&lt;-</span> <span class="fu">evsim</span><span class="fu">::</span><span class="fu"><a href="../reference/get_custom_ev_model.html">get_custom_ev_model</a></span><span class="op">(</span></span>
 <span>  names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">custom_model</span><span class="op">)</span>,</span>
 <span>  months_lst <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>,</span>
 <span>  wdays_lst <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">6</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span>,</span>
-<span>  connection_GMM <span class="op">=</span> <span class="fu">map</span><span class="op">(</span></span>
-<span>    <span class="va">custom_model</span>,</span>
-<span>    <span class="op">~</span> <span class="fu"><a href="../reference/get_connection_models_from_parameters.html">get_connection_models_from_parameters</a></span><span class="op">(</span><span class="va">.x</span>, connection_log <span class="op">=</span> <span class="cn">F</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ratio <span class="op">=</span> <span class="va">.x</span><span class="op">$</span><span class="va">ratio</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  energy_GMM <span class="op">=</span> <span class="fu">map</span><span class="op">(</span></span>
-<span>    <span class="va">custom_model</span>,</span>
-<span>    <span class="op">~</span> <span class="fu"><a href="../reference/get_energy_models_from_parameters.html">get_energy_models_from_parameters</a></span><span class="op">(</span><span class="va">.x</span>, energy_log <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
+<span>  parameters_lst <span class="op">=</span> <span class="va">custom_model</span>,</span>
 <span>  connection_log <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  energy_log <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  data_tz <span class="op">=</span> <span class="st">"America/Los_Angeles"</span></span>

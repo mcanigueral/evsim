@@ -46,27 +46,17 @@ custom_model <- purrr::map(
 )
 ```
 
-Then, functions `get_connection_models_from_parameters` and `get_energy_models_from_parameters` can create the objects required as `connection_GMM` and `energy_GMM` in `evsim::get_ev_model` function. In the `evsim::get_ev_model` function also the months and weekdays corresponding to every time-cycle (worksheet in the Excel file) and the time-zone of the use case must be configured in parameters `months_lst`, `wdays_lst` and `data_tz`, respectively. Finally, `connection_log` and `energy_log` parameters may be always `FALSE` since it is assumed that a custom model is built in the natural scale:
+Then, these parameters can be passed to argument `parameters_lst` of function `evsim::get_custom_ev_model`, where every element of this list must be a different time-cycle (as our object `custom_model` is). In the `evsim::get_custom_ev_model` function also the months and weekdays corresponding to every time-cycle (worksheet in the Excel file) and the time-zone of the use case must be configured in parameters `months_lst`, `wdays_lst` and `data_tz`, respectively. Finally, `connection_log` and `energy_log` parameters may be always `FALSE` since it is assumed that a custom model is built in the natural scale:
 
-```{r, eval=F}
-evmodel_custom <- evsim::get_ev_model(
+```{r, eval=T}
+evmodel_custom <- evsim::get_custom_ev_model(
   names = names(custom_model),
   months_lst = list(1:12, 1:12),
   wdays_lst = list(1:5, 6:7),
-  connection_GMM = map(
-    custom_model,
-    ~ get_connection_models_from_parameters(.x, connection_log = F) %>% 
-      mutate(ratio = .x$ratio)
-  ),
-  energy_GMM = map(
-    custom_model,
-    ~ get_energy_models_from_parameters(.x, energy_log = F)
-  ),
+  parameters_lst = custom_model,
   connection_log = F,
   energy_log = F,
   data_tz = "America/Los_Angeles"
 )
 ```
-
-
 
