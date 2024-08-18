@@ -36,8 +36,7 @@ sessions <- head(evsim::california_ev_sessions, 100)
 demand <- get_demand(
   sessions,
   by = "Session",
-  resolution = 60,
-  align_time = TRUE
+  resolution = 60
 )
 demand \%>\% plot_ts()
 

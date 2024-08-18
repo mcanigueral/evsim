@@ -1,4 +1,12 @@
+# evsim 1.6.0
+
+* Parameter `align_time` has been removed from all sessions in favour of internal automatic alignment thanks to introduction of funcion `is_aligned`.
+* Changed variable names in `expand_session` function (`NominalPower` -> `PowerNominal`, `RequiredEnergy` -> `EnergyRequired`)
+* Bug fix in `adapt_charging_features` function: `ConnectionHours` now rounded to 2 digits to improve accuracy of calculations
+
+
 # evsim 1.5.0
+
 * In `simulate_sessions` now `user_profiles` can also be `NULL` to use the default `evmodel` config.
 * Changed `get_ev_model` to `get_custom_ev_model` to avoid using auxiliary functions to get GMM from parameters. Thus, the argument `parameters_lst` has been introduced to directly use all time-cycles parameters, and functions `get_connection_models_from_parameters` and `get_energy_models_from_parameters` are now internal and not exported.
 * Custom models ratio’s in `parameters_lst` argument of function `get_custom_ev_model` must be now between 0 and 1 and not between 0 and 100, to be consistent with the `evmodel` created by `evprof`.

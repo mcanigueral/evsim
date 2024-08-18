@@ -9,7 +9,6 @@ get_demand(
   dttm_seq = NULL,
   by = "Profile",
   resolution = 15,
-  align_time = FALSE,
   mc.cores = 1
 )
 }
@@ -25,8 +24,6 @@ variable of the returned time-series data frame.}
 \item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables.
 If \code{dttm_seq} is defined this parameter is ignored.}
 
-\item{align_time}{logical, whether to align time variables or sessions with the corresponding time \code{resolution}}
-
 \item{mc.cores}{integer, number of cores to use.
 Must be at least one, and parallelization requires at least two cores.}
 }
@@ -41,7 +38,7 @@ Note that the time resolution of variables \code{ConnectionStartDateTime} and
 \code{ChargingStartDateTime} must coincide with
 \code{resolution} parameter. For example, if a charging session in \code{sessions} starts charging
 at 15:32 and \code{resolution = 15}, the load of this session won't be computed. To solve this,
-the parameter \code{align_time = TRUE} would align charging sessions' start time according to
+the function automatically aligns charging sessions' start time according to
 \code{resolution}, so following the previous example the session would start at 15:30.
 }
 \examples{
@@ -53,8 +50,7 @@ sessions <- head(evsim::california_ev_sessions, 100)
 demand <- get_demand(
   sessions,
   by = "Session",
-  resolution = 60,
-  align_time = TRUE
+  resolution = 60
 )
 demand \%>\% plot_ts(ylab = "EV demand (kW)")
 
@@ -69,8 +65,7 @@ demand <- get_demand(
   sessions,
   dttm_seq = dttm_seq,
   by = "Profile",
-  resolution = 15,
-  align_time = TRUE
+  resolution = 15
 )
 demand \%>\% plot_ts(ylab = "EV demand (kW)")
 

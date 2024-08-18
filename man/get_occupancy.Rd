@@ -9,7 +9,6 @@ get_occupancy(
   dttm_seq = NULL,
   by = "Profile",
   resolution = 15,
-  align_time = FALSE,
   mc.cores = 1
 )
 }
@@ -25,8 +24,6 @@ variable of the returned time-series data frame.}
 \item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables.
 If \code{dttm_seq} is defined this parameter is ignored.}
 
-\item{align_time}{logical, whether to align time variables or sessions with the corresponding time \code{resolution}}
-
 \item{mc.cores}{integer, number of cores to use.
 Must be at least one, and parallelization requires at least two cores.}
 }
@@ -40,7 +37,7 @@ Obtain time-series of simultaneously connected EVs from sessions data set
 Note that the time resolution of variable \code{ConnectionStartDateTime} must coincide with
 \code{resolution} parameter. For example, if a charging session in \code{sessions} starts charging
 at 15:32 and \code{resolution = 15}, the load of this session won't be computed. To solve this,
-the parameter \code{align_time = TRUE} would align charging sessions' start time according to
+the function automatically aligns charging sessions' start time according to
 \code{resolution}, so following the previous example the session would start at 15:30.
 }
 \examples{
@@ -52,8 +49,7 @@ sessions <- head(evsim::california_ev_sessions, 100)
 connections <- get_occupancy(
   sessions,
   by = "ChargingStation",
-  resolution = 60,
-  align_time = TRUE
+  resolution = 60
 )
 connections \%>\% plot_ts(ylab = "Vehicles connected")
 
@@ -67,8 +63,7 @@ dttm_seq <- seq.POSIXt(
 connections <- get_occupancy(
   sessions,
   dttm_seq = dttm_seq,
-  by = "Profile",
-  align_time = TRUE
+  by = "Profile"
 )
 connections \%>\% plot_ts(ylab = "Vehicles connected")
 

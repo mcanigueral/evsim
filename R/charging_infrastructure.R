@@ -139,7 +139,6 @@ add_charging_infrastructure <- function(sessions, resolution = 15, min_stations 
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
 #' @param resolution integer, time resolution (in minutes) of the sessions datetime variables.
 #' If `dttm_seq` is defined this parameter is ignored.
-#' @param align_time logical, whether to align time variables or sessions with the corresponding time `resolution`
 #' @param mc.cores integer, number of cores to use.
 #' Must be at least one, and parallelization requires at least two cores.
 #'
@@ -157,17 +156,15 @@ add_charging_infrastructure <- function(sessions, resolution = 15, min_stations 
 #' plot_occupancy_duration_curve(
 #'   sessions,
 #'   by = "Profile",
-#'   resolution = 15,
-#'   align_time = TRUE
+#'   resolution = 15
 #' )
 #'
-plot_occupancy_duration_curve <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, align_time = FALSE, mc.cores = 1) {
+plot_occupancy_duration_curve <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
   connections <- get_occupancy(
     sessions,
     dttm_seq = dttm_seq,
     by = by,
     resolution = resolution,
-    align_time = align_time,
     mc.cores = mc.cores
   )
 

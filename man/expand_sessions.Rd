@@ -21,7 +21,7 @@ with the corresponding \code{Power} consumption, among other variables.
 }
 \details{
 The \code{Power} value is calculated for every time slot according to the original
-required energy. The columns \code{NominalPower}, \code{RequiredEnergy} and
+required energy. The columns \code{PowerNominal}, \code{EnergyRequired} and
 \code{FlexibilityHours} correspond to the values of the original session, and not
 to the expanded session in every time slot. The column \code{ID} shows the number
 of the time slot corresponding to the original session.

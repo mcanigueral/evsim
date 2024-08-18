@@ -9,7 +9,6 @@ plot_occupancy_duration_curve(
   dttm_seq = NULL,
   by = "Profile",
   resolution = 15,
-  align_time = FALSE,
   mc.cores = 1
 )
 }
@@ -24,8 +23,6 @@ variable of the returned time-series data frame.}
 
 \item{resolution}{integer, time resolution (in minutes) of the sessions datetime variables.
 If \code{dttm_seq} is defined this parameter is ignored.}
-
-\item{align_time}{logical, whether to align time variables or sessions with the corresponding time \code{resolution}}
 
 \item{mc.cores}{integer, number of cores to use.
 Must be at least one, and parallelization requires at least two cores.}
@@ -49,8 +46,7 @@ sessions <- head(evsim::california_ev_sessions_profiles, 100)
 plot_occupancy_duration_curve(
   sessions,
   by = "Profile",
-  resolution = 15,
-  align_time = TRUE
+  resolution = 15
 )
 
 }

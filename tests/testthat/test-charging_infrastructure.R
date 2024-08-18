@@ -12,8 +12,7 @@ test_that("plot of occupancy duration curve works", {
     plot_occupancy_duration_curve(
       sessions %>% mutate(Profile = "all"),
       by = "Profile",
-      resolution = 15,
-      align_time = TRUE
+      resolution = 15
     )
   ))
 })
