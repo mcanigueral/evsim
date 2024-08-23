@@ -48,7 +48,7 @@ custom_model <- purrr::map(
 
 Then, these parameters can be passed to argument `parameters_lst` of function `evsim::get_custom_ev_model`, where every element of this list must be a different time-cycle (as our object `custom_model` is). In the `evsim::get_custom_ev_model` function also the months and weekdays corresponding to every time-cycle (worksheet in the Excel file) and the time-zone of the use case must be configured in parameters `months_lst`, `wdays_lst` and `data_tz`, respectively. Finally, `connection_log` and `energy_log` parameters may be always `FALSE` since it is assumed that a custom model is built in the natural scale:
 
-```{r, eval=T}
+```{r, eval=F}
 evmodel_custom <- evsim::get_custom_ev_model(
   names = names(custom_model),
   months_lst = list(1:12, 1:12),
