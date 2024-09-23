@@ -311,7 +311,7 @@ get_energy_model_parameters <- function(user_profile_models, log) {
     dplyr::mutate(
       purrr::map(
         .data$energy_models,
-        ~ get_power_energy_model_parameters(.x, TRUE)
+        ~ get_power_energy_model_parameters(.x, log)
       ) %>%
         purrr::list_rbind()
     ) %>%
