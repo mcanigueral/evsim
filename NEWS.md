@@ -3,7 +3,7 @@
 * Parameter `align_time` has been removed from all functions in favour of internal automatic alignment thanks to introduction of funcion `is_aligned`.
 * Changed variable names in `expand_session` function (`NominalPower` -> `PowerNominal`, `RequiredEnergy` -> `EnergyRequired`)
 * Bug fix in `adapt_charging_features` function: `ConnectionHours` now rounded to 2 digits to improve accuracy of calculations
-
+* Simulated energy using log-normal distribution with a minimum of 1 kWh and simulated connections with a minimum of 30 minute duration, to be more realistic.
 
 # evsim 1.5.0
 

@@ -7,18 +7,20 @@
 estimate_connection(n, mu, sigma, log)
 }
 \arguments{
-\item{n}{number of sessions}
+\item{n}{integer, number of sessions}
 
-\item{mu}{means of bivariate GMM}
+\item{mu}{numeric vector, means of bivariate GMM}
 
-\item{sigma}{covariance matrix of bivariate GMM}
+\item{sigma}{numeric matrix, covariance matrix of bivariate GMM}
 
-\item{log}{Logical, true if models have logarithmic transformation}
+\item{log}{logical, true if models have logarithmic transformation}
 }
 \value{
 vector of numeric values
 }
 \description{
-Estimate sessions connection values
+Estimate sessions connection values following a Multi-variate Guassian
+distribution.
+The minimum considered value for duration is 30 minutes.
 }
 \keyword{internal}

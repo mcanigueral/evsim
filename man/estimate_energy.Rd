@@ -2,23 +2,26 @@
 % Please edit documentation in R/simulation.R
 \name{estimate_energy}
 \alias{estimate_energy}
-\title{Estimate sessions energy values}
+\title{Estimate sessions energy values following a log-normal distribution.
+The minimum considered value is 1kWh based on real data analysis.}
 \usage{
 estimate_energy(n, mu, sigma, log)
 }
 \arguments{
-\item{n}{number of sessions}
+\item{n}{integer, number of sessions}
 
-\item{mu}{means of univariate GMM}
+\item{mu}{numeric, mean of Gaussian distribution}
 
-\item{sigma}{covariance matrix of univariate GMM}
+\item{sigma}{numeric, standard deviation of Gaussian distribution.
+If unknown, a recommended value is \code{sd = mu/3}.}
 
-\item{log}{Logical, true if models have logarithmic transformation}
+\item{log}{logical, true if models have logarithmic transformation}
 }
 \value{
 numeric vector
 }
 \description{
-Estimate sessions energy values
+Estimate sessions energy values following a log-normal distribution.
+The minimum considered value is 1kWh based on real data analysis.
 }
 \keyword{internal}
