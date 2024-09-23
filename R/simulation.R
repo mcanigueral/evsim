@@ -150,7 +150,8 @@ get_charging_rates_distribution <- function(sessions, unit="year", power_interva
 #' @importFrom stats rnorm
 #'
 estimate_energy <- function(n, mu, sigma, log) {
-  energy <- rnorm(n, mu, sigma)
+  energy_possible <- rnorm(n*2, mu, sigma)
+  energy <- sample(energy_possible[energy_possible > 0.1], n)
   if (log) {
     energy <- exp(energy)
   } else {
