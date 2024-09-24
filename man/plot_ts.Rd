@@ -4,7 +4,17 @@
 \alias{plot_ts}
 \title{Interactive plot for time-series tibbles}
 \usage{
-plot_ts(df, title = NULL, xlab = NULL, ylab = NULL, legend_width = 250, ...)
+plot_ts(
+  df,
+  title = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  legend_width = 250,
+  group = NULL,
+  width = NULL,
+  height = NULL,
+  ...
+)
 }
 \arguments{
 \item{df}{data.frame or tibble, first column of name \code{datetime} being of class datetime and rest of columns being numeric}
@@ -16,6 +26,12 @@ plot_ts(df, title = NULL, xlab = NULL, ylab = NULL, legend_width = 250, ...)
 \item{ylab}{character, Y axis label (accepts HTML code)}
 
 \item{legend_width}{integer, width (in pixels) of the div which shows the legend.}
+
+\item{group}{character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.}
+
+\item{width}{Width in pixels (optional, defaults to automatic sizing)}
+
+\item{height}{Height in pixels (optional, defaults to automatic sizing)}
 
 \item{...}{extra arguments to pass to \code{dygraphs::dyOptions} function.}
 }

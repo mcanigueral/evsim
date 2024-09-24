@@ -12,12 +12,15 @@
 #' @param xlab character, X axis label (accepts HTML code)
 #' @param ylab character, Y axis label (accepts HTML code)
 #' @param legend_width integer, width (in pixels) of the div which shows the legend.
+#' @param group character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.
+#' @param width Width in pixels (optional, defaults to automatic sizing)
+#' @param height Height in pixels (optional, defaults to automatic sizing)
 #' @param ... extra arguments to pass to `dygraphs::dyOptions` function.
 #'
 #' @return dygraph
 #' @export
 #'
-#' @importFrom dygraphs dygraph dyLegend dyOptions
+#' @importFrom dygraphs dygraph dyLegend dyOptions dyCSS
 #'
 #' @examples
 #' suppressMessages(library(lubridate))
@@ -32,10 +35,11 @@
 #' )
 #' demand %>% plot_ts()
 #'
-plot_ts <- function(df, title = NULL, xlab = NULL, ylab = NULL, legend_width = 250,  ...) {
-  dygraph(df, main = title, xlab = xlab, ylab = ylab) %>%
+plot_ts <- function(df, title = NULL, xlab = NULL, ylab = NULL, legend_width = 250, group = NULL, width = NULL, height = NULL, ...) {
+  dygraph(df, main = title, xlab = xlab, ylab = ylab, group = group, width = width, height = height) %>%
     dyLegend(show = "always", width = legend_width) %>%
-    dyOptions(retainDateWindow = TRUE, useDataTimezone = TRUE, ...)
+    dyOptions(retainDateWindow = TRUE, useDataTimezone = TRUE, ...) %>%
+    dyCSS(system.file("www", "dystyle.css", package = "evsim"))
 }
 
 

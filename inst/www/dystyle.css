@@ -1,0 +1,43 @@
+/* Dygraph styling */
+
+.dygraph-title {
+  text-align: left;
+  font-weight: normal;
+  font-size: 70%;
+}
+
+.dygraph-legend {
+  color: white;
+  background-color: #BABABA !important;
+    padding-left:5px;
+  border-color:#BABABA;
+    border-style:solid;
+  border-width:thin;
+  transition:0s 4s;
+  z-index: 20 !important;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, .3);
+  border-radius: 3px;
+}
+
+.dygraph-legend:hover{
+  transform: translate(-110%);
+  transition: 0s;
+}
+
+.dygraph-legend > span {
+  color: black;
+  padding-left:5px;
+  margin-left:-5px;
+  background-color: white !important;
+  display: block;
+}
+
+.dygraph-legend > span > span{
+  display: inline;
+}
+
+.highlight {
+  border-left: 2px solid #BABABA;
+  padding-left:3px !important;
+
+}
