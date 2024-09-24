@@ -8,6 +8,7 @@ add_charging_infrastructure(
   sessions,
   resolution = 15,
   min_stations = 0,
+  n_sockets = 2,
   names_prefix = NULL,
   duration_th = 0
 )
@@ -19,6 +20,8 @@ add_charging_infrastructure(
 \item{resolution}{integer, time resolution in minutes}
 
 \item{min_stations}{integer, minimum number of charging stations to consider}
+
+\item{n_sockets}{integer, number of sockets per charging station}
 
 \item{names_prefix}{character, prefix of the charging station names (optional)}
 

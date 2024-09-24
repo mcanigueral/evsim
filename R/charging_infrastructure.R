@@ -9,6 +9,7 @@
 #' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param resolution integer, time resolution in minutes
 #' @param min_stations integer, minimum number of charging stations to consider
+#' @param n_sockets integer, number of sockets per charging station
 #' @param names_prefix character, prefix of the charging station names (optional)
 #' @param duration_th integer between 0 and 100, minimum share of time (in percentage)
 #' of the "occupancy duration curve" (see function `plot_occupancy_duration_curve`).
@@ -44,7 +45,7 @@
 #' print(unique(sessions_infrastructure$ChargingStation))
 #'
 #'
-add_charging_infrastructure <- function(sessions, resolution = 15, min_stations = 0, names_prefix = NULL, duration_th = 0) {
+add_charging_infrastructure <- function(sessions, resolution = 15, min_stations = 0, n_sockets = 2, names_prefix = NULL, duration_th = 0) {
 
   # How many charging stations (of two sockets) do we need?
   connections <- sessions %>%
@@ -56,7 +57,7 @@ add_charging_infrastructure <- function(sessions, resolution = 15, min_stations 
   n_connections_required <- connections_pct %>%
     filter(.data$pct >= duration_th)
 
-  n_required_stations <- ceiling(max(n_connections_required$n_connections)/2)
+  n_required_stations <- ceiling(max(n_connections_required$n_connections)/n_sockets)
   if (n_required_stations < min_stations) {
     n_required_stations <- min_stations
   }
@@ -66,7 +67,7 @@ add_charging_infrastructure <- function(sessions, resolution = 15, min_stations 
     names_prefix <- ""
   }
   new_stations_names <- paste(names_prefix, 1:n_required_stations, sep = "CHS")
-  socket_names <- paste(new_stations_names, rep(c(1, 2), each = n_required_stations), sep = "-")
+  socket_names <- paste(new_stations_names, rep(seq_len(n_sockets), each = n_required_stations), sep = "-")
 
   # Iterate over all time slots assigning every session to a charging socket
   free_sockets <- socket_names

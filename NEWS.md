@@ -5,6 +5,8 @@
 * Bug fix in `adapt_charging_features` function: `ConnectionHours` now rounded to 2 digits to improve accuracy of calculations
 * Simulated energy using log-normal distribution with a minimum of 1 kWh and simulated connections with a minimum of 30 minute duration, to be more realistic.
 * Bug fix in `get_evmodel_summary()`
+* New legend formatting for `plot_ts()`
+* Added parameter `n_sockets` to function `add_charging_infrastructure()` to specify the number of sockets per charging point
 
 
 # evsim 1.5.0
