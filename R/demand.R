@@ -11,6 +11,12 @@
 #' @param title character, title of the plot (accepts HTML code)
 #' @param xlab character, X axis label (accepts HTML code)
 #' @param ylab character, Y axis label (accepts HTML code)
+#' @param legend_show character, when to display the legend.
+#' Specify "always" to always show the legend.
+#' Specify "onmouseover" to only display it when a user mouses over the chart.
+#' Specify "follow" to have the legend show as overlay to the chart which follows the mouse.
+#' The default behavior is "auto", which results in "always" when more than one series
+#' is plotted and "onmouseover" when only a single series is plotted.
 #' @param legend_width integer, width (in pixels) of the div which shows the legend.
 #' @param group character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.
 #' @param width Width in pixels (optional, defaults to automatic sizing)
@@ -35,9 +41,11 @@
 #' )
 #' demand %>% plot_ts()
 #'
-plot_ts <- function(df, title = NULL, xlab = NULL, ylab = NULL, legend_width = 250, group = NULL, width = NULL, height = NULL, ...) {
+plot_ts <- function(df, title = NULL, xlab = NULL, ylab = NULL,
+                    legend_show = "auto", legend_width = 250,
+                    group = NULL, width = NULL, height = NULL, ...) {
   dygraph(df, main = title, xlab = xlab, ylab = ylab, group = group, width = width, height = height) %>%
-    dyLegend(show = "always", width = legend_width) %>%
+    dyLegend(show = legend_show, width = legend_width, showZeroValues = FALSE) %>%
     dyOptions(retainDateWindow = TRUE, useDataTimezone = TRUE, ...) %>%
     dyCSS(system.file("www", "dystyle.css", package = "evsim"))
 }
@@ -376,7 +384,8 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #'   by = "ChargingStation",
 #'   resolution = 60
 #' )
-#' connections %>% plot_ts(ylab = "Vehicles connected")
+#' connections %>%
+#'   plot_ts(ylab = "Vehicles connected", legend_show = "onmouseover")
 #'
 #' # Get occupancy with a custom datetime sequence and resolution of 15 minutes
 #' sessions <- head(evsim::california_ev_sessions_profiles, 100)
@@ -390,7 +399,8 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #'   dttm_seq = dttm_seq,
 #'   by = "Profile"
 #' )
-#' connections %>% plot_ts(ylab = "Vehicles connected")
+#' connections %>%
+#'   plot_ts(ylab = "Vehicles connected", legend_show = "onmouseover")
 #'
 get_occupancy <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 

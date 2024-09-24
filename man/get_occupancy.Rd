@@ -51,7 +51,8 @@ connections <- get_occupancy(
   by = "ChargingStation",
   resolution = 60
 )
-connections \%>\% plot_ts(ylab = "Vehicles connected")
+connections \%>\%
+  plot_ts(ylab = "Vehicles connected", legend_show = "onmouseover")
 
 # Get occupancy with a custom datetime sequence and resolution of 15 minutes
 sessions <- head(evsim::california_ev_sessions_profiles, 100)
@@ -65,6 +66,7 @@ connections <- get_occupancy(
   dttm_seq = dttm_seq,
   by = "Profile"
 )
-connections \%>\% plot_ts(ylab = "Vehicles connected")
+connections \%>\%
+  plot_ts(ylab = "Vehicles connected", legend_show = "onmouseover")
 
 }

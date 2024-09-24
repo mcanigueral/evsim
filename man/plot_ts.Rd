@@ -9,6 +9,7 @@ plot_ts(
   title = NULL,
   xlab = NULL,
   ylab = NULL,
+  legend_show = "auto",
   legend_width = 250,
   group = NULL,
   width = NULL,
@@ -24,6 +25,13 @@ plot_ts(
 \item{xlab}{character, X axis label (accepts HTML code)}
 
 \item{ylab}{character, Y axis label (accepts HTML code)}
+
+\item{legend_show}{character, when to display the legend.
+Specify "always" to always show the legend.
+Specify "onmouseover" to only display it when a user mouses over the chart.
+Specify "follow" to have the legend show as overlay to the chart which follows the mouse.
+The default behavior is "auto", which results in "always" when more than one series
+is plotted and "onmouseover" when only a single series is plotted.}
 
 \item{legend_width}{integer, width (in pixels) of the div which shows the legend.}
 

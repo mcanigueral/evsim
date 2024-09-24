@@ -66,6 +66,12 @@
 <ul><li>Parameter <code>align_time</code> has been removed from all functions in favour of internal automatic alignment thanks to introduction of funcion <code>is_aligned</code>.</li>
 <li>Changed variable names in <code>expand_session</code> function (<code>NominalPower</code> -&gt; <code>PowerNominal</code>, <code>RequiredEnergy</code> -&gt; <code>EnergyRequired</code>)</li>
 <li>Bug fix in <code>adapt_charging_features</code> function: <code>ConnectionHours</code> now rounded to 2 digits to improve accuracy of calculations</li>
+<li>Simulated energy using log-normal distribution with a minimum of 1 kWh and simulated connections with a minimum of 30 minute duration, to be more realistic.</li>
+<li>Bug fix in <code><a href="../reference/get_evmodel_summary.html">get_evmodel_summary()</a></code>
+</li>
+<li>New legend formatting for <code><a href="../reference/plot_ts.html">plot_ts()</a></code>
+</li>
+<li>Added parameter <code>n_sockets</code> to function <code><a href="../reference/add_charging_infrastructure.html">add_charging_infrastructure()</a></code> to specify the number of sockets per charging point</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.0" id="evsim-150">evsim 1.5.0<a class="anchor" aria-label="anchor" href="#evsim-150"></a></h2><p class="text-muted">CRAN release: 2024-04-11</p>
