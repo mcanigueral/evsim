@@ -39,6 +39,11 @@ tibble
 \description{
 Simulate EV charging sessions given the \code{evmodel} object and other contextual parameters.
 }
+\details{
+Some adaptations have been done to the output of the Gaussian models:
+the minimum simulated energy is considered to be 1 kWh, while the minimum
+connection duration is 30 minutes.
+}
 \examples{
 library(dplyr)
 library(lubridate)

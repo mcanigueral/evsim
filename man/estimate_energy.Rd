@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation.R
 \name{estimate_energy}
 \alias{estimate_energy}
-\title{Estimate sessions energy values following a log-normal distribution.
+\title{Estimate sessions energy values following a Gaussian distribution.
 The minimum considered value is 1kWh based on real data analysis.}
 \usage{
 estimate_energy(n, mu, sigma, log)
@@ -21,7 +21,7 @@ If unknown, a recommended value is \code{sd = mu/3}.}
 numeric vector
 }
 \description{
-Estimate sessions energy values following a log-normal distribution.
+Estimate sessions energy values following a Gaussian distribution.
 The minimum considered value is 1kWh based on real data analysis.
 }
 \keyword{internal}

@@ -137,7 +137,7 @@ get_charging_rates_distribution <- function(sessions, unit="year", power_interva
 
 # Simulate sessions -------------------------------------------------------
 #'
-#' Estimate sessions energy values following a log-normal distribution.
+#' Estimate sessions energy values following a Gaussian distribution.
 #' The minimum considered value is 1kWh based on real data analysis.
 #'
 #' @param n integer, number of sessions
@@ -149,23 +149,22 @@ get_charging_rates_distribution <- function(sessions, unit="year", power_interva
 #' @return numeric vector
 #' @keywords internal
 #'
-#' @importFrom stats rlnorm
+#' @importFrom stats rnorm
 #'
 estimate_energy <- function(n, mu, sigma, log) {
   valid_energy <- FALSE
   while (valid_energy != TRUE) {
+    energy_sim <- rnorm(n, mean = mu, sd = sigma)
     if (log) {
-      energy_possible <- rlnorm(n, meanlog = mu, sdlog = sigma)
-    } else {
-      energy_possible <- rlnorm(n, meanlog = log(mu), sdlog = log(sigma))
+      energy_sim <- exp(energy_sim)
     }
-    energy_possible <- energy_possible[energy_possible > 1]
-    if (length(energy_possible) > 0) {
+    energy_sim <- energy_sim[energy_sim > 1]
+    if (length(energy_sim) > 0) {
       valid_energy <- TRUE
     }
   }
   energy <- sample(
-    energy_possible,
+    energy_sim,
     size = n, replace = TRUE
   )
   return( energy )
@@ -494,6 +493,12 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 #' @importFrom lubridate round_date as_datetime with_tz
 #' @importFrom rlang .data
 #' @importFrom tidyr drop_na
+#'
+#' @details
+#' Some adaptations have been done to the output of the Gaussian models:
+#' the minimum simulated energy is considered to be 1 kWh, while the minimum
+#' connection duration is 30 minutes.
+#'
 #'
 #' @examples
 #' library(dplyr)
