@@ -1,6 +1,6 @@
 # evsim 1.6.1
 
-* Solve bug in ConnectionHours calculation.
+* Solve bug in `ConnectionHours` calculation.
 
 
 # evsim 1.6.0
