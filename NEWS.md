@@ -1,3 +1,8 @@
+# evsim 1.6.1
+
+* Solve bug in ConnectionHours calculation.
+
+
 # evsim 1.6.0
 
 * Parameter `align_time` has been removed from all functions in favour of internal automatic alignment thanks to introduction of funcion `is_aligned`.

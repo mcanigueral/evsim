@@ -561,8 +561,7 @@ simulate_sessions <- function(evmodel, sessions_day, user_profiles, charging_pow
   simulated_sessions <- simulated_sessions %>%
     mutate(
       ConnectionStartDateTime = round_date(.data$start_dt, unit = paste(resolution, "minutes")),
-      ConnectionHours = round_to_interval(.data$duration, 1/60), # Rounded to 1-minute resolution
-      ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
+      ConnectionHours = .data$duration,
       Power = .data$power,
       Energy = .data$energy
     ) %>%

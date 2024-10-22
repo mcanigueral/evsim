@@ -66,7 +66,7 @@ add_charging_infrastructure <- function(sessions, resolution = 15, min_stations 
   if (is.null(names_prefix)) {
     names_prefix <- ""
   }
-  new_stations_names <- paste(names_prefix, 1:n_required_stations, sep = "CHS")
+  new_stations_names <- paste(names_prefix, seq_len(n_required_stations), sep = "CHS")
   socket_names <- paste(new_stations_names, rep(seq_len(n_sockets), each = n_required_stations), sep = "-")
 
   # Iterate over all time slots assigning every session to a charging socket
