@@ -262,10 +262,8 @@ estimate_connection <- function(n, mu, sigma, log) {
   if (log) {
     ev_connections <- exp(ev_connections)
   }
-  ev_connections <- slice_sample(
-    ev_connections[ev_connections[[1]] > 0 & ev_connections[[2]] > 0.5, ],
-    n = n, replace = TRUE
-  )
+  ev_connections[[1]] <- pmax(ev_connections[[1]], 0)
+  ev_connections[[2]] <- pmax(ev_connections[[2]], 0.5)
   return( ev_connections )
 }
 
@@ -361,7 +359,6 @@ estimate_sessions <- function(profile_name, n_sessions, power, connection_models
 
     # Energy ----------------------------------------------------
     estimated_energy <- get_estimated_energy(estimated_power, energy_models, energy_log)
-
 
     estimated_sessions <- tibble(
       start = round(estimated_connections[[1]], 2),
