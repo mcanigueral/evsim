@@ -152,21 +152,12 @@ get_charging_rates_distribution <- function(sessions, unit="year", power_interva
 #' @importFrom stats rnorm
 #'
 estimate_energy <- function(n, mu, sigma, log) {
-  valid_energy <- FALSE
-  while (valid_energy != TRUE) {
-    energy_sim <- rnorm(n, mean = mu, sd = sigma)
-    if (log) {
-      energy_sim <- exp(energy_sim)
-    }
-    energy_sim <- energy_sim[energy_sim > 1]
-    if (length(energy_sim) > 0) {
-      valid_energy <- TRUE
-    }
+  energy_sim <- rnorm(n, mean = mu, sd = sigma)
+  if (log) {
+    energy_sim <- exp(energy_sim)
   }
-  energy <- sample(
-    energy_sim,
-    size = n, replace = TRUE
-  )
+  # Minimum 1kWh
+  energy <- pmax(energy_sim, 1)
   return( energy )
 }
 
@@ -397,8 +388,15 @@ get_day_features <- function(day, ev_models) {
     day_timecycle <- ev_models[["time_cycle"]][models_month_idx & models_wday_idx][[1]]
     day_models <- ev_models[["user_profiles"]][models_month_idx & models_wday_idx][[1]]
     day_n_sessions <- ev_models[["n_sessions"]][models_month_idx & models_wday_idx][[1]]
+
+    if (nrow(day_models) == 0) {
+      message(paste("Warning: no models configured for", day_timecycle, "time-cycle."))
+      day_models <- NA
+      day_n_sessions <- 0
+    }
+
   } else {
-    message("Warning: the day to simulate is not considered by the models.")
+    message(paste("Warning: the day", as.character(day), "is not considered by the models."))
     day_timecycle <- NA
     day_models <- NA
     day_n_sessions <- 0
