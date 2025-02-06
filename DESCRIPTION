@@ -28,9 +28,6 @@ Imports:
   dygraphs,
   ggplot2
 Suggests:
-  shiny,
-  shinydashboard,
-  shinyWidgets,
   spelling,
   testthat (>= 3.0.0)
 Depends: 
