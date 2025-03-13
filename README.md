@@ -65,23 +65,28 @@ and other discussion, please send me a mail to
 For further technical details, you can read the following academic
 articles about the methodology used in this paper:
 
-- **Electric vehicle user profiles for aggregated flexibility
-  planning**. IEEE PES Innovative Smart Grid Technologies Europe (ISGT
-  Europe). IEEE, Oct. 18, 2021. [DOI
-  link](https://doi.org/10.1109/isgteurope52324.2021.9639931).
-- **Flexibility management of electric vehicles based on user profiles:
-  The Arnhem case study**. International Journal of Electrical Power and
-  Energy Systems, vol. 133. Elsevier BV, p. 107195, Dec. 2021. [DOI
-  link](https://doi.org/10.1016/j.ijepes.2021.107195).
+- **Increasing hosting capacity of low-voltage distribution network
+  using smart charging based on local and dynamic capacity limits**.
+  Sustainable Energy, Grids and Networks, vol. 41. Elsevier BV,
+  p. 101626, March 2025. [DOI
+  link](https://doi.org/10.1016/j.segan.2025.101626).
+- **Assessment of electric vehicle charging hub based on stochastic
+  models of user profiles**. Expert Systems with Applications (Vol. 227,
+  p. 120318). Elsevier BV. May 2023. [DOI
+  link](https://doi.org/10.1016/j.eswa.2023.120318).
 - **Potential benefits of scheduling electric vehicle sessions over
   limiting charging power**. CIRED Porto Workshop 2022: E-mobility and
   power distribution systems. Institution of Engineering and
   Technology, 2022. [DOI
   link](https://ieeexplore.ieee.org/abstract/document/9841653).
-- **Assessment of electric vehicle charging hub based on stochastic
-  models of user profiles**. Expert Systems with Applications (Vol. 227,
-  p. 120318). Elsevier BV. May 2023. [DOI
-  link](https://doi.org/10.1016/j.eswa.2023.120318).
+- **Flexibility management of electric vehicles based on user profiles:
+  The Arnhem case study**. International Journal of Electrical Power and
+  Energy Systems, vol. 133. Elsevier BV, p. 107195, Dec. 2021. [DOI
+  link](https://doi.org/10.1016/j.ijepes.2021.107195).
+- **Electric vehicle user profiles for aggregated flexibility
+  planning**. IEEE PES Innovative Smart Grid Technologies Europe (ISGT
+  Europe). IEEE, Oct. 18, 2021. [DOI
+  link](https://doi.org/10.1109/isgteurope52324.2021.9639931).
 
 ## Acknowledgements
 
