@@ -49,7 +49,7 @@ convert_time_num_to_period <- function(time_num) {
 #'
 #' @importFrom dplyr mutate
 #' @importFrom rlang .data
-#' @importFrom lubridate round_date
+#' @importFrom lubridate round_date tz with_tz
 #'
 #' @examples
 #' suppressMessages(library(dplyr))
@@ -75,10 +75,14 @@ convert_time_num_to_period <- function(time_num) {
 #'
 #'
 adapt_charging_features <- function (sessions, time_resolution = 15, power_resolution = 0.01) {
+  sessions_tz <- tz(sessions$ConnectionStartDateTime[1])
   sessions %>%
     mutate(
       ConnectionStartDateTime = round_date(.data$ConnectionStartDateTime, paste(time_resolution, "mins")),
-      ConnectionEndDateTime = .data$ConnectionStartDateTime + convert_time_num_to_period(.data$ConnectionHours),
+      ConnectionEndDateTime = with_tz(
+        with_tz(.data$ConnectionStartDateTime, "UTC") + convert_time_num_to_period(.data$ConnectionHours),
+        tzone = sessions_tz
+      ), # Need to convert timezone to UTC to avoid NA values for time-shift hours
       Power = round_to_interval(.data$Power, interval = power_resolution),
       ConnectionHours = round(as.numeric(.data$ConnectionEndDateTime - .data$ConnectionStartDateTime, unit="hours"), 2),
       ChargingHours = round(pmin(.data$Energy/.data$Power, .data$ConnectionHours), 2),
@@ -304,7 +308,7 @@ estimate_sessions <- function(profile_name, n_sessions, power, connection_models
   }
 
   ev_sessions <- tibble()
-  n_sessions_objective <- n_sessions - nrow(ev_sessions)
+  n_sessions_objective <- n_sessions
 
   while (n_sessions_objective > 0) {
 
