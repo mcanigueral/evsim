@@ -50,13 +50,13 @@ install.packages("evsim")
 
 # Latest development version
 # install.packages("devtools")
-devtools::install_github("mcanigueral/evsim")
+devtools::install_github("resourcefully-dev/evsim")
 ```
 
 
 ## Getting help
 
-If you encounter a clear bug, please open an issue with a minimal reproducible example on [GitHub](https://github.com/mcanigueral/evprof/issues). For questions and other discussion, please send me a mail to [marc.canigueral@udg.edu](mailto:marc.canigueral@udg.edu).
+If you encounter a clear bug, please open an issue with a minimal reproducible example on [GitHub](https://github.com/mcanigueral/evprof/issues).
 
 For further technical details, you can read the following academic articles about the methodology used in this paper:
 
