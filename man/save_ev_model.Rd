@@ -7,8 +7,7 @@
 save_ev_model(evmodel, file)
 }
 \arguments{
-\item{evmodel}{object of class \code{evmodel}
-(see this \href{https://mcanigueral.github.io/evprof/articles/evmodel.html}{link} for more information)}
+\item{evmodel}{object of class \code{evmodel}}
 
 \item{file}{character string with the path or name of the file}
 }

@@ -57,7 +57,6 @@ plot_ts <- function(df, title = NULL, xlab = NULL, ylab = NULL,
 #' aligned with a specific time resolution.
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `evprof` package
-#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param resolution integer, time resolution (in minutes) of the time slots
 #'
 #' @return logical
@@ -82,7 +81,6 @@ is_aligned <- function(sessions, resolution) {
 #' with the corresponding `Power` consumption, among other variables.
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `evprof` package
-#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param resolution integer, time resolution (in minutes) of the time slots
 #'
 #' @importFrom dplyr  %>% mutate row_number
@@ -126,7 +124,6 @@ expand_sessions <- function(sessions, resolution) {
 #' with the corresponding `Power` consumption, among other variables.
 #'
 #' @param session tibble, sessions data set in standard format marked by `evprof` package
-#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param resolution integer, time resolution (in minutes) of the time slots
 #'
 #' @importFrom dplyr  %>% mutate tibble select all_of
@@ -177,7 +174,6 @@ expand_session <- function(session, resolution) {
 #' Obtain time-series of EV demand from sessions data set
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param dttm_seq sequence of datetime values that will be the `datetime`
 #' variable of the returned time-series data frame.
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.
@@ -347,7 +343,6 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #' Obtain time-series of simultaneously connected EVs from sessions data set
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param dttm_seq sequence of datetime values that will be the `datetime`
 #' variable of the returned time-series data frame.
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.

@@ -13,8 +13,7 @@ plot_occupancy_duration_curve(
 )
 }
 \arguments{
-\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
-(see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this article})}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
 
 \item{dttm_seq}{sequence of datetime values that will be the \code{datetime}
 variable of the returned time-series data frame.}

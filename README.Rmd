@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# evsim <a href='https://mcanigueral.github.io/evsim/'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# evsim <a href='https://resourcefully-dev.github.io/evsim/'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/evsim)](https://cran.r-project.org/package=evsim)
@@ -25,8 +25,8 @@ knitr::opts_chunk$set(
 
 evsim is part of a suite of packages to analyse, model and simulate the charging behavior of electric vehicle users:
 
-* [evprof](https://mcanigueral.github.io/evprof/): Electric Vehicle PROFiling
-* [evsim](https://mcanigueral.github.io/evsim/): Electric Vehicle SIMulation
+* [evprof](https://resourcefully-dev.github.io/evprof/): Electric Vehicle PROFiling
+* [evsim](https://resourcefully-dev.github.io/evsim/): Electric Vehicle SIMulation
 
 evsim package provides the functions for:
 
@@ -37,7 +37,7 @@ evsim package provides the functions for:
 
 ## Usage
 
-If you have your own data set of EV charging sessions or you have already built your EV model with [evprof](https://mcanigueral.github.io/evprof/), the best place to start is the [Get started chapter](https://mcanigueral.github.io/evsim/articles/evsim.html) in the package website.
+If you have your own data set of EV charging sessions or you have already built your EV model with [evprof](https://resourcefully-dev.github.io/evprof/), the best place to start is the [Get started chapter](https://resourcefully-dev.github.io/evsim/articles/evsim.html) in the package website.
 
 
 ## Installation

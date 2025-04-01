@@ -2,16 +2,11 @@ Package: evsim
 Title: Electric Vehicle Charging Sessions Simulation
 Version: 1.6.1
 Authors@R: 
-    person(given = "Marc",
-           family = "Cañigueral",
-           role = c("aut", "cre"),
-           email = "marc.canigueral@udg.edu",
-           comment = c(ORCID = "0000-0001-9724-5829")
-           )
-Description: Simulation of Electric Vehicles charging sessions using 
-    Gaussian models, together with time-series power demand calculations. 
-    The simulation methodology is published in 
-    Cañigueral et al. (2023, ISBN:0957-4174) <doi:10.1016/j.eswa.2023.120318>.
+    person(given = "Marc", family = "Cañigueral", role = c("aut", "cre", "cph"),
+           email = "marccanyigueral@gmail.com",
+           comment = c(ORCID = "0000-0001-9724-5829"))
+Maintainer: Marc Cañigueral <marccanyigueral@gmail.com>
+Description: Simulation of Electric Vehicles charging sessions using Gaussian models, together with time-series power demand calculations.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -32,7 +27,7 @@ Suggests:
   testthat (>= 3.0.0)
 Depends: 
     R (>= 2.10)
-URL: https://mcanigueral.github.io/evsim/, https://github.com/mcanigueral/evsim/
-BugReports: https://github.com/mcanigueral/evsim/issues
+URL: https://github.com/resourcefully-dev/evsim/, https://resourcefully-dev.github.io/evsim/
+BugReports: https://github.com/resourcefully-dev/evsim/issues
 Language: en-US
 Config/testthat/edition: 3

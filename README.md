@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# evsim <a href='https://mcanigueral.github.io/evsim/'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# evsim <a href='https://resourcefully-dev.github.io/evsim/'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
 
@@ -17,9 +17,9 @@ coverage](https://codecov.io/gh/mcanigueral/evsim/branch/main/graph/badge.svg)](
 evsim is part of a suite of packages to analyse, model and simulate the
 charging behavior of electric vehicle users:
 
-- [evprof](https://mcanigueral.github.io/evprof/): Electric Vehicle
+- [evprof](https://resourcefully-dev.github.io/evprof/): Electric Vehicle
   PROFiling
-- [evsim](https://mcanigueral.github.io/evsim/): Electric Vehicle
+- [evsim](https://resourcefully-dev.github.io/evsim/): Electric Vehicle
   SIMulation
 
 evsim package provides the functions for:
@@ -35,9 +35,9 @@ evsim package provides the functions for:
 
 If you have your own data set of EV charging sessions or you have
 already built your EV model with
-[evprof](https://mcanigueral.github.io/evprof/), the best place to start
+[evprof](https://resourcefully-dev.github.io/evprof/), the best place to start
 is the [Get started
-chapter](https://mcanigueral.github.io/evsim/articles/evsim.html) in the
+chapter](https://resourcefully-dev.github.io/evsim/articles/evsim.html) in the
 package website.
 
 ## Installation

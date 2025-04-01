@@ -21,8 +21,5 @@ Example of an charging sessions data set ready to use by \code{evprof} functions
 It is the open source data set downloaded from the
 \href{https://ev.caltech.edu/dataset}{ACN-Data website}, transformed according
 to the standard names defined by \code{evprof}
-(see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this} article).
-More information about the analysis of this data set in the evprof website:
-\url{https://mcanigueral.github.io/evprof/articles/california.html}
 }
 \keyword{internal}

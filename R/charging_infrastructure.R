@@ -6,7 +6,6 @@
 #' tibble with a name pattern being: `names_prefix` + "CHS" + number
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param resolution integer, time resolution in minutes
 #' @param min_stations integer, minimum number of charging stations to consider
 #' @param n_sockets integer, number of sockets per charging station
@@ -134,7 +133,6 @@ add_charging_infrastructure <- function(sessions, resolution = 15, min_stations 
 #' capacity sizing, and resource allocation.
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param dttm_seq sequence of datetime values that will be the `datetime`
 #' variable of the returned time-series data frame.
 #' @param by character, being 'Profile' or 'Session'. When `by='Profile'` each column corresponds to an EV user profile.

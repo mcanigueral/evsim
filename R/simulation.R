@@ -40,7 +40,6 @@ convert_time_num_to_period <- function(time_num) {
 #' limited by `ConnectionHours`. Finally, the charging times are also calculated.
 #'
 #' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))
 #' @param time_resolution integer, time resolution (in minutes) of the sessions' datetime variables
 #' @param power_resolution numeric, power resolution (in kW) of the sessions' power
 #'
@@ -97,8 +96,7 @@ adapt_charging_features <- function (sessions, time_resolution = 15, power_resol
 #'
 #' Get charging rates distribution in percentages from a charging sessions data set
 #'
-#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` package
-#' (see [this article](https://mcanigueral.github.io/evprof/articles/sessions-format.html))t
+#' @param sessions tibble, sessions data set in standard format marked by `{evprof}` packaget
 #' @param unit character. Valid base units are `second`, `minute`, `hour`, `day`,
 #' `week`, `month`, `bimonth`, `quarter`, `season`, `halfyear` and `year`.
 #' It corresponds to `unit` parameter in `lubridate::floor_date` function.
@@ -470,7 +468,6 @@ get_day_sessions <- function(day, ev_models, connection_log, energy_log, chargin
 #' Simulate EV charging sessions given the `evmodel` object and other contextual parameters.
 #'
 #' @param evmodel object of class `evmodel` built with `{evprof}`
-#' (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param sessions_day tibble with variables `time_cycle` (names corresponding to `evmodel$models$time_cycle`) and `n_sessions` (number of daily sessions per day for each time-cycle model)
 #' @param user_profiles tibble with variables `time_cycle`, `profile`, `ratio` and optionally `power`.
 #' It can also be `NULL` to use the `evmodel` original user profiles distribution.

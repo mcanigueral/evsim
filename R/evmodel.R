@@ -53,7 +53,6 @@ tidy_models <- function(user_models_df) {
 #' `print` method for `evmodel` object class
 #'
 #' @param x  `evmodel` object
-#' (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @returns nothing but prints information about the `evmodel` object
@@ -522,7 +521,6 @@ get_custom_ev_model <- function(names, months_lst = list(1:12, 1:12), wdays_lst 
 #' Save the EV model object of class `evmodel` to a JSON file
 #'
 #' @param evmodel object of class `evmodel`
-#' (see this [link](https://mcanigueral.github.io/evprof/articles/evmodel.html) for more information)
 #' @param file character string with the path or name of the file
 #'
 #' @returns nothing but saves the `evmodel` object in a JSON file

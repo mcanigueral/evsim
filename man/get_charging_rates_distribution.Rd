@@ -7,8 +7,7 @@
 get_charging_rates_distribution(sessions, unit = "year", power_interval = NULL)
 }
 \arguments{
-\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
-(see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this article})t}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} packaget}
 
 \item{unit}{character. Valid base units are \code{second}, \code{minute}, \code{hour}, \code{day},
 \code{week}, \code{month}, \code{bimonth}, \code{quarter}, \code{season}, \code{halfyear} and \code{year}.

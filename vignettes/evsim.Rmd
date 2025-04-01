@@ -9,7 +9,7 @@ library(evsim)
 library(dplyr)
 ```
 
-This package provides the tools to simulate new EV charging session, on the basis of the **Gaussian Mixture Models (GMM)** of different EV user profiles found and modeled with [`{evprof}`](https://mcanigueral.github.io/evprof/). The EV model obtained with [`evprof::get_ev_model`](https://mcanigueral.github.io/evprof/reference/get_ev_model.html) function is an object of class `evmodel`, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html) from website of `{evprof}` package.
+This package provides the tools to simulate new EV charging session, on the basis of the **Gaussian Mixture Models (GMM)** of different EV user profiles found and modeled with [`{evprof}`](https://resourcefully-dev.github.io/evprof/). The EV model obtained with [`evprof::get_ev_model`](https://resourcefully-dev.github.io/evprof/reference/get_ev_model.html) function is an object of class `evmodel`, which contains multiple time-cycle models (e.g. Weekdays and Weekends). At the same time, each time-cycle model consists in a combination of multiple EV user profiles and each user profile consists in multiple GMM. For more information about the EV models read [this article](https://resourcefully-dev.github.io/evprof/articles/evmodel.html) from website of `{evprof}` package.
 
 ## Required data
 
@@ -24,7 +24,7 @@ The only function of `{evsim}` package necessary to simulate new EV sessions is 
 
 ### EV model
 
-Package `{evsim}` provides an EV model of example, being the model created from California ACN data in the [California article](https://mcanigueral.github.io/evprof/articles/california.html) from `{evprof}` documentation. This model can be accessed loading the `{evsim}` package or with the following function:
+Package `{evsim}` provides an EV model of example, being the model created from California ACN data in the [California article](https://resourcefully-dev.github.io/evprof/articles/california.html) from `{evprof}` documentation. This model can be accessed loading the `{evsim}` package or with the following function:
 
 ```{r}
 ev_model <- evsim::california_ev_model
@@ -94,7 +94,7 @@ user_profiles
 
 ### Charging powers distribution
 
-The charging power is not a variable modeled by Gaussian Mixture Models (GMM) like the connection variables or the energy. However, the energy GMM can be built by charging power separately (see [User profiles modelling](https://mcanigueral.github.io/evprof/articles/evprof.html#user-profiles-modeling) on `{evprof}` website), since in general the energy charged depends on the charging power (the higher the charging power the higher the energy demand).
+The charging power is not a variable modeled by Gaussian Mixture Models (GMM) like the connection variables or the energy. However, the energy GMM can be built by charging power separately (see [User profiles modelling](https://resourcefully-dev.github.io/evprof/articles/evprof.html#user-profiles-modeling) on `{evprof}` website), since in general the energy charged depends on the charging power (the higher the charging power the higher the energy demand).
 
 The purpose of letting the charging power out of the GMM is that it is a variable that depends on the EV model and the charging point, so it may change between scenarios. For example, we may want to simulate a scenario where all vehicles have a three-phase connection (11 kW) instead of the current scenario with still a lot of vehicles charging with a single phase (3.7 kW). Therefore, it was convenient to set an option to simulate a specific distribution of charging powers for the simulated EV fleet. This is done with a `charging_powers` tibble with variables `power` and `ratio`. In the public charging infrastructure the most common and standard power rates are:
 

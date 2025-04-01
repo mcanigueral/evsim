@@ -12,7 +12,7 @@ library(lubridate)
 
 # Simplifying our model
 
-The `evmodel` object obtained with `evprof` contains all statistic parameters of the Gaussian Mixture Models for both connection and energy models (see [this article](https://mcanigueral.github.io/evprof/articles/evmodel.html)). However, these GMM can be quite complex with a lot of clusters (mixtures) and the JSON file describing the model can result in a large file. 
+The `evmodel` object obtained with `evprof` contains all statistic parameters of the Gaussian Mixture Models for both connection and energy models (see [this article](https://resourcefully-dev.github.io/evprof/articles/evmodel.html)). However, these GMM can be quite complex with a lot of clusters (mixtures) and the JSON file describing the model can result in a large file. 
 
 To check the complexity of the models and describe all parameters within the JSON file, the function `get_evmodel_parameters` provides the model parameters in a `list` form:
 

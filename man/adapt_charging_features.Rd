@@ -11,8 +11,7 @@ adapt_charging_features(
 )
 }
 \arguments{
-\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package
-(see \href{https://mcanigueral.github.io/evprof/articles/sessions-format.html}{this article})}
+\item{sessions}{tibble, sessions data set in standard format marked by \code{{evprof}} package}
 
 \item{time_resolution}{integer, time resolution (in minutes) of the sessions' datetime variables}
 
