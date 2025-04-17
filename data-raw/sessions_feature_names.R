@@ -9,7 +9,6 @@ sessions_feature_names <- c(
   "Energy",
   "ConnectionHours",
   "ChargingHours",
-  "FlexibilityHours",
   "ChargingStation",
   "Socket"
 )
