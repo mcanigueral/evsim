@@ -332,6 +332,13 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
     ) %>%
     arrange(.data$datetime)
 
+  # Check if some `by` variable is not in the tibble, then add zeros
+  by_vars <- unique(sessions[[by]])
+  by_vars_to_add <- setdiff(by_vars, colnames(demand))
+  if (length(by_vars_to_add) > 0) {
+    demand[by_vars_to_add] <- 0
+  }
+
   return( replace(demand, is.na(demand), 0) )
 }
 
