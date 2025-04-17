@@ -34,12 +34,13 @@ test_that("demand is calculated properly with custom datetime sequence", {
   expect_true(nrow(demand) == length(dttm_seq))
 })
 
-test_that("demand calculation is skipped if there are no sessions nor datetime sequence", {
-  demand <- sessions %>%
-    mutate(Profile = "All") %>%
-    filter(Profile == "all") %>%
-    get_demand(by = "Profile", resolution = 15, dttm_seq = NULL)
-  expect_true(is.null(demand))
+test_that("demand calculation is skipped if there are no sessions", {
+  expect_error(
+    sessions %>%
+      mutate(Profile = "All") %>%
+      filter(Profile == "all") %>%
+      get_demand(by = "Profile", resolution = 15, dttm_seq = NULL)
+  )
 })
 
 

@@ -231,6 +231,10 @@ expand_session <- function(session, resolution) {
 #'
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
+  if (nrow(sessions) == 0) {
+    stop("Error: `sessions` can't be an empty tibble.")
+  }
+
   demand_vars <- unique(sessions[[by]])
 
   # Multi-processing parameter check
