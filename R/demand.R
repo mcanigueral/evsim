@@ -231,6 +231,8 @@ expand_session <- function(session, resolution) {
 #'
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
+  demand_vars <- unique(sessions[[by]])
+
   # Multi-processing parameter check
   if (mc.cores > detectCores(logical = FALSE) | mc.cores < 1) {
     mc.cores <- 1
@@ -243,28 +245,25 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
   )
 
   # Definition of `dttm_seq` and `resolution`
-  if (nrow(sessions) == 0) {
-    if (is.null(dttm_seq)) {
-      message("Must provide sessions or dttm_seq parameter")
-      return( NULL )
-    } else {
-      return( tibble(datetime = dttm_seq, demand = 0) )
-    }
+  if (is.null(dttm_seq)) {
+    dttm_seq <- seq.POSIXt(
+      from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
+      to = floor_date(max(sessions$ConnectionEndDateTime), 'day') + days(1),
+      by = paste(resolution, 'min')
+    )
   } else {
-
-    if (is.null(dttm_seq)) {
-      dttm_seq <- seq.POSIXt(
-        from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
-        to = floor_date(max(sessions$ConnectionEndDateTime), 'day') + days(1),
-        by = paste(resolution, 'min')
+    resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
+    sessions <- sessions %>%
+      filter(
+        between(.data$ChargingStartDateTime, dttm_seq[1], dttm_seq[length(dttm_seq)])
       )
-    } else {
-      resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
-      sessions <- sessions %>%
-        filter(
-          between(.data$ChargingStartDateTime, dttm_seq[1], dttm_seq[length(dttm_seq)])
-        )
-    }
+  }
+
+  if (nrow(sessions) == 0) {
+
+    demand <- tibble(datetime = dttm_seq)
+
+  } else {
 
     # Remove sessions that are not consuming in certain time slots
     sessions <- sessions %>%
@@ -276,67 +275,67 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
       sessions <- sessions %>%
         adapt_charging_features(time_resolution = resolution)
     }
-  }
 
-  # Expand sessions that are connected more than 1 time slot
-  sessions_to_expand <- sessions %>%
-    filter(.data$ConnectionHours > resolution/60) %>%
-    mutate(Month = month(.data$ConnectionStartDateTime))
+    # Expand sessions that are connected more than 1 time slot
+    sessions_to_expand <- sessions %>%
+      filter(.data$ConnectionHours > resolution/60) %>%
+      mutate(Month = month(.data$ConnectionStartDateTime))
 
-  if (nrow(sessions_to_expand) > 0) {
+    if (nrow(sessions_to_expand) > 0) {
 
-    # Expand sessions
-    if (mc.cores == 1) {
-      sessions_expanded <- sessions_to_expand %>%
-        expand_sessions(resolution = resolution)
+      # Expand sessions
+      if (mc.cores == 1) {
+        sessions_expanded <- sessions_to_expand %>%
+          expand_sessions(resolution = resolution)
+      } else {
+        sessions_expanded <- sessions_to_expand  %>%
+          split(sessions_to_expand$Month) %>%
+          my.mclapply(
+            expand_sessions, resolution = resolution, mc.cores = mc.cores
+          ) %>%
+          list_rbind()
+      }
+
+      # Join all sessions together
+      sessions_expanded <- sessions_expanded %>%
+        bind_rows(
+          sessions %>%
+            filter(!(.data$Session %in% sessions_to_expand$Session)) %>%
+            mutate(Timeslot = .data$ConnectionStartDateTime)
+        )
+
     } else {
-      sessions_expanded <- sessions_to_expand  %>%
-        split(sessions_to_expand$Month) %>%
-        my.mclapply(
-          expand_sessions, resolution = resolution, mc.cores = mc.cores
-        ) %>%
-        list_rbind()
+      sessions_expanded <- sessions %>%
+        mutate(Timeslot = .data$ConnectionStartDateTime)
     }
 
-    # Join all sessions together
     sessions_expanded <- sessions_expanded %>%
-      bind_rows(
+      select(any_of(c('Session', 'Timeslot', 'Power'))) %>%
+      left_join(
         sessions %>%
-          filter(!(.data$Session %in% sessions_to_expand$Session)) %>%
-          mutate(Timeslot = .data$ConnectionStartDateTime)
+          select('Session', !!sym(by)) %>%
+          distinct(),
+        by = 'Session'
       )
 
-  } else {
-    sessions_expanded <- sessions %>%
-      mutate(Timeslot = .data$ConnectionStartDateTime)
+    # Calculate power demand by time slot and variable `by`
+    demand <- sessions_expanded %>%
+      group_by(!!sym(by), datetime = .data$Timeslot) %>%
+      summarise(Power = sum(.data$Power)) %>%
+      arrange(factor(!!sym(by), levels = unique(sessions[[by]]))) %>%
+      pivot_wider(names_from = !!sym(by), values_from = 'Power', values_fill = 0) %>%
+      right_join(
+        tibble(datetime = dttm_seq),
+        by = 'datetime'
+      ) %>%
+      arrange(.data$datetime)
   }
 
-  sessions_expanded <- sessions_expanded %>%
-    select(any_of(c('Session', 'Timeslot', 'Power'))) %>%
-    left_join(
-      sessions %>%
-        select('Session', !!sym(by)) %>%
-        distinct(),
-      by = 'Session'
-    )
-
-  # Calculate power demand by time slot and variable `by`
-  demand <- sessions_expanded %>%
-    group_by(!!sym(by), datetime = .data$Timeslot) %>%
-    summarise(Power = sum(.data$Power)) %>%
-    arrange(factor(!!sym(by), levels = unique(sessions[[by]]))) %>%
-    pivot_wider(names_from = !!sym(by), values_from = 'Power', values_fill = 0) %>%
-    right_join(
-      tibble(datetime = dttm_seq),
-      by = 'datetime'
-    ) %>%
-    arrange(.data$datetime)
-
+  # browser()
   # Check if some `by` variable is not in the tibble, then add zeros
-  by_vars <- unique(sessions[[by]])
-  by_vars_to_add <- setdiff(by_vars, colnames(demand))
-  if (length(by_vars_to_add) > 0) {
-    demand[by_vars_to_add] <- 0
+  demand_vars_to_add <- setdiff(demand_vars, colnames(demand))
+  if (length(demand_vars_to_add) > 0) {
+    demand[demand_vars_to_add] <- 0
   }
 
   return( replace(demand, is.na(demand), 0) )

@@ -41,3 +41,15 @@ test_that("demand calculation is skipped if there are no sessions nor datetime s
     get_demand(by = "Profile", resolution = 15, dttm_seq = NULL)
   expect_true(is.null(demand))
 })
+
+
+test_that("zeros are returned when no sessions have demand in datetime_seq", {
+  demand <- sessions %>%
+    mutate(Profile = "All") %>%
+    get_demand(by = "Profile", resolution = 15, dttm_seq = NULL)
+  dttm_seq_2 <- demand$datetime + years(1)
+  demand2 <- sessions %>%
+    mutate(Profile = "All") %>%
+    get_demand(by = "Profile", resolution = 15, dttm_seq = dttm_seq_2)
+  expect_equal(sum(demand2$All), 0)
+})
