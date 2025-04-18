@@ -304,7 +304,7 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
       sessions_expanded <- sessions_expanded %>%
         bind_rows(
           sessions %>%
-            filter(!(.data$Session %in% sessions_to_expand$Session)) %>%
+            filter(.data$ConnectionHours <= resolution/60) %>%
             mutate(Timeslot = .data$ConnectionStartDateTime)
         )
 
@@ -335,14 +335,16 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
       arrange(.data$datetime)
   }
 
-  # browser()
   # Check if some `by` variable is not in the tibble, then add zeros
   demand_vars_to_add <- setdiff(demand_vars, colnames(demand))
   if (length(demand_vars_to_add) > 0) {
     demand[demand_vars_to_add] <- 0
   }
 
-  return( replace(demand, is.na(demand), 0) )
+  # Fill gaps
+  demand <- replace(demand, is.na(demand), 0)
+
+  return( demand )
 }
 
 
@@ -409,6 +411,12 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #'
 get_occupancy <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
+  if (nrow(sessions) == 0) {
+    stop("Error: `sessions` can't be an empty tibble.")
+  }
+
+  occupancy_vars <- unique(sessions[[by]])
+
   # Multi-processing parameter check
   if (mc.cores > detectCores(logical = FALSE) | mc.cores < 1) {
     mc.cores <- 1
@@ -421,29 +429,25 @@ get_occupancy <- function(sessions, dttm_seq = NULL, by = "Profile", resolution 
   )
 
   # Definition of `dttm_seq` and `resolution`
+  if (is.null(dttm_seq)) {
+    dttm_seq <- seq.POSIXt(
+      from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
+      to = floor_date(max(sessions$ConnectionEndDateTime), 'day') + days(1),
+      by = paste(resolution, 'min')
+    )
+  } else {
+    resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
+    sessions <- sessions %>%
+      filter(
+        between(.data$ConnectionStartDateTime, dttm_seq[1], dttm_seq[length(dttm_seq)])
+      )
+  }
 
   if (nrow(sessions) == 0) {
-    if (is.null(dttm_seq)) {
-      message("Must provide sessions or dttm_seq parameter")
-      return( NULL )
-    } else {
-      return( tibble(datetime = dttm_seq, n_connections = 0) )
-    }
-  } else {
 
-    if (is.null(dttm_seq)) {
-      dttm_seq <- seq.POSIXt(
-        from = floor_date(min(sessions$ConnectionStartDateTime), 'day'),
-        to = floor_date(max(sessions$ConnectionEndDateTime), 'day') + days(1),
-        by = paste(resolution, 'min')
-      )
-    } else {
-      resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
-      sessions <- sessions %>%
-        filter(
-          between(.data$ConnectionStartDateTime, dttm_seq[1], dttm_seq[length(dttm_seq)])
-        )
-    }
+    n_connections <- tibble(datetime = dttm_seq)
+
+  } else {
 
     # Align time variables to current time resolution
     if (!is_aligned(sessions, resolution)) {
@@ -451,63 +455,72 @@ get_occupancy <- function(sessions, dttm_seq = NULL, by = "Profile", resolution 
       sessions <- sessions %>%
         adapt_charging_features(time_resolution = resolution)
     }
-  }
 
-  # Expand sessions that are connected more than 1 time slot
-  sessions_to_expand <- sessions %>%
-    filter(.data$ConnectionHours > resolution/60) %>%
-    mutate(Month = month(.data$ConnectionStartDateTime))
+    # Expand sessions that are connected more than 1 time slot
+    sessions_to_expand <- sessions %>%
+      filter(.data$ConnectionHours > resolution/60) %>%
+      mutate(Month = month(.data$ConnectionStartDateTime))
 
-  if (nrow(sessions_to_expand) > 0) {
+    if (nrow(sessions_to_expand) > 0) {
 
-    # Expand sessions
-    if (mc.cores == 1) {
-      sessions_expanded <- sessions_to_expand %>%
-        expand_sessions(resolution = resolution)
+      # Expand sessions
+      if (mc.cores == 1) {
+        sessions_expanded <- sessions_to_expand %>%
+          expand_sessions(resolution = resolution)
+      } else {
+        sessions_expanded <- sessions_to_expand  %>%
+          split(sessions_to_expand$Month) %>%
+          my.mclapply(
+            expand_sessions, resolution = resolution, mc.cores = mc.cores
+          ) %>%
+          list_rbind()
+      }
+
+      # Join all sessions together
+      sessions_expanded <- sessions_expanded %>%
+        bind_rows(
+          sessions %>%
+            filter(.data$ConnectionHours <= resolution/60) %>%
+            mutate(Timeslot = .data$ConnectionStartDateTime)
+        )
+
     } else {
-      sessions_expanded <- sessions_to_expand  %>%
-        split(sessions_to_expand$Month) %>%
-        my.mclapply(
-          expand_sessions, resolution = resolution, mc.cores = mc.cores
-        ) %>%
-        list_rbind()
+      sessions_expanded <- sessions %>%
+        mutate(Timeslot = .data$ConnectionStartDateTime)
     }
 
-    # Join all sessions together
     sessions_expanded <- sessions_expanded %>%
-      bind_rows(
+      select(any_of(c('Session', 'Timeslot'))) %>%
+      left_join(
         sessions %>%
-          filter(!(.data$Session %in% sessions_to_expand$Session)) %>%
-          mutate(Timeslot = .data$ConnectionStartDateTime)
+          select('Session', !!sym(by)) %>%
+          distinct(),
+        by = 'Session'
       )
 
-  } else {
-    sessions_expanded <- sessions %>%
-      mutate(Timeslot = .data$ConnectionStartDateTime)
+    # Calculate the number of EV connections by time slot and variable `by`
+    n_connections <- sessions_expanded %>%
+      group_by(!!sym(by), datetime = .data$Timeslot) %>%
+      summarise(n_connections = n()) %>%
+      arrange(factor(!!sym(by), levels = unique(sessions[[by]]))) %>%
+      pivot_wider(names_from = !!sym(by), values_from = 'n_connections', values_fill = 0) %>%
+      right_join(
+        tibble(datetime = dttm_seq),
+        by = 'datetime'
+      ) %>%
+      arrange(.data$datetime)
   }
 
-  sessions_expanded <- sessions_expanded %>%
-    select(any_of(c('Session', 'Timeslot'))) %>%
-    left_join(
-      sessions %>%
-        select('Session', !!sym(by)) %>%
-        distinct(),
-      by = 'Session'
-    )
+  # Check if some `by` variable is not in the tibble, then add zeros
+  occupancy_vars_to_add <- setdiff(occupancy_vars, colnames(n_connections))
+  if (length(occupancy_vars_to_add) > 0) {
+    n_connections[occupancy_vars_to_add] <- 0
+  }
 
-  # Calculate the number of EV connections by time slot and variable `by`
-  n_connections <- sessions_expanded %>%
-    group_by(!!sym(by), datetime = .data$Timeslot) %>%
-    summarise(n_connections = n()) %>%
-    arrange(factor(!!sym(by), levels = unique(sessions[[by]]))) %>%
-    pivot_wider(names_from = !!sym(by), values_from = 'n_connections', values_fill = 0) %>%
-    right_join(
-      tibble(datetime = dttm_seq),
-      by = 'datetime'
-    ) %>%
-    arrange(.data$datetime)
+  # Fill gaps
+  n_connections <- replace(n_connections, is.na(n_connections), 0)
 
-  return( replace(n_connections, is.na(n_connections), 0) )
+  return( n_connections )
 }
 
 

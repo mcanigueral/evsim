@@ -3,22 +3,24 @@ library(evsim)
 library(dplyr)
 library(lubridate)
 
+
 # Get the example `evmodel` and `sessions` included in the package
-sessions <- evsim::california_ev_sessions %>%
-  filter(year(ConnectionStartDateTime) == 2018, month(ConnectionStartDateTime) == 10)
+resolution <- 15
+sessions <- evsim::california_ev_sessions_profiles %>%
+  filter(year(ConnectionStartDateTime) == 2018, month(ConnectionStartDateTime) == 10) %>%
+  adapt_charging_features(time_resolution = resolution)
 
 
 test_that("the number of connections is calculated properly by Session", {
   n_connections <- sessions %>%
-    get_occupancy(by = "Session", resolution = 15)
-  expect_true(any(names(n_connections) %in% sessions$Session))
+    get_occupancy(by = "Session", resolution = resolution)
+  expect_true(all(sessions$Session %in% names(n_connections)))
 })
 
 test_that("the number of connections is calculated properly by Profile", {
   n_connections <- sessions %>%
-    mutate(Profile = "All") %>%
-    get_occupancy(by = "Profile", resolution = 15)
-  expect_true("All" %in% names(n_connections))
+    get_occupancy(by = "Profile", resolution = resolution)
+  expect_true(all(unique(sessions$Profile) %in% names(n_connections)))
 })
 
 test_that("the number of connections is calculated properly with custom datetime sequence", {
@@ -28,15 +30,26 @@ test_that("the number of connections is calculated properly with custom datetime
     by = "15 mins"
   )
   n_connections <- sessions %>%
-    mutate(Profile = "All") %>%
-    get_occupancy(by = "Profile", resolution = 15, dttm_seq = dttm_seq)
+    get_occupancy(by = "Profile", resolution = resolution, dttm_seq = dttm_seq)
   expect_true(nrow(n_connections) == length(dttm_seq))
 })
 
 test_that("the number of connections calculation is skipped if there are no sessions nor datetime sequence", {
+  expect_error(
+    sessions %>%
+      mutate(Profile = "All") %>%
+      filter(Profile == "all") %>%
+      get_occupancy(by = "Profile", resolution = resolution, dttm_seq = NULL)
+  )
+})
+
+test_that("zeros are returned when no sessions are connected in datetime_seq", {
   n_connections <- sessions %>%
     mutate(Profile = "All") %>%
-    filter(Profile == "all") %>%
-    get_occupancy(by = "Profile", resolution = 15, dttm_seq = NULL)
-  expect_true(is.null(n_connections))
+    get_occupancy(by = "Profile", resolution = resolution, dttm_seq = NULL)
+  dttm_seq_2 <- n_connections$datetime + years(1)
+  n_connections2 <- sessions %>%
+    mutate(Profile = "All") %>%
+    get_occupancy(by = "Profile", resolution = resolution, dttm_seq = dttm_seq_2)
+  expect_equal(sum(n_connections2$All), 0)
 })
