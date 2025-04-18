@@ -212,7 +212,7 @@ expand_session <- function(session, resolution) {
 #'   by = "Session",
 #'   resolution = 60
 #' )
-#' demand %>% plot_ts(ylab = "EV demand (kW)")
+#' demand %>% plot_ts(ylab = "EV demand (kW)", legend_show = "onmouseover")
 #'
 #' # Get demand with a custom datetime sequence and resolution of 15 minutes
 #' sessions <- head(evsim::california_ev_sessions_profiles, 100)
@@ -227,7 +227,7 @@ expand_session <- function(session, resolution) {
 #'   by = "Profile",
 #'   resolution = 15
 #' )
-#' demand %>% plot_ts(ylab = "EV demand (kW)")
+#' demand %>% plot_ts(ylab = "EV demand (kW)", legend_show = "onmouseover")
 #'
 get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 15, mc.cores = 1) {
 
