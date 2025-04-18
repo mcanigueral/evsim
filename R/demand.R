@@ -185,9 +185,9 @@ expand_session <- function(session, resolution) {
 #' @return time-series tibble with first column of type `datetime`
 #' @export
 #'
-#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct filter between
+#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct filter between row_number
 #' @importFrom rlang .data
-#' @importFrom tidyr pivot_wider
+#' @importFrom tidyr pivot_wider separate_wider_delim
 #' @importFrom lubridate floor_date days month
 #' @importFrom parallel detectCores mclapply
 #' @importFrom purrr list_rbind
@@ -269,9 +269,12 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 
   } else {
 
-    # Remove sessions that are not consuming in certain time slots
+
+    # Change Session identifier to take into account also the row number
+    # This is necessary due to the expanded sessions' schedule from smart charging
     sessions <- sessions %>%
-      filter(.data$Power > 0)
+      mutate(Session = paste(.data$Session, row_number(), sep = "-")) %>%
+      filter(.data$Power > 0) # Remove sessions that are not consuming in certain time slots
 
     # Align time variables to current time resolution
     if (!is_aligned(sessions, resolution)) {
@@ -320,7 +323,8 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
           select('Session', !!sym(by)) %>%
           distinct(),
         by = 'Session'
-      )
+      ) %>%
+      separate_wider_delim("Session", delim = "-", names = c("Session", NA))
 
     # Calculate power demand by time slot and variable `by`
     demand <- sessions_expanded %>%
@@ -366,9 +370,9 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
 #' @return time-series tibble with first column of type `datetime`
 #' @export
 #'
-#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct filter between
+#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct filter between row_number
 #' @importFrom rlang .data
-#' @importFrom tidyr pivot_wider
+#' @importFrom tidyr pivot_wider separate_wider_delim
 #' @importFrom lubridate floor_date days round_date month
 #' @importFrom parallel detectCores mclapply
 #' @importFrom purrr list_rbind
@@ -449,6 +453,11 @@ get_occupancy <- function(sessions, dttm_seq = NULL, by = "Profile", resolution 
 
   } else {
 
+    # Change Session identifier to take into account also the row number
+    # This is necessary due to the expanded sessions' schedule from smart charging
+    sessions <- sessions %>%
+      mutate(Session = paste(.data$Session, row_number(), sep = "-"))
+
     # Align time variables to current time resolution
     if (!is_aligned(sessions, resolution)) {
       message(paste0("Warning: charging sessions are aligned to ", resolution, "-minute resolution."))
@@ -496,7 +505,8 @@ get_occupancy <- function(sessions, dttm_seq = NULL, by = "Profile", resolution 
           select('Session', !!sym(by)) %>%
           distinct(),
         by = 'Session'
-      )
+      ) %>%
+      separate_wider_delim("Session", delim = "-", names = c("Session", NA))
 
     # Calculate the number of EV connections by time slot and variable `by`
     n_connections <- sessions_expanded %>%
