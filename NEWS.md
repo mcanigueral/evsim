@@ -1,6 +1,8 @@
 # evsim 1.6.1
 
-* Solve bug in `ConnectionHours` calculation.
+* Bug fix in `ConnectionHours` calculation
+* Bug fix in `get_demand()` and `get_occupancy()` functions
+* Bug fix in `adapt_charging_features()` function: need to convert timezone to UTC to avoid NA in summer time shift
 
 
 # evsim 1.6.0
