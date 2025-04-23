@@ -42,15 +42,14 @@ If you have your own data set of EV charging sessions or you have already built 
 
 ## Installation
 
-You can install the package from CRAN or the development version from GitHub:
+You can install the package from CRAN or the latest development version from GitHub:
 
 ```{r, eval = FALSE}
 # CRAN stable release
 install.packages("evsim")
 
-# Latest development version
-# install.packages("devtools")
-devtools::install_github("resourcefully-dev/evsim")
+# install.packages("pak")
+pak::pak("resourcefully-dev/evsim")
 ```
 
 
@@ -66,7 +65,7 @@ For further technical details, you can read the following academic articles abou
 * **Flexibility management of electric vehicles based on user profiles: The Arnhem case study**. International Journal of Electrical Power and Energy Systems, vol. 133. Elsevier BV, p. 107195, Dec. 2021. [DOI link](https://doi.org/10.1016/j.ijepes.2021.107195).
 * **Electric vehicle user profiles for aggregated flexibility planning**. IEEE PES Innovative Smart Grid Technologies Europe (ISGT Europe). IEEE, Oct. 18, 2021. [DOI link](https://doi.org/10.1109/isgteurope52324.2021.9639931).
 
+
 ## Acknowledgements
 
-This work has been developed under a PhD program in the [eXiT](https://exit.udg.edu) research group from the University of Girona (Catalonia) in collaboration with [Resourcefully](https://resourcefully.nl/), an energy transition consulting company based in Amsterdam, The Netherlands.
-
+This work started under a PhD program in the the University of Girona in collaboration with [Resourcefully](https://resourcefully.nl/), the energy transition consulting company that currently supports the development and maintenance.

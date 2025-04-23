@@ -185,7 +185,7 @@ expand_session <- function(session, resolution) {
 #' @return time-series tibble with first column of type `datetime`
 #' @export
 #'
-#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct filter between row_number
+#' @importFrom dplyr tibble sym select_if group_by summarise arrange right_join distinct filter between row_number rowwise ungroup select
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider separate_wider_delim
 #' @importFrom lubridate floor_date days month
@@ -257,10 +257,17 @@ get_demand <- function(sessions, dttm_seq = NULL, by = "Profile", resolution = 1
     )
   } else {
     resolution <- as.numeric(dttm_seq[2] - dttm_seq[1], units = 'mins')
+    # Filter only sessions that are charging during the datetime sequence
     sessions <- sessions %>%
-      filter(
-        between(.data$ChargingStartDateTime, dttm_seq[1], dttm_seq[length(dttm_seq)])
-      )
+      rowwise() %>% # Make sure it is done by row
+      mutate(
+        isCharging = any(
+          dttm_seq >= .data$ChargingStartDateTime & dttm_seq <= .data$ChargingEndDateTime
+        )
+      ) %>%
+      ungroup() %>% # Remove the rowwise groups
+      filter(.data$isCharging) %>%
+      select(- "isCharging")
   }
 
   if (nrow(sessions) == 0) {

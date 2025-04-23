@@ -42,16 +42,15 @@ in the package website.
 
 ## Installation
 
-You can install the package from CRAN or the development version from
-GitHub:
+You can install the package from CRAN or the latest development version
+from GitHub:
 
 ``` r
 # CRAN stable release
 install.packages("evsim")
 
-# Latest development version
-# install.packages("devtools")
-devtools::install_github("resourcefully-dev/evsim")
+# install.packages("pak")
+pak::pak("resourcefully-dev/evsim")
 ```
 
 ## Getting help
@@ -88,8 +87,7 @@ articles about the methodology used in this paper:
 
 ## Acknowledgements
 
-This work has been developed under a PhD program in the
-[eXiT](https://exit.udg.edu) research group from the University of
-Girona (Catalonia) in collaboration with
-[Resourcefully](https://resourcefully.nl/), an energy transition
-consulting company based in Amsterdam, The Netherlands.
+This work started under a PhD program in the the University of Girona in
+collaboration with [Resourcefully](https://resourcefully.nl/), the
+energy transition consulting company that currently supports the
+development and maintenance.
